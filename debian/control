@@ -42,7 +42,7 @@ Description: LSP (Linux Studio Plugins) audio-plugins package
  Available as LV2, LADSPA and jack-standalone.
 
 Package: lsp-plugins-jack
-Architecture: i386 amd64 armhf arm64
+Architecture: i386 amd64 armhf arm64 ppc64el s390x
 Depends:
  ${misc:Depends},
  ${shlibs:Depends}
@@ -50,7 +50,7 @@ Description: LSP (Linux Studio Plugins) JACK plugins
  LSP (Linux Studio Plugins) JACK plugins
 
 Package: lsp-plugins-ladspa
-Architecture: i386 amd64 armhf arm64
+Architecture: i386 amd64 armhf arm64 ppc64el s390x
 Depends:
  ${misc:Depends},
  ${shlibs:Depends}
@@ -58,7 +58,7 @@ Description: LSP (Linux Studio Plugins) LADSPA plugins
  LSP (Linux Studio Plugins) LADSPA plugins
 
 Package: lsp-plugins-lv2
-Architecture: i386 amd64 armhf arm64
+Architecture: i386 amd64 armhf arm64 ppc64el s390x
 Depends:
  ${misc:Depends},
  ${shlibs:Depends}
@@ -66,7 +66,7 @@ Description: LSP (Linux Studio Plugins) LV2 plugins
  LSP (Linux Studio Plugins) LV2 plugins
 
 Package: lsp-plugins-vst
-Architecture: i386 amd64 armhf arm64
+Architecture: i386 amd64 armhf arm64 ppc64el s390x
 Depends:
  ${misc:Depends},
  ${shlibs:Depends}

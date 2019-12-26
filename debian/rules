@@ -9,6 +9,12 @@ else ifeq ($(DEB_HOST_ARCH_CPU),$(filter $(DEB_HOST_ARCH_CPU),armhf))
 	export BUILD_PROFILE=armv7a
 else ifeq ($(DEB_HOST_ARCH_CPU),$(filter $(DEB_HOST_ARCH_CPU),arm64))
 	export BUILD_PROFILE=aarch64
+else ifeq ($(DEB_HOST_ARCH_CPU),$(filter $(DEB_HOST_ARCH_CPU),ppc64el))
+	export BUILD_PROFILE=ppc64
+else ifeq ($(DEB_HOST_ARCH_CPU),$(filter $(DEB_HOST_ARCH_CPU),ppc64le))
+	export BUILD_PROFILE=ppc64
+else ifeq ($(DEB_HOST_ARCH_CPU),$(filter $(DEB_HOST_ARCH_CPU),s390x))
+	export BUILD_PROFILE=s390x
 endif
 
 export PREFIX=/usr
