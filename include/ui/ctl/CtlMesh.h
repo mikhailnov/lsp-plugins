@@ -15,13 +15,16 @@ namespace lsp
         
         class CtlMesh: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlPort        *pPort;
                 float           fTransparency;
                 CtlColor        sColor;
 
             public:
-                CtlMesh(CtlRegistry *src, LSPMesh *mesh);
+                explicit CtlMesh(CtlRegistry *src, LSPMesh *mesh);
                 virtual ~CtlMesh();
 
             public:

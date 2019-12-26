@@ -15,11 +15,14 @@ namespace lsp
         
         class CtlCenter: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlColor        sColor;
 
             public:
-                CtlCenter(CtlRegistry *src, LSPCenter *cnt);
+                explicit CtlCenter(CtlRegistry *src, LSPCenter *cnt);
                 virtual ~CtlCenter();
 
             public:

@@ -89,6 +89,7 @@ namespace lsp
                         case R_UI_SYNC:
                         case R_MIDI:
                         case R_PATH:
+                        case R_OSC:
                         default:
                             pPlugin->add_port(new LADSPAPort(port));
                             lsp_trace("added as stub port");
@@ -172,11 +173,12 @@ namespace lsp
 //                lsp_trace("frame = %ld, tick = %f", long(sPosition.frame), float(sPosition.tick));
 
                 // Process external ports for changes
-                size_t n_ports  = vPorts.size();
+                size_t n_ports          = vPorts.size();
+                LADSPAPort **v_ports    = vPorts.get_array();
                 for (size_t i=0; i<n_ports; ++i)
                 {
                     // Get port
-                    LADSPAPort *port = vPorts.at(i);
+                    LADSPAPort *port = v_ports[i];
                     if (port == NULL)
                         continue;
 
@@ -202,7 +204,7 @@ namespace lsp
                 // Process external ports for changes
                 for (size_t i=0; i<n_ports; ++i)
                 {
-                    LADSPAPort *port = vPorts.at(i);
+                    LADSPAPort *port = v_ports[i];
                     if (port != NULL)
                         port->post_process(samples);
                 }

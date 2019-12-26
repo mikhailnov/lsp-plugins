@@ -10,292 +10,145 @@
 
 #include <dsp/dsp.h>
 
-inline uint32_t reverse_bits(uint32_t src)
+#ifdef ARCH_ARM7
+    #include <dsp/arch/arm/armv7/bits.h>
+#else
+    #include <dsp/arch/arm/armv6/bits.h>
+#endif
+
+inline int __lsp_forced_inline     int_log2(uint8_t v)
 {
-    uint32_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rbit    %[res], %[src]")
-        : [res] "=r" (res)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline uint32_t reverse_bits(uint32_t src, size_t count)
-{
-    uint32_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rsb     %[count], %[count], $32")
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], %[count]")
-        : [res] "=r" (res), [count] "+r" (count)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline int32_t reverse_bits(int32_t src)
-{
-    int32_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rbit    %[res], %[src]")
-        : [res] "=r" (res)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline int32_t reverse_bits(int32_t src, size_t count)
-{
-    int32_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rsb     %[count], %[count], $32")
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], %[count]")
-        : [res] "=r" (res), [count] "+r" (count)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline uint16_t reverse_bits(uint16_t src)
-{
-    uint16_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], $16")
-        : [res] "=r" (res)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline uint16_t reverse_bits(uint16_t src, size_t count)
-{
-    uint16_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rsb     %[count], %[count], $32")
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], %[count]")
-        : [res] "=r" (res), [count] "+r" (count)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline int16_t reverse_bits(int16_t src)
-{
-    int16_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], $16")
-        : [res] "=r" (res)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline int16_t reverse_bits(int16_t src, size_t count)
-{
-    int16_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rsb     %[count], %[count], $32")
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], %[count]")
-        : [res] "=r" (res), [count] "+r" (count)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline uint8_t reverse_bits(uint8_t src)
-{
-    uint8_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], $24")
-        : [res] "=r" (res)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline uint8_t reverse_bits(uint8_t src, size_t count)
-{
-    uint8_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rsb     %[count], %[count], $32")
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], %[count]")
-        : [res] "=r" (res), [count] "+r" (count)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline int8_t reverse_bits(int8_t src)
-{
-    int8_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], $24")
-        : [res] "=r" (res)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline int8_t reverse_bits(int8_t src, size_t count)
-{
-    int8_t res;
-
-    ARCH_ARM_ASM (
-        __ASM_EMIT("rsb     %[count], %[count], $32")
-        __ASM_EMIT("rbit    %[res], %[src]")
-        __ASM_EMIT("lsr     %[res], %[count]")
-        : [res] "=r" (res), [count] "+r" (count)
-        : [src] "r" (src)
-        :
-    );
-
-    return res;
-}
-
-inline uint64_t reverse_bits(uint64_t v)
-{
-    uint32_t lo = uint32_t(v);
-    uint32_t hi = uint32_t(v >> 32);
-
+    int res = v;
     ARCH_ARM_ASM
     (
-        __ASM_EMIT("rbit            %[lo], %[lo]")
-        __ASM_EMIT("rbit            %[hi], %[hi]")
-        : [lo] "+r" (lo), [hi] "+r" (hi)
-        : :
+        __ASM_EMIT("tst             %[res], %[res]")
+        __ASM_EMIT("clzne           %[res], %[res]")
+        __ASM_EMIT("rsbne           %[res], %[res], $31")
+        : [res] "+r" (res)
+        : : "cc"
     );
-
-    return hi | (uint64_t(lo) << 32);
+    return res;
 }
 
-inline int64_t reverse_bits(int64_t v)
+inline int __lsp_forced_inline     int_log2(int8_t v)
 {
-    uint32_t lo = uint32_t(v);
-    uint32_t hi = uint32_t(v >> 32);
-
+    int res = uint8_t(v);
     ARCH_ARM_ASM
     (
-        __ASM_EMIT("rbit            %[lo], %[lo]")
-        __ASM_EMIT("rbit            %[hi], %[hi]")
-        : [lo] "+r" (lo), [hi] "+r" (hi)
-        : :
+        __ASM_EMIT("tst             %[res], %[res]")
+        __ASM_EMIT("clzne           %[res], %[res]")
+        __ASM_EMIT("rsbne           %[res], %[res], $31")
+        : [res] "+r" (res)
+        : : "cc"
     );
-
-    return hi | (int64_t(lo) << 32);
+    return res;
 }
 
-inline uint64_t reverse_bits(uint64_t v, size_t count)
+inline int __lsp_forced_inline     int_log2(uint16_t v)
 {
-    uint32_t lo = uint32_t(v);
-    uint32_t hi = uint32_t(v >> 32);
-    uint32_t tmp;
-
+    int res = v;
     ARCH_ARM_ASM
     (
-        __ASM_EMIT("rsb             %[count], %[count], $64")
-        __ASM_EMIT("rbit            %[lo], %[lo]")
-        __ASM_EMIT("rbit            %[hi], %[hi]")                  // [ lo, hi ]
-        __ASM_EMIT("cmp             %[count], $32")
-        __ASM_EMIT("blo             2f")
+        __ASM_EMIT("tst             %[res], %[res]")
+        __ASM_EMIT("clzne           %[res], %[res]")
+        __ASM_EMIT("rsbne           %[res], %[res], $31")
+        : [res] "+r" (res)
+        : : "cc"
+    );
+    return res;
+}
 
-        __ASM_EMIT("mov             %[hi], %[lo]")                  // [ lo, lo ]
-        __ASM_EMIT("sub             %[count], $32")
-        __ASM_EMIT("eor             %[lo], %[lo]")                  // [ 0, lo ]
-        __ASM_EMIT("lsr             %[hi], %[count]")               // [ 0, lo >> count ]
+inline int __lsp_forced_inline     int_log2(int16_t v)
+{
+    int res = uint16_t(v);
+    ARCH_ARM_ASM
+    (
+        __ASM_EMIT("tst             %[res], %[res]")
+        __ASM_EMIT("clzne           %[res], %[res]")
+        __ASM_EMIT("rsbne           %[res], %[res], $31")
+        : [res] "+r" (res)
+        : : "cc"
+    );
+    return res;
+}
+
+inline int __lsp_forced_inline     int_log2(uint32_t v)
+{
+    int res = int(v);
+    ARCH_ARM_ASM
+    (
+        __ASM_EMIT("tst             %[res], %[res]")
+        __ASM_EMIT("clzne           %[res], %[res]")
+        __ASM_EMIT("rsbne           %[res], %[res], $31")
+        : [res] "+r" (res)
+        : : "cc"
+    );
+    return res;
+}
+
+inline int __lsp_forced_inline     int_log2(int32_t v)
+{
+    int res = int(v);
+    ARCH_ARM_ASM
+    (
+        __ASM_EMIT("tst             %[res], %[res]")
+        __ASM_EMIT("clzne           %[res], %[res]")
+        __ASM_EMIT("rsbne           %[res], %[res], $31")
+        : [res] "+r" (res)
+        : : "cc"
+    );
+    return res;
+}
+
+inline int __lsp_forced_inline     int_log2(uint64_t v)
+{
+    int hi = int(v >> 32);
+    int lo = int(v & 0xffffffff);
+    ARCH_ARM_ASM
+    (
+        __ASM_EMIT("tst             %[hi], %[hi]")
+        __ASM_EMIT("beq             2f")
+        __ASM_EMIT("clzne           %[lo], %[hi]")
+        __ASM_EMIT("rsbne           %[lo], %[lo], $63")
         __ASM_EMIT("b               4f")
 
         __ASM_EMIT("2:")
-        __ASM_EMIT("rsb             %[tmp], %[count], $32")         // tmp = (32 - count)
-        __ASM_EMIT("lsr             %[hi], %[count]")               // [ lo, hi >> count ]
-        __ASM_EMIT("lsl             %[tmp], %[lo], %[tmp]")         // tmp = lo << (32 - count)
-        __ASM_EMIT("lsr             %[lo], %[count]")               // lo >> (32 - count)
-        __ASM_EMIT("orr             %[hi], %[tmp]")                 // [ lo >> count, (hi >> count) | (lo << (32 - count)) ]
+        __ASM_EMIT("tst             %[lo], %[lo]")
+        __ASM_EMIT("clzne           %[lo], %[lo]")
+        __ASM_EMIT("rsbne           %[lo], %[lo], $31")
 
         __ASM_EMIT("4:")
-        : [lo] "+r" (lo), [hi] "+r" (hi), [tmp] "=&r" (tmp),
-          [count] "+r" (count)
-        : :
+        : [lo] "+r" (lo)
+        : [hi] "r" (hi)
+        : "cc"
     );
-
-    return hi | (uint64_t(lo) << 32);
+    return lo;
 }
 
-inline int64_t reverse_bits(int64_t v, size_t count)
+inline int __lsp_forced_inline     int_log2(int64_t v)
 {
-    uint32_t lo = uint32_t(v);
-    uint32_t hi = uint32_t(v >> 32);
-    uint32_t tmp;
-
+    int hi = int(uint64_t(v) >> 32);
+    int lo = int(v & 0xffffffff);
     ARCH_ARM_ASM
     (
-        __ASM_EMIT("rsb             %[count], %[count], $64")
-        __ASM_EMIT("rbit            %[lo], %[lo]")
-        __ASM_EMIT("rbit            %[hi], %[hi]")                  // [ lo, hi ]
-        __ASM_EMIT("cmp             %[count], $32")
-        __ASM_EMIT("blo             2f")
-
-        __ASM_EMIT("mov             %[hi], %[lo]")                  // [ lo, lo ]
-        __ASM_EMIT("sub             %[count], $32")
-        __ASM_EMIT("eor             %[lo], %[lo]")                  // [ 0, lo ]
-        __ASM_EMIT("lsr             %[hi], %[count]")               // [ 0, lo >> count ]
+        __ASM_EMIT("tst             %[hi], %[hi]")
+        __ASM_EMIT("beq             2f")
+        __ASM_EMIT("clzne           %[lo], %[hi]")
+        __ASM_EMIT("rsbne           %[lo], %[lo], $63")
         __ASM_EMIT("b               4f")
 
         __ASM_EMIT("2:")
-        __ASM_EMIT("rsb             %[tmp], %[count], $32")         // tmp = (32 - count)
-        __ASM_EMIT("lsr             %[hi], %[count]")               // [ lo, hi >> count ]
-        __ASM_EMIT("lsl             %[tmp], %[lo], %[tmp]")         // tmp = lo << (32 - count)
-        __ASM_EMIT("lsr             %[lo], %[count]")               // lo >> (32 - count)
-        __ASM_EMIT("orr             %[hi], %[tmp]")                 // [ lo >> count, (hi >> count) | (lo << (32 - count)) ]
+        __ASM_EMIT("tst             %[lo], %[lo]")
+        __ASM_EMIT("clzne           %[lo], %[lo]")
+        __ASM_EMIT("rsbne           %[lo], %[lo], $31")
 
         __ASM_EMIT("4:")
-        : [lo] "+r" (lo), [hi] "+r" (hi), [tmp] "=&r" (tmp),
-          [count] "+r" (count)
-        : :
+        : [lo] "+r" (lo)
+        : [hi] "r" (hi)
+        : "cc"
     );
-
-    return hi | (int64_t(lo) << 32);
+    return lo;
 }
+
 
 #endif /* DSP_ARCH_ARM_BITS_H_ */

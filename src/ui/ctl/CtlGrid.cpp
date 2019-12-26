@@ -11,8 +11,11 @@ namespace lsp
 {
     namespace ctl
     {
+        const ctl_class_t CtlGrid::metadata = { "CtlGrid", &CtlWidget::metadata };
+
         CtlGrid::CtlGrid(CtlRegistry *src, LSPGrid *widget, ssize_t orientation): CtlWidget(src, widget)
         {
+            pClass          = &metadata;
             nOrientation    = orientation;
         }
 
@@ -22,7 +25,7 @@ namespace lsp
 
         void CtlGrid::set(widget_attribute_t att, const char *value)
         {
-            LSPGrid *grid   = (pWidget != NULL) ? static_cast<LSPGrid *>(pWidget) : NULL;
+            LSPGrid *grid       = widget_cast<LSPGrid>(pWidget);
 
             switch (att)
             {
@@ -34,17 +37,17 @@ namespace lsp
                     if (grid != NULL)
                         PARSE_INT(value, grid->set_columns(__));
                     break;
-//                case A_BORDER:
-//                    PARSE_INT(value, grid->set_border(__));
-//                    break;
                 case A_VSPACING:
-                    PARSE_INT(value, grid->set_vspacing(__));
+                    if (grid != NULL)
+                        PARSE_INT(value, grid->set_vspacing(__));
                     break;
                 case A_HSPACING:
-                    PARSE_INT(value, grid->set_hspacing(__));
+                    if (grid != NULL)
+                        PARSE_INT(value, grid->set_hspacing(__));
                     break;
                 case A_SPACING:
-                    PARSE_INT(value, grid->set_spacing(__, __));
+                    if (grid != NULL)
+                        PARSE_INT(value, grid->set_spacing(__, __));
                     break;
                 case A_HORIZONTAL:
                     if ((grid != NULL) && (nOrientation < 0))
@@ -61,13 +64,16 @@ namespace lsp
             }
         }
 
-        status_t CtlGrid::add(LSPWidget *child)
+        status_t CtlGrid::add(CtlWidget *child)
         {
-            if (pWidget == NULL)
+            LSPGrid *grid       = widget_cast<LSPGrid>(pWidget);
+            if (grid == NULL)
                 return STATUS_BAD_STATE;
 
-            LSPGrid *grid       = static_cast<LSPGrid *>(pWidget);
-            return grid->add(child);
+            CtlCell *cell       = ctl_cast<CtlCell>(child);
+            return (cell != NULL) ?
+                    grid->add(cell->widget(), cell->rows(), cell->columns()) :
+                    grid->add(child->widget());
         }
     } /* namespace ctl */
 } /* namespace lsp */

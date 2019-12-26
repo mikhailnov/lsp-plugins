@@ -25,6 +25,18 @@
 #include <dsp/arch/native/graphics/interpolation.h>
 
 #include <dsp/arch/native/pmath.h>
+#include <dsp/arch/native/pmath/op_kx.h>
+#include <dsp/arch/native/pmath/op_vv.h>
+#include <dsp/arch/native/pmath/fmop_kx.h>
+#include <dsp/arch/native/pmath/fmop_vv.h>
+#include <dsp/arch/native/pmath/abs_vv.h>
+#include <dsp/arch/native/pmath/exp.h>
+#include <dsp/arch/native/pmath/log.h>
+#include <dsp/arch/native/pmath/pow.h>
+
+#include <dsp/arch/native/hmath/hsum.h>
+#include <dsp/arch/native/hmath/hdotp.h>
+
 #include <dsp/arch/native/search.h>
 
 #include <dsp/arch/native/filters/static.h>
@@ -37,9 +49,10 @@
 #include <dsp/arch/native/resampling.h>
 #include <dsp/arch/native/msmatrix.h>
 #include <dsp/arch/native/smath.h>
-#include <dsp/arch/native/hmath.h>
 #include <dsp/arch/native/mix.h>
 #include <dsp/arch/native/3dmath.h>
+
+#include <dsp/arch/native/coding.h>
 
 #undef __DSP_NATIVE_IMPL
 
@@ -73,15 +86,20 @@ namespace native
 
         EXPORT1(abs1);
         EXPORT1(abs2);
+
         EXPORT1(abs_add2);
         EXPORT1(abs_sub2);
+        EXPORT1(abs_rsub2);
         EXPORT1(abs_mul2);
         EXPORT1(abs_div2);
+        EXPORT1(abs_rdiv2);
 
         EXPORT1(abs_add3);
         EXPORT1(abs_sub3);
+        EXPORT1(abs_rsub3);
         EXPORT1(abs_mul3);
         EXPORT1(abs_div3);
+        EXPORT1(abs_rdiv3);
 
         EXPORT1(exp1);
         EXPORT1(exp2);
@@ -115,31 +133,66 @@ namespace native
         EXPORT1(abs_min_index);
         EXPORT1(abs_minmax_index);
 
+        EXPORT1(add_k2);
+        EXPORT1(sub_k2);
+        EXPORT1(rsub_k2);
+        EXPORT1(mul_k2);
+        EXPORT1(div_k2);
+        EXPORT1(rdiv_k2);
+
+        EXPORT1(add_k3);
+        EXPORT1(sub_k3);
+        EXPORT1(rsub_k3);
+        EXPORT1(mul_k3);
+        EXPORT1(div_k3);
+        EXPORT1(rdiv_k3);
+
         EXPORT1(add2);
         EXPORT1(sub2);
+        EXPORT1(rsub2);
         EXPORT1(mul2);
         EXPORT1(div2);
-        EXPORT1(scale2);
+        EXPORT1(rdiv2);
+
         EXPORT1(add3);
         EXPORT1(sub3);
         EXPORT1(mul3);
         EXPORT1(div3);
-        EXPORT1(scale3);
 
         EXPORT1(h_sum);
         EXPORT1(h_sqr_sum);
         EXPORT1(h_abs_sum);
-        EXPORT1(scalar_mul);
+        EXPORT1(h_dotp);
+        EXPORT1(h_sqr_dotp);
+        EXPORT1(h_abs_dotp);
 
-        EXPORT1(scale_add3);
-        EXPORT1(scale_sub3);
-        EXPORT1(scale_mul3);
-        EXPORT1(scale_div3);
+        EXPORT1(fmadd_k3);
+        EXPORT1(fmsub_k3);
+        EXPORT1(fmrsub_k3);
+        EXPORT1(fmmul_k3);
+        EXPORT1(fmdiv_k3);
+        EXPORT1(fmrdiv_k3);
 
-        EXPORT1(scale_add4);
-        EXPORT1(scale_sub4);
-        EXPORT1(scale_mul4);
-        EXPORT1(scale_div4);
+        EXPORT1(fmadd_k4);
+        EXPORT1(fmsub_k4);
+        EXPORT1(fmrsub_k4);
+        EXPORT1(fmmul_k4);
+        EXPORT1(fmdiv_k4);
+        EXPORT1(fmrdiv_k4);
+
+        EXPORT1(fmadd3);
+        EXPORT1(fmsub3);
+        EXPORT1(fmrsub3);
+        EXPORT1(fmmul3);
+        EXPORT1(fmdiv3);
+        EXPORT1(fmrdiv3);
+
+        EXPORT1(fmadd4);
+        EXPORT1(fmsub4);
+        EXPORT1(fmrsub4);
+        EXPORT1(fmmul4);
+        EXPORT1(fmdiv4);
+        EXPORT1(fmrdiv4);
 
         EXPORT1(mix2);
         EXPORT1(mix_copy2);
@@ -179,6 +232,7 @@ namespace native
         EXPORT1(complex_cvt2modarg);
         EXPORT1(complex_cvt2reim);
         EXPORT1(complex_mod);
+        EXPORT1(complex_arg);
 
         EXPORT1(pcomplex_mul2);
         EXPORT1(pcomplex_mul3);
@@ -192,6 +246,8 @@ namespace native
         EXPORT1(pcomplex_c2r);
         EXPORT1(pcomplex_add_r);
         EXPORT1(pcomplex_mod);
+        EXPORT1(pcomplex_arg);
+        EXPORT1(pcomplex_modarg);
 
         EXPORT1(pcomplex_c2r_add2);
         EXPORT1(pcomplex_c2r_sub2);
@@ -231,6 +287,9 @@ namespace native
         EXPORT1(axis_apply_log1);
         EXPORT1(axis_apply_log2);
         EXPORT1(rgba32_to_bgra32);
+        EXPORT1(abgr32_to_bgra32);
+        EXPORT1(abgr32_to_bgrff32);
+        EXPORT1(rgba32_to_bgra32_ra);
         EXPORT1(fill_rgba);
         EXPORT1(fill_hsla);
         EXPORT1(rgba_to_hsla);
@@ -274,8 +333,16 @@ namespace native
         EXPORT1(init_vector_p2);
         EXPORT1(init_vector_pv);
         EXPORT1(normalize_vector);
+        EXPORT1(normalize_vector2);
+        EXPORT1(flip_vector_v1);
+        EXPORT1(flip_vector_v2);
         EXPORT1(scale_vector1);
         EXPORT1(scale_vector2);
+
+        EXPORT1(add_vector_pv1);
+        EXPORT1(add_vector_pv2);
+        EXPORT1(add_vector_pvk1);
+        EXPORT1(add_vector_pvk2);
 
         EXPORT1(vector_mul_v2);
         EXPORT1(vector_mul_vv);
@@ -293,11 +360,19 @@ namespace native
         EXPORT1(init_matrix3d_one);
         EXPORT1(init_matrix3d_identity);
         EXPORT1(init_matrix3d_translate);
+        EXPORT1(init_matrix3d_translate_p1);
+        EXPORT1(init_matrix3d_translate_v1);
         EXPORT1(init_matrix3d_scale);
         EXPORT1(init_matrix3d_rotate_x);
         EXPORT1(init_matrix3d_rotate_y);
         EXPORT1(init_matrix3d_rotate_z);
         EXPORT1(init_matrix3d_rotate_xyz);
+        EXPORT1(init_matrix3d_frustum);
+        EXPORT1(init_matrix3d_lookat_p1v2);
+        EXPORT1(init_matrix3d_lookat_p2v1);
+        EXPORT1(init_matrix3d_orientation);
+        EXPORT1(calc_matrix3d_transform_r1);
+        EXPORT1(calc_matrix3d_transform_p1v1);
         EXPORT1(apply_matrix3d_mv2);
         EXPORT1(apply_matrix3d_mv1);
         EXPORT1(apply_matrix3d_mp2);
@@ -330,11 +405,6 @@ namespace native
         EXPORT1(calc_triangle3d_pv);
         EXPORT1(calc_triangle3d);
 
-        EXPORT1(init_intersection3d);
-        EXPORT1(init_raytrace3d);
-        EXPORT1(init_raytrace3d_r);
-        EXPORT1(init_raytrace3d_ix);
-
         EXPORT1(check_triplet3d_p3n);
         EXPORT1(check_triplet3d_pvn);
         EXPORT1(check_triplet3d_v2n);
@@ -343,22 +413,12 @@ namespace native
         EXPORT1(check_triplet3d_t);
         EXPORT1(check_triplet3d_tn);
 
-//            EXPORT1(check_point3d_location_tp);
-//            EXPORT1(check_point3d_location_pvp);
-//            EXPORT1(check_point3d_location_p3p);
-
         EXPORT1(check_point3d_on_triangle_p3p);
         EXPORT1(check_point3d_on_triangle_pvp);
         EXPORT1(check_point3d_on_triangle_tp);
 
-        EXPORT1(check_point3d_on_edge_p2p);
-        EXPORT1(check_point3d_on_edge_pvp);
-
         EXPORT1(longest_edge3d_p3);
         EXPORT1(longest_edge3d_pv);
-        EXPORT1(find_intersection3d_rt);
-
-        EXPORT1(reflect_ray);
 
         EXPORT1(calc_angle3d_v2);
         EXPORT1(calc_angle3d_vv);
@@ -371,14 +431,50 @@ namespace native
         EXPORT1(move_point3d_p2);
         EXPORT1(move_point3d_pv);
 
-        EXPORT1(init_octant3d_v);
-        EXPORT1(check_octant3d_rv);
+        EXPORT1(calc_bound_box);
 
-        EXPORT1(calc_tetra3d_pv);
-        EXPORT1(calc_tetra3d_pv3);
-        EXPORT1(calc_tetra3d_pvv);
+        EXPORT1(calc_plane_p3);
+        EXPORT1(calc_plane_pv);
+        EXPORT1(calc_plane_v1p2);
+        EXPORT1(calc_oriented_plane_p3);
+        EXPORT1(calc_oriented_plane_pv);
+        EXPORT1(calc_rev_oriented_plane_p3);
+        EXPORT1(calc_rev_oriented_plane_pv);
+        EXPORT1(calc_parallel_plane_p2p2);
+        EXPORT1(orient_plane_v1p1);
+
+        EXPORT1(calc_area_p3);
+        EXPORT1(calc_area_pv);
+        EXPORT1(calc_min_distance_p3);
+        EXPORT1(calc_min_distance_pv);
+        EXPORT1(calc_avg_distance_p3);
+        EXPORT1(calc_split_point_p2v1);
+        EXPORT1(calc_split_point_pvv1);
+        EXPORT1(calc_distance_p2);
+        EXPORT1(calc_sqr_distance_p2);
+        EXPORT1(calc_distance_pv);
+        EXPORT1(calc_distance_v1);
+        EXPORT1(calc_sqr_distance_pv);
+
+        EXPORT1(projection_length_p2);
+        EXPORT1(projection_length_v2);
+
+        EXPORT1(split_triangle_raw);
+        EXPORT1(cull_triangle_raw);
+        EXPORT1(colocation_x2_v1p2);
+        EXPORT1(colocation_x2_v1pv);
+        EXPORT1(colocation_x3_v1p3);
+        EXPORT1(colocation_x3_v1pv);
+        EXPORT1(colocation_x3_v3p1);
+        EXPORT1(colocation_x3_vvp1);
+
+        EXPORT1(unit_vector_p1p3);
+        EXPORT1(unit_vector_p1pv);
 
         EXPORT1(convolve);
+
+        EXPORT1(base64_enc);
+        EXPORT1(base64_dec);
     }
 
     #undef EXPORT1

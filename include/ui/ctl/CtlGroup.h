@@ -14,21 +14,31 @@ namespace lsp
     {
         class CtlGroup: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlColor        sColor;
                 CtlColor        sTextColor;
-                CtlColor        sBgColor;
+                CtlExpression   sEmbed;
+
+            protected:
+                void do_destroy();
 
             public:
-                CtlGroup(CtlRegistry *src, LSPGroup *widget);
+                explicit CtlGroup(CtlRegistry *src, LSPGroup *widget);
                 virtual ~CtlGroup();
 
             public:
                 virtual void init();
 
+                virtual void destroy();
+
                 virtual void set(widget_attribute_t att, const char *value);
 
-                virtual status_t add(LSPWidget *child);
+                virtual status_t add(CtlWidget *child);
+
+                virtual void notify(CtlPort *port);
         };
     
     } /* namespace ctl */

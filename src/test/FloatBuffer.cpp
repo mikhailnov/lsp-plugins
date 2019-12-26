@@ -83,45 +83,6 @@ namespace test
         *ptr            = uint32_t(CK_TAIL_SIGNATURE ^ key);
     }
 
-    void FloatBuffer::randomize_positive()
-    {
-        for (size_t i=0; i<nLength; ++i)
-            pBuffer[i] = (float(rand())/RAND_MAX) + 0.001f;
-    }
-
-    void FloatBuffer::randomize_0to1()
-    {
-        for (size_t i=0; i<nLength; ++i)
-            pBuffer[i] = (float(rand())/(RAND_MAX-1));
-    }
-
-    void FloatBuffer::randomize(float min, float max)
-    {
-        float delta = max - min;
-        for (size_t i=0; i<nLength; ++i)
-            pBuffer[i] = min + delta * (float(rand())/(RAND_MAX-1));
-    }
-
-    void FloatBuffer::randomize_negative()
-    {
-        for (size_t i=0; i<nLength; ++i)
-            pBuffer[i] = - ((float(rand())/RAND_MAX) + 0.001f);
-    }
-
-    void FloatBuffer::randomize_sign()
-    {
-        for (size_t i=0; i<nLength; ++i)
-        {
-            float tmp = (float(rand())/RAND_MAX) + 0.001f;
-            pBuffer[i] = (rand() >= (RAND_MAX >> 1)) ? tmp : -tmp;
-        }
-    }
-
-    void FloatBuffer::randomize()
-    {
-        randomize_positive();
-    }
-
     void FloatBuffer::fill_zero()
     {
         for (size_t i=0; i<nLength; ++i)
@@ -237,7 +198,7 @@ namespace test
     void FloatBuffer::copy(const FloatBuffer &buf)
     {
         size_t to_copy = (buf.nLength < nLength) ? buf.nLength : nLength;
-        memcpy(pBuffer, buf.pBuffer, to_copy * sizeof(float));
+        ::memcpy(pBuffer, buf.pBuffer, to_copy * sizeof(float));
         while (to_copy < nLength)
             pBuffer[to_copy++] = 0.0f;
     }
@@ -245,9 +206,15 @@ namespace test
     void FloatBuffer::copy(const float *buf, size_t count)
     {
         size_t to_copy = (count < nLength) ? count : nLength;
-        memcpy(pBuffer, buf, to_copy * sizeof(float));
+        ::memcpy(pBuffer, buf, to_copy * sizeof(float));
         while (to_copy < nLength)
             pBuffer[to_copy++] = 0.0f;
+    }
+
+    void FloatBuffer::replace(const float *buf, size_t count)
+    {
+        size_t to_copy = (count < nLength) ? count : nLength;
+        ::memcpy(pBuffer, buf, to_copy * sizeof(float));
     }
 
     void FloatBuffer::vfill(size_t off, size_t n, ...)

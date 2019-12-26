@@ -15,16 +15,18 @@ namespace lsp
         
         class CtlHyperlink: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlColor            sColor;
                 CtlColor            sHoverColor;
-                CtlColor            sBgColor;
 
             protected:
                 void commit_value();
 
             public:
-                CtlHyperlink(CtlRegistry *src, LSPHyperlink *widget, ctl_label_type_t type);
+                explicit CtlHyperlink(CtlRegistry *src, LSPHyperlink *widget, ctl_label_type_t type);
                 virtual ~CtlHyperlink();
 
             public:

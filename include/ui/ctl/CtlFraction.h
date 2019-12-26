@@ -15,6 +15,9 @@ namespace lsp
         
         class CtlFraction: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlPort            *pPort;
                 CtlPort            *pDenom;
@@ -36,7 +39,7 @@ namespace lsp
                 void sync_numerator(LSPFraction *frac);
 
             public:
-                CtlFraction(CtlRegistry *src, LSPFraction *frac);
+                explicit CtlFraction(CtlRegistry *src, LSPFraction *frac);
                 virtual ~CtlFraction();
 
             public:

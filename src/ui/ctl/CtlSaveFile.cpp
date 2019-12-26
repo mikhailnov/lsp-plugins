@@ -11,19 +11,19 @@ namespace lsp
 {
     namespace ctl
     {
+        const ctl_class_t CtlSaveFile::metadata = { "CtlSaveFile", &CtlWidget::metadata };
+
         CtlSaveFile::CtlSaveFile(CtlRegistry *reg, LSPSaveFile *save):
             CtlWidget(reg, save)
         {
-//            save->set_state(SFS_SAVING);
-//            save->set_progress(40);
+            pClass          = &metadata;
+            pFile           = NULL;
+            pPath           = NULL;
+            pStatus         = NULL;
+            pCommand        = NULL;
+            pProgress       = NULL;
 
-            pFile       = NULL;
-            pPath       = NULL;
-            pStatus     = NULL;
-            pCommand    = NULL;
-            pProgress   = NULL;
-
-            pPathID     = NULL;
+            pPathID         = NULL;
         }
 
         CtlSaveFile::~CtlSaveFile()
@@ -128,6 +128,10 @@ namespace lsp
                     break;
                 case A_FORMAT_ID:
                     BIND_EXPR(sFormat, value);
+                    break;
+                case A_SIZE:
+                    if (save != NULL)
+                        PARSE_INT(value, save->set_size(__) );
                     break;
                 default:
                 {

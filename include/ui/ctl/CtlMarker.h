@@ -14,6 +14,9 @@ namespace lsp
     {
         class CtlMarker: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlPort        *pPort;
                 CtlColor        sColor;
@@ -24,7 +27,7 @@ namespace lsp
                 void                submit_values();
 
             public:
-                CtlMarker(CtlRegistry *src, LSPMarker *mark);
+                explicit CtlMarker(CtlRegistry *src, LSPMarker *mark);
                 virtual ~CtlMarker();
 
             public:

@@ -40,6 +40,14 @@ typedef struct vst_state_buffer
     vst_state       sState;             // VST state
 } vst_state_buffer;
 
+typedef struct vst_state_header
+{
+    VstInt32        nMagic1;            // LSP_VST_USER_MAGIC
+    VstInt32        nSize;              // Size of contents, again...
+    VstInt32        nVersion;           // Current format version
+    VstInt32        nMagic2;            // LSP_VST_USER_MAGIC
+} vst_state_header;
+
 #pragma pack(pop)
 
 #define VST_CREATE_INSTANCE_NAME        vst_create_instance
@@ -49,8 +57,29 @@ typedef struct vst_state_buffer
 
 #define LSP_VST_USER_MAGIC              CCONST('L', 'S', 'P', 'U')
 #define VST_PROGRAM_HDR_SIZE            (sizeof(fxProgram) - 2 * sizeof(VstInt32))
-#define VST_BANK_HDR_SIZE               (sizeof(fxBank) - 2 * sizeof(VstInt32))
+#define VST_BANK_HDR_SKIP               (2*sizeof(VstInt32))
+#define VST_BANK_HDR_SIZE               (sizeof(fxBank) - VST_BANK_HDR_SKIP)
 #define VST_STATE_BUFFER_SIZE           (VST_BANK_HDR_SIZE + sizeof(vst_state))
+
+enum
+{
+    LSP_VST_INT32   = 'i',
+    LSP_VST_UINT32  = 'u',
+    LSP_VST_INT64   = 'I',
+    LSP_VST_UINT64  = 'U',
+    LSP_VST_FLOAT32 = 'f',
+    LSP_VST_FLOAT64 = 'F',
+    LSP_VST_STRING  = 's',
+    LSP_VST_BLOB    = 'B'
+};
+
+enum
+{
+    LSP_VST_PRIVATE = 1 << 0
+};
+
+#define VST_FX_VERSION_KVT_SUPPORT      2000
+#define VST_FX_VERSION_JUCE_FIX         3000
 
 namespace lsp
 {

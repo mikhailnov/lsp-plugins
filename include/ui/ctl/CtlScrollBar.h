@@ -16,7 +16,10 @@ namespace lsp
         class CtlScrollBar: public CtlWidget
         {
             public:
-                CtlScrollBar(CtlRegistry *src, LSPScrollBar *widget);
+                static const ctl_class_t metadata;
+
+            public:
+                explicit CtlScrollBar(CtlRegistry *src, LSPScrollBar *widget);
                 virtual ~CtlScrollBar();
         };
     

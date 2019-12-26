@@ -99,8 +99,8 @@ namespace lsp
         AMP_GAIN1("rrl", "Relative release level", trigger_base_metadata::RELEASE_LEVEL_DFL), \
         CONTROL("rt", "Release time", U_MSEC, trigger_base_metadata::RELEASE_TIME), \
         CONTROL("dyna", "Dynamics", U_PERCENT, trigger_base_metadata::DYNAMICS), \
-        AMP_GAIN("dtr1", "Dynamics range 1", 2.0f, 20.0f), \
-        AMP_GAIN("dtr2", "Dynamics range 2", 0.03125f, 20.0f), \
+        AMP_GAIN("dtr1", "Dynamics range 1", GAIN_AMP_P_6_DB, 20.0f), \
+        AMP_GAIN("dtr2", "Dynamics range 2", GAIN_AMP_M_36_DB, 20.0f), \
         CONTROL("react", "Reactivity", U_MSEC, trigger_base_metadata::REACTIVITY), \
         METER_OUT_GAIN("rl", "Release level", 20.0f), \
         MESH("tfg", "Trigger function graph", trigger_base_metadata::TRACKS_MAX, trigger_base_metadata::HISTORY_MESH_SIZE), \
@@ -171,7 +171,7 @@ namespace lsp
         PORTS_END
     };
 
-    static const int trigger_classes[] = { C_CONVERTER, C_UTILITY, -1 };
+    static const int trigger_classes[] = { C_DYNAMICS, -1 };
 
     //-------------------------------------------------------------------------
     // Define plugin metadata
@@ -184,10 +184,12 @@ namespace lsp
         "trigger_mono",
         "zghv",
         0,
-        LSP_VERSION(1, 0, 0),
+        LSP_VERSION(1, 0, 1),
         trigger_classes,
+        E_INLINE_DISPLAY,
         trigger_mono_ports,
         "trigger/single/mono.xml",
+        NULL,
         mono_plugin_port_groups
     };
 
@@ -200,10 +202,12 @@ namespace lsp
         "trigger_stereo",
         "zika",
         0,
-        LSP_VERSION(1, 0, 0),
+        LSP_VERSION(1, 0, 1),
         trigger_classes,
+        E_INLINE_DISPLAY,
         trigger_stereo_ports,
         "trigger/single/stereo.xml",
+        NULL,
         stereo_plugin_port_groups
     };
 
@@ -216,10 +220,12 @@ namespace lsp
         "trigger_midi_mono",
         "t4yz",
         0,
-        LSP_VERSION(1, 0, 0),
+        LSP_VERSION(1, 0, 1),
         trigger_classes,
+        E_INLINE_DISPLAY,
         trigger_mono_midi_ports,
         "trigger/single/mono.xml",
+        NULL,
         mono_plugin_port_groups
     };
 
@@ -232,10 +238,12 @@ namespace lsp
         "trigger_midi_stereo",
         "9cqf",
         0,
-        LSP_VERSION(1, 0, 0),
+        LSP_VERSION(1, 0, 1),
         trigger_classes,
+        E_INLINE_DISPLAY,
         trigger_stereo_midi_ports,
         "trigger/single/stereo.xml",
+        NULL,
         stereo_plugin_port_groups
     };
 }

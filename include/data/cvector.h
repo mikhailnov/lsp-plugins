@@ -28,7 +28,7 @@ namespace lsp
             {
                 if (nItems >= nCapacity)
                 {
-                    void *data      = realloc(pvItems, sizeof(void *) * (nCapacity + CVECTOR_GROW));
+                    void *data      = ::realloc(pvItems, sizeof(void *) * (nCapacity + CVECTOR_GROW));
                     if (data == NULL)
                         return false;
 
@@ -52,7 +52,7 @@ namespace lsp
             {
                 if (nItems >= nCapacity)
                 {
-                    void *data      = realloc(pvItems, sizeof(void *) * (nCapacity + CVECTOR_GROW));
+                    void *data      = ::realloc(pvItems, sizeof(void *) * (nCapacity + CVECTOR_GROW));
                     if (data == NULL)
                         return false;
 
@@ -64,13 +64,14 @@ namespace lsp
                 {
                     if (idx > nItems)
                         return false;
-                    pvItems[nItems++]   = const_cast<void *>(ptr);
+                    pvItems[nItems] = const_cast<void *>(ptr);
                 }
                 else
                 {
-                    memmove(&pvItems[idx+1], &pvItems[idx], (nItems - idx) * sizeof(void *));
+                    ::memmove(&pvItems[idx+1], &pvItems[idx], (nItems - idx) * sizeof(void *));
                     pvItems[idx]    = const_cast<void *>(ptr);
                 }
+                ++nItems;
                 return true;
             }
 
@@ -94,7 +95,7 @@ namespace lsp
                     if (fast)
                         pvItems[i]  = pvItems[nItems];
                     else
-                        memmove(&pvItems[i], &pvItems[i+1], (nItems - i) * sizeof(void *));
+                        ::memmove(&pvItems[i], &pvItems[i+1], (nItems - i) * sizeof(void *));
                 }
 
                 pvItems[nItems] = NULL;
@@ -146,7 +147,43 @@ namespace lsp
                 src->nItems     = 0;
             }
 
-            inline ssize_t do_index_of(const void *ptr)
+            inline bool do_copy_from(const basic_vector *src)
+            {
+                if (nCapacity < src->nItems)
+                {
+                    size_t cap      = ((src->nItems + CVECTOR_GROW - 1) / CVECTOR_GROW) * CVECTOR_GROW;
+                    void *data      = ::realloc(pvItems, sizeof(void *) * (cap));
+                    if (data == NULL)
+                        return false;
+
+                    pvItems         = static_cast<void **>(data);
+                    nCapacity       = cap;
+                }
+                ::memcpy(pvItems, src->pvItems, sizeof(void *) * src->nItems);
+                nItems          = src->nItems;
+                return true;
+            }
+
+            inline bool add_all(const void *const *src, size_t count)
+            {
+                size_t n = nItems + count;
+                if (nCapacity < n)
+                {
+                    size_t cap      = ((n + CVECTOR_GROW - 1) / CVECTOR_GROW) * CVECTOR_GROW;
+                    void *data      = ::realloc(pvItems, sizeof(void *) * (cap));
+                    if (data == NULL)
+                        return false;
+
+                    pvItems         = static_cast<void **>(data);
+                    nCapacity       = cap;
+                }
+
+                ::memcpy(&pvItems[nItems], src, sizeof(void *) * count);
+                nItems          = n;
+                return true;
+            }
+
+            inline ssize_t do_index_of(const void *ptr) const
             {
                 for (size_t i=0; i<nItems; ++i)
                 {
@@ -154,6 +191,27 @@ namespace lsp
                         return i;
                 }
                 return -1;
+            }
+
+            inline bool pop_last(void **ptr)
+            {
+                if (nItems <= 0)
+                    return false;
+
+                void *p = pvItems[--nItems];
+                if (ptr != NULL)
+                    *ptr = p;
+                pvItems[nItems] = NULL; // Replace with NULL
+                return true;
+            }
+
+            inline bool pop()
+            {
+                if (nItems <= 0)
+                    return false;
+
+                pvItems[--nItems] = NULL;
+                return true;
             }
 
         public:
@@ -197,11 +255,28 @@ namespace lsp
             {
                 if (pvItems != NULL)
                 {
-                    free(pvItems);
+                    ::free(pvItems);
                     pvItems      = NULL;
                 }
                 nCapacity   = 0;
                 nItems      = 0;
+            }
+
+            inline bool move(size_t a, size_t b)
+            {
+                if ((a >= nItems) || (b >= nItems))
+                    return false;
+                else if (a == b)
+                    return true;
+
+                void *ptr   = pvItems[a];
+                if (a < b)
+                    ::memmove(&pvItems[a], &pvItems[a+1], (b-a) * sizeof(void *));
+                else
+                    ::memmove(&pvItems[b+1], &pvItems[b], (a-b) * sizeof(void *));
+                pvItems[b]  = ptr;
+
+                return true;
             }
     };
 
@@ -209,8 +284,51 @@ namespace lsp
     template <class T>
         class cvector: public basic_vector
         {
+            private:
+                cvector(const cvector<T> &src);                         // Disable copying
+                cvector<T> & operator = (const cvector<T> & src);       // Disable copying
+
             public:
+                explicit inline cvector() {}
+
+            public:
+                inline T **get_array() { return (nItems > 0) ? reinterpret_cast<T **>(pvItems) : NULL; }
+
                 inline bool add(T *item) { return basic_vector::add_item(item); }
+
+                inline bool add_all(const T * const *items, size_t count) { return basic_vector::add_all(items, count); }
+
+                inline bool add_all(const cvector<T> *items) { return basic_vector::add_all(items->get_array(), items->size()); }
+
+                inline bool push(T *item) { return basic_vector::add_item(item); }
+
+                inline bool pop() { return basic_vector::pop(); }
+
+                inline bool pop(T **item)
+                {
+                    void *ptr;
+                    if (!basic_vector::pop_last(&ptr))
+                        return false;
+                    *item = reinterpret_cast<T *>(ptr);
+                    return true;
+                }
+
+                inline bool pop_last(T **item)
+                {
+                    void *ptr;
+                    if (!basic_vector::pop_last(&ptr))
+                        return false;
+                    *item = reinterpret_cast<T *>(ptr);
+                    return true;
+                }
+
+                inline T *last() { return (nItems > 0) ? reinterpret_cast<T *>(pvItems[nItems-1]) : NULL; }
+
+                inline T *last() const { return (nItems > 0) ? reinterpret_cast<const T *>(pvItems[nItems-1]) : NULL; }
+
+                inline T *first() { return (nItems > 0) ? reinterpret_cast<T *>(pvItems[0]) : NULL; }
+
+                inline T *first() const { return (nItems > 0) ? reinterpret_cast<const T *>(pvItems[0]) : NULL; }
 
                 inline bool add_unique(T *item) { return basic_vector::add_unique(item); }
 
@@ -226,15 +344,29 @@ namespace lsp
 
                 inline T *operator[](size_t index) { return reinterpret_cast<T *>(basic_vector::get_item(index)); }
 
-                inline T *at(size_t index) { return reinterpret_cast<T *>(pvItems[index]); }
+                inline T *at(size_t index) const { return reinterpret_cast<T *>(pvItems[index]); }
 
-                inline T **get_array() { return (nItems > 0) ? reinterpret_cast<T **>(pvItems) : NULL; }
+                inline T **release()
+                {
+                    if (nItems <= 0)
+                    {
+                        flush();
+                        return NULL;
+                    }
+                    T **res     = (nItems > 0) ? reinterpret_cast<T **>(pvItems) : NULL;
+                    pvItems     = NULL;
+                    nCapacity   = 0;
+                    nItems      = 0;
+                    return res;
+                }
 
                 inline void swap_data(cvector<T> *src) { do_swap_data(src); }
 
                 inline void take_from(cvector<T> *src) { do_take_from(src); }
 
-                inline ssize_t index_of(const T *item) { return do_index_of(item); }
+                inline ssize_t index_of(const T *item) const { return do_index_of(item); }
+
+                inline bool copy_from(const cvector<T> *src) { return do_copy_from(src); }
         };
 
 }

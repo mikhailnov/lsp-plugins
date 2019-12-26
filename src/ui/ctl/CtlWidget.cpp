@@ -11,8 +11,11 @@ namespace lsp
 {
     namespace ctl
     {
+        const ctl_class_t CtlWidget::metadata = { "CtlWidget", NULL };
+
         CtlWidget::CtlWidget(CtlRegistry *src, LSPWidget *widget)
         {
+            pClass          = &metadata;
             pRegistry       = src;
             pWidget         = widget;
 
@@ -26,12 +29,39 @@ namespace lsp
             nMinHeight      = -1;
         }
 
+        bool CtlWidget::instance_of(const ctl_class_t *wclass) const
+        {
+            const ctl_class_t *wc = pClass;
+            while (wc != NULL)
+            {
+                if (wc == wclass)
+                    return true;
+                wc = wc->parent;
+            }
+
+            return false;
+        }
+
         CtlWidget::~CtlWidget()
         {
             destroy();
         }
 
+        LSPWidget *CtlWidget::widget()
+        {
+            return pWidget;
+        };
+
         void CtlWidget::init_color(color_t value, Color *color)
+        {
+            LSPDisplay *dpy = (pWidget != NULL) ? pWidget->display() : NULL;
+            LSPTheme *theme = (dpy != NULL) ? dpy->theme() : NULL;
+
+            if (theme != NULL)
+                theme->get_color(value, color);
+        }
+
+        void CtlWidget::init_color(color_t value, LSPColor *color)
         {
             LSPDisplay *dpy = (pWidget != NULL) ? pWidget->display() : NULL;
             LSPTheme *theme = (dpy != NULL) ? dpy->theme() : NULL;
@@ -49,6 +79,9 @@ namespace lsp
 
         void CtlWidget::set(widget_attribute_t att, const char *value)
         {
+            if (pWidget == NULL)
+                return;
+
             switch (att)
             {
                 case A_VISIBILITY_ID:
@@ -74,6 +107,9 @@ namespace lsp
                 case A_VISIBILITY:
                     BIND_EXPR(sVisibility, value);
                     bVisibilitySet      = true;
+                    break;
+                case A_BRIGHT:
+                    BIND_EXPR(sBright, value);
                     break;
                 case A_PADDING:
                     PARSE_INT(value, pWidget->padding()->set_all(__));
@@ -102,13 +138,16 @@ namespace lsp
                 case A_VFILL:
                     PARSE_BOOL(value, pWidget->set_vfill(__));
                     break;
-
+                case A_WUID:
+                    pWidget->set_unique_id(value);
+                    break;
                 default:
+                    sBgColor.set(att, value);
                     break;
             }
         }
 
-        status_t CtlWidget::add(LSPWidget *child)
+        status_t CtlWidget::add(CtlWidget *child)
         {
             return STATUS_NOT_IMPLEMENTED;
         }
@@ -116,6 +155,9 @@ namespace lsp
         void CtlWidget::init()
         {
             sVisibility.init(pRegistry, this);
+            sBright.init(pRegistry, this);
+            if (pWidget != NULL)
+                sBgColor.init_basic(pRegistry, pWidget, pWidget->bg_color(), A_BG_COLOR);
         }
 
         void CtlWidget::begin()
@@ -159,29 +201,42 @@ namespace lsp
 
         void CtlWidget::notify(CtlPort *port)
         {
-            if (sVisibility.valid())
+            if (pWidget == NULL)
+                return;
+
+            // Visibility
+            if (sVisibility.depends(port))
             {
                 float value = sVisibility.evaluate();
-                if (pWidget != NULL)
-                {
-//                    lsp_trace("set visible widget %s ptr=%p to %s",
-//                            pWidget->get_class()->name,
-//                            pWidget,
-//                            (value >= 0.5f) ? "true" : "false");
-                    pWidget->set_visible(value >= 0.5f);
-                }
+                pWidget->set_visible(value >= 0.5f);
+            }
+
+            // Brightness
+            if (sBright.depends(port))
+            {
+                float value = sBright.evaluate();
+                pWidget->set_brightness(value);
             }
         }
 
         void CtlWidget::destroy()
         {
             sVisibility.destroy();
+            sBright.destroy();
 
             if (pVisibilityID != NULL)
             {
                 lsp_free(pVisibilityID);
                 pVisibilityID = NULL;
             }
+        }
+
+        LSPWidget *CtlWidget::resolve(const char *uid)
+        {
+            const char *wuid = (pWidget != NULL) ? pWidget->unique_id() : NULL;
+            if ((wuid != NULL) && (!strcmp(wuid, uid)))
+                return pWidget;
+            return NULL;
         }
     }
 } /* namespace lsp */

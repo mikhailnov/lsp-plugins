@@ -5,8 +5,8 @@
  *      Author: sadko
  */
 
-#ifndef INCLUDE_CORE_IO_CHARSET_H_
-#define INCLUDE_CORE_IO_CHARSET_H_
+#ifndef CORE_IO_CHARSET_H_
+#define CORE_IO_CHARSET_H_
 
 #include <core/types.h>
 
@@ -196,7 +196,7 @@ namespace lsp
     inline lsp_utf32_t    *utf16be_to_utf32(const lsp_utf16_t *str) { return __IF_LEBE(utf16be_to_utf32le, utf16be_to_utf32be)(str); }
     inline lsp_utf32_t    *utf16_to_utf32le(const lsp_utf16_t *str) { return __IF_LEBE(utf16le_to_utf32le, utf16be_to_utf32le)(str); }
     inline lsp_utf32_t    *utf16_to_utf32be(const lsp_utf16_t *str) { return __IF_LEBE(utf16le_to_utf32be, utf16be_to_utf32be)(str); }
-    inline lsp_utf32_t    *utf16_to_utf32(const lsp_utf16_t *str) { return __IF_LEBE(utf16le_to_utf32le, utf16le_to_utf32le)(str); }
+    inline lsp_utf32_t    *utf16_to_utf32(const lsp_utf16_t *str) { return __IF_LEBE(utf16le_to_utf32le, utf16be_to_utf32be)(str); }
 
     /**
      * Encode sequence of UTF-16 characters into sequence of UTF-32 characters
@@ -278,4 +278,4 @@ namespace lsp
 
 }
 
-#endif /* INCLUDE_CORE_IO_CHARSET_H_ */
+#endif /* CORE_IO_CHARSET_H_ */

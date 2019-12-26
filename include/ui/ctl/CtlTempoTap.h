@@ -15,9 +15,11 @@ namespace lsp
         
         class CtlTempoTap: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlPort        *pPort;
-                CtlColor        sBgColor;
                 CtlColor        sColor;
                 CtlColor        sTextColor;
                 ssize_t         nThresh;
@@ -31,7 +33,7 @@ namespace lsp
                 static uint64_t     time();
 
             public:
-                CtlTempoTap(CtlRegistry *src, LSPButton *widget);
+                explicit CtlTempoTap(CtlRegistry *src, LSPButton *widget);
                 virtual ~CtlTempoTap();
 
             public:

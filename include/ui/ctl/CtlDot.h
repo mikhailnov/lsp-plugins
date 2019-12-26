@@ -14,6 +14,9 @@ namespace lsp
     {
         class CtlDot: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlPort        *pTop;
                 CtlPort        *pLeft;
@@ -31,7 +34,7 @@ namespace lsp
                 void                commit_value(float value);
 
             public:
-                CtlDot(CtlRegistry *src, LSPDot *dot);
+                explicit CtlDot(CtlRegistry *src, LSPDot *dot);
                 virtual ~CtlDot();
 
             public:

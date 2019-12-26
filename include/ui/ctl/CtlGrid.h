@@ -14,11 +14,14 @@ namespace lsp
     {
         class CtlGrid: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 ssize_t     nOrientation;
 
             public:
-                CtlGrid(CtlRegistry *src, LSPGrid *widget, ssize_t orientation = -1);
+                explicit CtlGrid(CtlRegistry *src, LSPGrid *widget, ssize_t orientation = -1);
                 virtual ~CtlGrid();
 
             public:
@@ -33,7 +36,7 @@ namespace lsp
                  *
                  * @param child child widget to add
                  */
-                virtual status_t add(LSPWidget *child);
+                virtual status_t add(CtlWidget *child);
         };
     
     } /* namespace ctl */

@@ -15,6 +15,9 @@ namespace lsp
         
         class CtlFader: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 bool                bLog;
                 CtlPort            *pPort;
@@ -25,7 +28,7 @@ namespace lsp
                 void        commit_value(float value);
 
             public:
-                CtlFader(CtlRegistry *src, LSPFader *widget);
+                explicit CtlFader(CtlRegistry *src, LSPFader *widget);
                 virtual ~CtlFader();
 
             public:

@@ -33,20 +33,22 @@ namespace lsp
             mutable buffer_t   *pTemp;
 
         protected:
-            inline bool cap_reserve(size_t size);
-            void drop_temp();
-            bool append_temp(const char *p, size_t n) const;
-            bool resize_temp(size_t n) const;
-            bool grow_temp(size_t n) const;
+            bool            size_reserve(size_t size);
+            inline bool     cap_reserve(size_t size);
+            inline bool     cap_grow(size_t delta);
+            void            drop_temp();
+            bool            append_temp(const char *p, size_t n) const;
+            bool            resize_temp(size_t n) const;
+            bool            grow_temp(size_t n) const;
 
-            static inline lsp_wchar_t *xmalloc(size_t size) { return reinterpret_cast<lsp_wchar_t *>(malloc(size * sizeof(lsp_wchar_t))); }
-            static inline lsp_wchar_t *xrealloc(lsp_wchar_t * ptr, size_t size) { return reinterpret_cast<lsp_wchar_t *>(realloc(ptr, size * sizeof(lsp_wchar_t))); };
-            static inline void xfree(lsp_wchar_t *ptr) { free(ptr); }
-            static inline void xmove(lsp_wchar_t *dst, const lsp_wchar_t *src, size_t n) { memmove(dst, src, n * sizeof(lsp_wchar_t)); }
-            static inline void xcopy(lsp_wchar_t *dst, const lsp_wchar_t *src, size_t n) { memcpy(dst, src, n * sizeof(lsp_wchar_t)); }
+            static inline lsp_wchar_t *xmalloc(size_t size) { return reinterpret_cast<lsp_wchar_t *>(::malloc(size * sizeof(lsp_wchar_t))); }
+            static inline lsp_wchar_t *xrealloc(lsp_wchar_t * ptr, size_t size) { return reinterpret_cast<lsp_wchar_t *>(::realloc(ptr, size * sizeof(lsp_wchar_t))); };
+            static inline void xfree(lsp_wchar_t *ptr) { ::free(ptr); }
+            static inline void xmove(lsp_wchar_t *dst, const lsp_wchar_t *src, size_t n) { ::memmove(dst, src, n * sizeof(lsp_wchar_t)); }
+            static inline void xcopy(lsp_wchar_t *dst, const lsp_wchar_t *src, size_t n) { ::memcpy(dst, src, n * sizeof(lsp_wchar_t)); }
 
 #ifdef ARCH_LE
-            static inline int xcmp(const lsp_wchar_t *a, const lsp_wchar_t *b, size_t n) { return memcmp(a, b, n * sizeof(lsp_wchar_t)); }
+            static inline int xcmp(const lsp_wchar_t *a, const lsp_wchar_t *b, size_t n) { return ::memcmp(a, b, n * sizeof(lsp_wchar_t)); }
 #else
             static int xcmp(const lsp_wchar_t *a, const lsp_wchar_t *b, size_t n);
 #endif /* ARCH_LE */
@@ -69,7 +71,7 @@ namespace lsp
              * @param length the length of the string
              * @return the length of the string after applied operarion
              */
-            inline size_t set_length(size_t length) { return (nLength >= length) ? nLength = length : nLength; }
+            size_t set_length(size_t length);
 
             /** Get the capacity of the string
              *
@@ -96,7 +98,7 @@ namespace lsp
              * @param size number of characters to use as capacity
              * @return true on success
              */
-            bool reserve(size_t size);
+            inline bool reserve(size_t size) { return (size > nCapacity) ? size_reserve(size) : true; };
 
             /**
              * Clear the string without deallocating internal buffer
@@ -107,7 +109,7 @@ namespace lsp
              *
              */
             void truncate();
-            void truncate(size_t size);
+            bool truncate(size_t size);
 
             /** Try to reduce memory allocated by the string (remove extra capacity)
              *
@@ -150,7 +152,17 @@ namespace lsp
              * @return copy of the string or NULL on error
              */
             LSPString *copy() const;
+            LSPString *copy(ssize_t first) const;
+            LSPString *copy(ssize_t first, ssize_t last) const;
             inline LSPString *clone() const { return copy(); }
+            inline LSPString *clone(ssize_t first) const { return copy(first); }
+            inline LSPString *clone(ssize_t first, ssize_t last) const { return copy(first, last); }
+
+            /** Allocate instance of string and drain self data to this instance
+             *
+             * @return not null pointer is there is enough memory
+             */
+            LSPString *release();
 
             /** Insert data at specified position
              *
@@ -172,14 +184,15 @@ namespace lsp
              */
             bool append(char ch);
             bool append(lsp_wchar_t ch);
+            bool append(lsp_swchar_t ch);
             bool append_ascii(const char *arr, size_t n);
             bool append_utf8(const char *arr, size_t n);
             bool append(const lsp_wchar_t *arr, size_t n);
             bool append(const LSPString *src);
             bool append(const LSPString *src, ssize_t first);
             bool append(const LSPString *src, ssize_t first, ssize_t last);
-            inline bool append_ascii(const char *arr) { return append_ascii(arr, strlen(arr)); };
-            inline bool append_utf8(const char *arr) { return append_utf8(arr, strlen(arr)); };
+            inline bool append_ascii(const char *arr) { return append_ascii(arr, ::strlen(arr)); };
+            inline bool append_utf8(const char *arr) { return append_utf8(arr, ::strlen(arr)); };
 
             bool prepend(lsp_wchar_t ch);
             bool prepend(const lsp_wchar_t *arr, size_t n);
@@ -188,8 +201,8 @@ namespace lsp
             bool prepend(const LSPString *src);
             bool prepend(const LSPString *src, ssize_t first);
             bool prepend(const LSPString *src, ssize_t first, ssize_t last);
-            inline bool prepend_ascii(const char *arr) { return prepend_ascii(arr, strlen(arr)); };
-            inline bool prepend_utf8(const char *arr) { return prepend_ascii(arr, strlen(arr)); };
+            inline bool prepend_ascii(const char *arr) { return prepend_ascii(arr, ::strlen(arr)); };
+            inline bool prepend_utf8(const char *arr) { return prepend_ascii(arr, ::strlen(arr)); };
 
             /** Get unicode character at the specified position
              *
@@ -227,6 +240,7 @@ namespace lsp
             bool set(lsp_wchar_t ch);
             inline bool set(char ch)        { return set(lsp_wchar_t(uint8_t(ch))); };
             bool set(ssize_t pos, lsp_wchar_t ch);
+            inline bool set_at(ssize_t pos, lsp_wchar_t ch) { return set(pos, ch); }
             bool set(const lsp_wchar_t *arr, size_t n);
             bool set(const LSPString *src);
             bool set(const LSPString *src, ssize_t first);
@@ -239,14 +253,17 @@ namespace lsp
              * @return true on success
              */
             bool set_utf8(const char *s, size_t n);
-            bool set_utf16(const lsp_utf16_t *s);
+            inline bool set_utf8(const char *s) { return set_utf8(s, ::strlen(s)); };
+
             bool set_utf16(const lsp_utf16_t *s, size_t n);
+            bool set_utf16(const lsp_utf16_t *s);
+
             bool set_ascii(const char *s, size_t n);
+            inline bool set_ascii(const char *s) { return set_ascii(s, ::strlen(s)); };
+
             bool set_native(const char *s, size_t n, const char *charset = NULL);
-            inline bool set_utf8(const char *s) { return set_utf8(s, strlen(s)); };
-            inline bool set_ascii(const char *s) { return set_ascii(s, strlen(s)); };
-            inline bool set_native(const char *s, const char *charset) { return set_native(s, strlen(s), charset); };
-            inline bool set_native(const char *s) { return set_native(s, strlen(s), NULL); };
+            inline bool set_native(const char *s, const char *charset) { return set_native(s, ::strlen(s), charset); };
+            inline bool set_native(const char *s) { return set_native(s, ::strlen(s), NULL); };
 
             const char *get_utf8(ssize_t first, ssize_t last) const;
             inline const char *get_utf8(ssize_t first) const { return get_utf8(first, nLength); };
@@ -256,13 +273,56 @@ namespace lsp
             inline const lsp_utf16_t *get_utf16(ssize_t first) const { return get_utf16(first, nLength); };
             const lsp_utf16_t *get_utf16() const { return get_utf16(0, nLength); };
 
-            const char *get_ascii() const;
+            const char *get_ascii(ssize_t first, ssize_t last) const;
+            inline const char *get_ascii(ssize_t first) const { return get_ascii(first, nLength); };
+            inline const char *get_ascii() const { return get_ascii(0, nLength); };
+
             const char *get_native(ssize_t first, ssize_t last, const char *charset =  NULL) const;
             inline const char *get_native(const char *charset = NULL) const { return get_native(0, nLength, charset); }
             inline const char *get_native(ssize_t first, const char *charset =  NULL) const { return get_native(first, nLength, charset); }
 
             inline size_t temporal_size() const     { return (pTemp != NULL) ? pTemp->nOffset : 0; };
             inline size_t temporal_capacity() const { return (pTemp != NULL) ? pTemp->nLength : 0; };
+
+            /**
+             * Clone string as set of UTF-8 characters. 1 character at the tail will contain additional end-of-line.
+             */
+            char *clone_utf8(size_t *bytes, ssize_t first, ssize_t last) const;
+            inline char *clone_utf8(size_t *bytes, ssize_t first) const { return clone_utf8(bytes, first, nLength); };
+            inline char *clone_utf8(size_t *bytes) const { return clone_utf8(bytes, 0, nLength); };
+            inline char *clone_utf8(ssize_t first, ssize_t last) const { return clone_utf8(NULL, first, last); };
+            inline char *clone_utf8(ssize_t first) const { return clone_utf8(NULL, first, nLength); };
+            inline char *clone_utf8() const { return clone_utf8(NULL, 0, nLength); };
+
+            /**
+             * Clone string as set of UTF-16 characters. 1 UTF-16 character at the tail will contain additional end-of-line.
+             */
+            lsp_utf16_t *clone_utf16(size_t *bytes, ssize_t first, ssize_t last) const;
+            inline lsp_utf16_t *clone_utf16(size_t *bytes, ssize_t first) const { return clone_utf16(bytes, first, nLength); };
+            inline lsp_utf16_t *clone_utf16(size_t *bytes) const { return clone_utf16(bytes, 0, nLength); };
+            inline lsp_utf16_t *clone_utf16(ssize_t first, ssize_t last) const { return clone_utf16(NULL, first, last); };
+            inline lsp_utf16_t *clone_utf16(ssize_t first) const { return clone_utf16(NULL, first, nLength); };
+            inline lsp_utf16_t *clone_utf16() const { return clone_utf16(NULL, 0, nLength); };
+
+            /**
+             * Clone string as set of UTF-16 characters. 1 ascii character at the tail will contain additional end-of-line.
+             */
+            char *clone_ascii(size_t *bytes, ssize_t first, ssize_t last) const;
+            inline char *clone_ascii(size_t *bytes, ssize_t first) const { return clone_ascii(bytes, first, nLength); };
+            inline char *clone_ascii(size_t *bytes) const { return clone_ascii(bytes, 0, nLength); };
+            inline char *clone_ascii(ssize_t first, ssize_t last) const { return clone_ascii(NULL, first, last); };
+            inline char *clone_ascii(ssize_t first) const { return clone_ascii(NULL, first, nLength); };
+            inline char *clone_ascii() const { return clone_ascii(NULL, 0, nLength); };
+
+            /**
+             * Clone string as set of UTF-16 characters. 4 ascii characters at the tail will contain additional end-of-line.
+             */
+            char *clone_native(size_t *bytes, ssize_t first, ssize_t last, const char *charset = NULL) const;
+            inline char *clone_native(size_t *bytes, ssize_t first, const char *charset =  NULL) const { return clone_native(bytes, first, nLength, charset); }
+            inline char *clone_native(size_t *bytes, const char *charset = NULL) const { return clone_native(bytes, 0, nLength, charset); }
+            inline char *clone_native(ssize_t first, ssize_t last, const char *charset = NULL) const { return clone_native(NULL, first, last, charset); }
+            inline char *clone_native(const char *charset = NULL) const { return clone_native(NULL, 0, nLength, charset); }
+            inline char *clone_native(ssize_t first, const char *charset =  NULL) const { return clone_native(NULL, first, nLength, charset); }
 
             /** Replace the contents of the string
              *
@@ -302,10 +362,23 @@ namespace lsp
 
             bool starts_with(lsp_wchar_t ch) const;
             inline bool starts_with(char ch) const { return starts_with(lsp_wchar_t(uint8_t(ch))); };
+            bool starts_with(lsp_wchar_t ch, size_t offset) const;
+            inline bool starts_with(char ch, size_t offset) const { return starts_with(lsp_wchar_t(uint8_t(ch)), offset); };
+
             bool starts_with(const LSPString *src) const;
+            bool starts_with_ascii(const char *src) const;
+            bool starts_with(const LSPString *src, size_t offset) const;
+            bool starts_with_ascii(const char *src, size_t offsset) const;
+
             bool starts_with_nocase(lsp_wchar_t ch) const;
             inline bool starts_with_nocase(char ch) const { return starts_with_nocase(lsp_wchar_t(uint8_t(ch))); };
+            bool starts_with_nocase(lsp_wchar_t ch, size_t offset) const;
+            inline bool starts_with_nocase(char ch, size_t offset) const { return starts_with_nocase(lsp_wchar_t(uint8_t(ch)), offset); };
+
             bool starts_with_nocase(const LSPString *src) const;
+            bool starts_with_nocase(const LSPString *src, size_t offset) const;
+            bool starts_with_ascii_nocase(const char *src) const;
+            bool starts_with_ascii_nocase(const char *src, size_t offset) const;
 
             /** Delete character sequence from the string
              *
@@ -313,6 +386,8 @@ namespace lsp
             bool remove();
             bool remove(ssize_t first);
             bool remove(ssize_t first, ssize_t last);
+
+            bool remove_last();
 
             /** Try to find substring in a string
              *
@@ -350,7 +425,11 @@ namespace lsp
              */
             int compare_to(const LSPString *src) const;
             int compare_to_ascii(const char *src) const;
+            int compare_to_utf8(const char *src) const;
+
             int compare_to_nocase(const LSPString *src) const;
+            int compare_to_ascii_nocase(const char *src) const;
+            int compare_to_utf8_nocase(const char *src) const;
 
             size_t tolower();
             size_t tolower(ssize_t first);
@@ -366,8 +445,13 @@ namespace lsp
              * @return true if equals
              */
             bool equals(const LSPString *src) const;
-            inline bool equals_ascii(const char *src) const { return compare_to_ascii(src) == 0; };
             bool equals_nocase(const LSPString *src) const;
+
+            inline bool equals_ascii(const char *src) const { return compare_to_ascii(src) == 0; };
+            inline bool equals_ascii_nocase(const char *src) const { return compare_to_ascii_nocase(src) == 0; };
+
+            inline bool equals_utf8(const char *src) const { return compare_to_utf8(src) == 0; };
+            inline bool equals_utf8_nocase(const char *src) const { return compare_to_utf8_nocase(src) == 0; };
 
             /** Calculate number of character occurences
              *

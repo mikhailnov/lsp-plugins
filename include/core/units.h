@@ -29,6 +29,8 @@
 #define BPM_DEFAULT                         120.0f              /* Default BPM                                      */
 #define DEFAULT_TICKS_PER_BEAT              1920.0f             /* Default tick per beat resolution                 */
 #define MIDI_EVENTS_MAX                     4096                /* Maximum number of MIDI events per buffer         */
+#define OSC_BUFFER_MAX                      0x100000            /* Maximum size of the OSC messaging buffer (bytes) */
+#define OSC_PACKET_MAX                      0x10000             /* Maximum size of the OSC packet (bytes)           */
 #define GOLDEN_RATIO                        1.618               /* Golden ratio                                     */
 #define R_GOLDEN_RATIO                      0.618               /* Reverse golden ratio                             */
 
@@ -41,7 +43,9 @@
 #define GAIN_AMP_P_24_DB                    15.84893            /* +24 dB       */
 #define GAIN_AMP_P_12_DB                    3.98107             /* +12 dB       */
 #define GAIN_AMP_P_6_DB                     1.99526             /* +6 dB        */
+#define GAIN_AMP_P_3_DB                     1.412536            /* +3 dB        */
 #define GAIN_AMP_0_DB                       1.0                 /* 0 dB         */
+#define GAIN_AMP_M_3_DB                     0.707946            /* -3 dB        */
 #define GAIN_AMP_M_6_DB                     0.50118             /* -6 dB        */
 #define GAIN_AMP_M_12_DB                    0.25119             /* -12 dB       */
 #define GAIN_AMP_M_18_DB                    0.12589             /* -18 dB       */

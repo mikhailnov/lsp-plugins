@@ -47,16 +47,17 @@ namespace lsp
 // Metadata
 #include <metadata/metadata.h>
 
-// Configuration parsing
-#include <ui/XMLHandler.h>
-#include <ui/XMLParser.h>
-
 // Common definitions
 #include <ui/common.h>
 #include <ui/IUIWrapper.h>
 
-// Plugin UI
+// Common plugin UI
 #include <ui/plugin_ui.h>
 #include <ui/ui_builder.h>
+
+// Particular plugin UI
+#include <ui/plugins/test_plugin_ui.h>
+#include <ui/plugins/room_builder_ui.h>
+#include <ui/plugins/para_equalizer_ui.h>
 
 #endif /* _UI_UI_H_ */

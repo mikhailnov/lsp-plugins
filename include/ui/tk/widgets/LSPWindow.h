@@ -45,8 +45,10 @@ namespace lsp
                 float               nHorPos;
                 float               nVertScale;
                 float               nHorScale;
+                size_t              nBorder;
                 LSPString           sCaption;
                 LSPWindowActions    sActions;
+                LSPColor            sBorder;
                 window_poilicy_t    enPolicy;
 
             //---------------------------------------------------------------------------------
@@ -86,6 +88,16 @@ namespace lsp
                  */
                 inline void *handle() { return (pWindow != NULL) ? pWindow->handle() : NULL; };
 
+                /**
+                 * Get native window
+                 * @return native window
+                 */
+                inline INativeWindow *native() { return pWindow; };
+
+                /**
+                 * Return true if window is a sub-window of another window
+                 * @return true if window is a sub-window of another window
+                 */
                 inline bool nested() { return pNativeHandle != NULL; }
 
                 /** Get border style of the window
@@ -118,6 +130,8 @@ namespace lsp
                 inline float            hpos() const            { return nHorPos; }
                 inline float            vscale() const          { return nVertScale; }
                 inline float            hscale() const          { return nHorScale; }
+                inline size_t           border() const          { return nBorder; }
+                inline LSPColor        *border_color()          { return &sBorder; }
 
             //---------------------------------------------------------------------------------
             // Manipulation
@@ -230,6 +244,10 @@ namespace lsp
                 status_t toggle_child_focus(LSPWidget *focus);
 
                 status_t point_child(LSPWidget *focus);
+
+                status_t grab_events();
+
+                void                    set_border(size_t border);
 
                 void set_policy(window_poilicy_t policy);
 

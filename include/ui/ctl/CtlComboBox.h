@@ -14,9 +14,11 @@ namespace lsp
     {
         class CtlComboBox: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlPort        *pPort;
-                CtlColor        sBgColor;
                 CtlColor        sColor;
                 float           fMin;
                 float           fMax;
@@ -31,7 +33,7 @@ namespace lsp
                 void do_destroy();
 
             public:
-                CtlComboBox(CtlRegistry *src, LSPComboBox *widget);
+                explicit CtlComboBox(CtlRegistry *src, LSPComboBox *widget);
                 virtual ~CtlComboBox();
 
                 virtual void init();
@@ -43,7 +45,10 @@ namespace lsp
 
                 virtual void notify(CtlPort *port);
 
+                virtual void sync_metadata(CtlPort *port);
+
                 virtual void end();
+
         };
     
     } /* namespace ctl */

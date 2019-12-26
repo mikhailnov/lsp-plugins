@@ -8,6 +8,7 @@
 #include <core/lib.h>
 #include <core/debug.h>
 #include <core/ipc/NativeExecutor.h>
+#include <core/resource.h>
 #include <plugins/plugins.h>
 
 #ifdef PLATFORM_WINDOWS
@@ -18,6 +19,11 @@
 
 #include <container/ladspa/ports.h>
 #include <container/ladspa/wrapper.h>
+
+#ifndef LSP_IDE_DEBUG
+    /* LADSPA format does not require any built-in resources */
+    BUILTIN_RESOURCES_STUB
+#endif /* LSP_IDE_DEBUG */
 
 namespace lsp
 {
@@ -54,7 +60,7 @@ namespace lsp
         // Instantiate plugin
         plugin_t *p         = NULL;
 
-        #define MOD_PLUGIN(plugin) \
+        #define MOD_PLUGIN(plugin, ui) \
             if ((!p) && (plugin::metadata.ladspa_id > 0) && (Descriptor->UniqueID == plugin::metadata.ladspa_id) && (!strcmp(Descriptor->Label, LSP_PLUGIN_URI(ladspa, plugin)))) \
                 p = new plugin();
         #include <metadata/modules.h>
@@ -291,7 +297,7 @@ namespace lsp
 
         // Calculate number of plugins
         ladspa_descriptors_count    = 0;
-        #define MOD_PLUGIN(plugin) \
+        #define MOD_PLUGIN(plugin, ui) \
             if (plugin::metadata.ladspa_id > 0) \
                 ladspa_descriptors_count++;
         #include <metadata/modules.h>
@@ -301,7 +307,7 @@ namespace lsp
         LADSPA_Descriptor *d        = ladspa_descriptors;
         size_t id                   = 0;
 
-        #define MOD_PLUGIN(plugin) \
+        #define MOD_PLUGIN(plugin, ui) \
             if (plugin::metadata.ladspa_id > 0) \
             { \
                 ladspa_make_descriptor(&d[id], plugin::metadata.ladspa_id, LSP_PLUGIN_URI(ladspa, plugin), plugin::metadata); \
@@ -338,10 +344,18 @@ namespace lsp
     static StaticFinalizer ladspa_finalizer(ladspa_drop_descriptors);
 }
 
-const LADSPA_Descriptor * ladspa_descriptor(unsigned long index)
+#ifdef __cplusplus
+extern "C"
 {
-    using namespace lsp;
+#endif
+    LSP_LIBRARY_EXPORT
+    const LADSPA_Descriptor * ladspa_descriptor(unsigned long index)
+    {
+        using namespace lsp;
 
-    ladspa_gen_descriptors();
-    return (index < ladspa_descriptors_count) ? &ladspa_descriptors[index] : NULL;
+        ladspa_gen_descriptors();
+        return (index < ladspa_descriptors_count) ? &ladspa_descriptors[index] : NULL;
+    }
+#ifdef __cplusplus
 }
+#endif

@@ -138,7 +138,7 @@ namespace lsp
             }
 
         public:
-            inline basic_storage(size_t sz, size_t align)
+            inline basic_storage(size_t sz)
             {
                 vItems      = NULL;
                 nCapacity   = 0;
@@ -176,7 +176,7 @@ namespace lsp
                 ssize_t off = reinterpret_cast<const uint8_t *>(ptr) - vItems;
                 if ((off < 0) || ((off % nSizeOf) != 0))
                     return false;
-                return remove(off);
+                return remove(off / nSizeOf);
             }
 
             inline bool remove_n(size_t idx, size_t n)
@@ -198,11 +198,15 @@ namespace lsp
 
     };
 
-    template <class T, size_t A=DEFAULT_ALIGN>
+    template <class T>
         class cstorage: public basic_storage
         {
+            private:
+                cstorage(const cstorage<T> &src);                               // Disable copying
+                cstorage<T> & operator = (const cstorage<T> & src);             // Disable copying
+
             public:
-                cstorage() : basic_storage(sizeof(T), A) {};
+                explicit cstorage() : basic_storage(sizeof(T)) {};
                 ~cstorage() {};
 
             public:
@@ -217,9 +221,19 @@ namespace lsp
                     return dst;
                 }
 
-                inline T *append(const T *v, size_t n)
+                inline T *push(const T *v)
                 {
                     T *dst = reinterpret_cast<T *>(basic_storage::alloc_item());
+                    if (dst != NULL)
+                        *dst = *v;
+                    return dst;
+                }
+
+                inline T *push() { return reinterpret_cast<T *>(basic_storage::alloc_item()); }
+
+                inline T *append(const T *v, size_t n)
+                {
+                    T *dst = reinterpret_cast<T *>(basic_storage::alloc_items(n));
                     if (dst != NULL)
                         ::memcpy(dst, v, n*sizeof(T));
                     return dst;
@@ -264,6 +278,8 @@ namespace lsp
                 inline T *first() { return reinterpret_cast<T *>(basic_storage::first()); }
 
                 inline T *get_array() { return reinterpret_cast<T *>(basic_storage::first()); }
+
+                inline const T *get_array() const { return const_cast< cstorage<T> *>(this)->first(); }
 
                 inline T *last() { return reinterpret_cast<T *>(basic_storage::last()); }
 
@@ -332,7 +348,23 @@ namespace lsp
                     return ((idx < 0) || (idx >= ssize_t(nItems))) ? -1 : idx;
                 }
 
-                inline void swap(cstorage<T, A> *src) { do_swap_data(src); }
+                inline void swap(cstorage<T> *src) { do_swap_data(src); }
+
+                inline bool add_all(const T *src, size_t count) {
+                    if (count <= 0)
+                        return true;
+                    T *ptr = append_n(count);
+                    ::memcpy(ptr, src, count * nSizeOf);
+                    return true;
+                }
+
+                inline bool add_all(const cstorage<T> *src) {
+                    if (src->nItems <= 0)
+                        return true;
+                    T *ptr = append_n(src->nItems);
+                    ::memcpy(ptr, src->vItems, src->nItems * nSizeOf);
+                    return true;
+                }
         };
 }
 

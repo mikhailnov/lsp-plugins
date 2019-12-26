@@ -14,6 +14,9 @@ namespace lsp
     {
         class CtlMeter: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 enum flags_t
                 {
@@ -64,7 +67,7 @@ namespace lsp
                 status_t        slot_hide(void *ptr, void *data);
 
             public:
-                CtlMeter(CtlRegistry *src, LSPMeter *widget);
+                explicit CtlMeter(CtlRegistry *src, LSPMeter *widget);
                 virtual ~CtlMeter();
 
                 virtual void destroy();

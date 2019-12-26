@@ -13,8 +13,9 @@
 #include <core/alloc.h>
 #include <core/IWrapper.h>
 #include <core/IPort.h>
-#include <core/ipc/NativeExecutor.h>
 #include <core/ICanvas.h>
+#include <core/ipc/NativeExecutor.h>
+#include <core/ipc/Mutex.h>
 #include <container/CairoCanvas.h>
 
 #include <ui/ui.h>
@@ -63,6 +64,9 @@ namespace lsp
             cvector<JACKUIPort>     vUIPorts;
             cvector<JACKUIPort>     vSyncPorts;
             cvector<port_t>         vGenMetadata;   // Generated metadata
+
+            KVTStorage              sKVT;
+            ipc::Mutex              sKVTMutex;
 
         public:
             JACKWrapper(plugin_t *plugin, plugin_ui *ui)
@@ -144,6 +148,24 @@ namespace lsp
                 nQueryDrawLast      = last;
                 return result;
             }
+
+            /**
+             * Lock KVT storage
+             * @return pointer to locked storage or NULL
+             */
+            virtual KVTStorage *kvt_lock();
+
+            /**
+             * Try to lock KVT storage and return pointer to the storage on success
+             * @return pointer to KVT storage or NULL
+             */
+            virtual KVTStorage *kvt_trylock();
+
+            /**
+             * Release the KVT storage
+             * @return true on success
+             */
+            virtual bool kvt_release();
     };
 }
 
@@ -242,12 +264,12 @@ namespace lsp
     int JACKWrapper::run(size_t samples)
     {
         // Prepare ports
-        size_t n_ports  = vPorts.size();
-
+        size_t n_ports      = vPorts.size();
+        JACKPort **v_ports  = vPorts.get_array();
         for (size_t i=0; i<n_ports; ++i)
         {
             // Get port
-            JACKPort *port = vPorts.at(i);
+            JACKPort *port = v_ports[i];
             if (port == NULL)
                 continue;
 
@@ -281,7 +303,7 @@ namespace lsp
         // Post-process ALL ports
         for (size_t i=0; i<n_ports; ++i)
         {
-            JACKPort *port = vPorts.at(i);
+            JACKPort *port = v_ports[i];
             if (port != NULL)
                 port->post_process(samples);
         }
@@ -325,6 +347,17 @@ namespace lsp
                 jp      = jdp;
                 break;
             }
+
+            case R_OSC:
+                jp      = new JACKOscPort(port, this);
+                if (IS_OUT_PORT(port))
+                {
+                    jup     = new JACKUIOscPortIn(jp);
+                    vSyncPorts.add(jup);
+                }
+                else
+                    jup     = new JACKUIOscPortOut(jp);
+                break;
 
             case R_PATH:
                 jp      = new JACKPathPort(port, this);
@@ -392,9 +425,10 @@ namespace lsp
             #ifdef LSP_DEBUG
                 const char *src_id = jp->metadata()->id;
 
-                for (size_t i=0; i<vPorts.size(); ++i)
+                JACKPort **vp = vPorts.get_array();
+                for (size_t i=0, n=vPorts.size(); i<n; ++i)
                 {
-                    if (!strcmp(src_id, vPorts.at(i)->metadata()->id))
+                    if (!::strcmp(src_id, vp[i]->metadata()->id))
                     {
                         lsp_error("ERROR: port %s already defined", src_id);
                     }
@@ -423,6 +457,8 @@ namespace lsp
         if (pUI != NULL)
         {
             status_t res = pUI->init(this, argc, argv);
+            if (res == STATUS_OK)
+                res     = pUI->build();
             if (res != STATUS_OK)
             {
                 if (res == STATUS_NO_DEVICE)
@@ -624,6 +660,13 @@ namespace lsp
         }
         vPorts.clear();
 
+        // Cleanup generated metadata
+        for (size_t i=0; i<vGenMetadata.size(); ++i)
+        {
+            lsp_trace("destroy generated port metadata %p", vGenMetadata[i]);
+            drop_port_metadata(vGenMetadata[i]);
+        }
+
         // Clear all other port containers
         vDataPorts.clear();
         vSyncPorts.clear();
@@ -663,11 +706,71 @@ namespace lsp
         for (size_t i=0; i<sync; ++i)
         {
             JACKUIPort *jup     = vSyncPorts.at(i);
-            if (jup->sync())
-                jup->notify_all();
+            do {
+                if (jup->sync())
+                    jup->notify_all();
+            } while (jup->sync_again());
         }
         if (pUI != NULL)
+        {
             pUI->sync_meta_ports();
+
+            if (sKVTMutex.try_lock())
+            {
+                // Synchronize DSP -> UI transfer
+                size_t sync;
+                const char *kvt_name;
+                const kvt_param_t *kvt_value;
+
+                do
+                {
+                    sync = 0;
+
+                    KVTIterator *it = sKVT.enum_tx_pending();
+                    while (it->next() == STATUS_OK)
+                    {
+                        kvt_name = it->name();
+                        if (kvt_name == NULL)
+                            break;
+                        status_t res = it->get(&kvt_value);
+                        if (res != STATUS_OK)
+                            break;
+                        if ((res = it->commit(KVT_TX)) != STATUS_OK)
+                            break;
+
+                        kvt_dump_parameter("TX kvt param (DSP->UI): %s = ", kvt_value, kvt_name);
+                        pUI->kvt_write(&sKVT, kvt_name, kvt_value);
+                        ++sync;
+                    }
+                } while (sync > 0);
+
+                // Synchronize UI -> DSP transfer
+                #ifdef LSP_DEBUG
+                {
+                    KVTIterator *it = sKVT.enum_rx_pending();
+                    while (it->next() == STATUS_OK)
+                    {
+                        kvt_name = it->name();
+                        if (kvt_name == NULL)
+                            break;
+                        status_t res = it->get(&kvt_value);
+                        if (res != STATUS_OK)
+                            break;
+                        if ((res = it->commit(KVT_RX)) != STATUS_OK)
+                            break;
+
+                        kvt_dump_parameter("RX kvt param (UI->DSP): %s = ", kvt_value, kvt_name);
+                    }
+                }
+                #else
+                    sKVT.commit_all(KVT_RX);    // Just clear all RX queue for non-debug version
+                #endif
+
+                // Call garbage collection and release KVT storage
+                sKVT.gc();
+                sKVTMutex.unlock();
+            }
+        }
 
         // Limit refresh rate of window icon and refresh icon
         if (nCounter++ >= 5)
@@ -729,6 +832,11 @@ namespace lsp
 
     canvas_data_t *JACKWrapper::render_inline_display(size_t width, size_t height)
     {
+        // Check for Inline display support
+        const plugin_metadata_t *meta = pPlugin->get_metadata();
+        if ((meta == NULL) || (!(meta->extensions & E_INLINE_DISPLAY)))
+            return NULL;
+
         // Lazy initialization
 //        lsp_trace("pCanvas = %p", pCanvas);
         if (pCanvas == NULL)
@@ -776,6 +884,21 @@ namespace lsp
         }
 
         return cv = ncv;
+    }
+
+    KVTStorage *JACKWrapper::kvt_lock()
+    {
+        return (sKVTMutex.lock()) ? &sKVT : NULL;
+    }
+
+    KVTStorage *JACKWrapper::kvt_trylock()
+    {
+        return (sKVTMutex.try_lock()) ? &sKVT : NULL;
+    }
+
+    bool JACKWrapper::kvt_release()
+    {
+        return sKVTMutex.unlock();
     }
 }
 

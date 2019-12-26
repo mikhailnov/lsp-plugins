@@ -77,6 +77,26 @@ template <class T, class P>
         return reinterpret_cast<T *>((x & mask) ? ((x + align)&(~mask)) : x);
     }
 
+template <class T>
+    inline void swap(T &a, T &b)
+    {
+        T tmp = a;
+        a = b;
+        b = tmp;
+    }
+
+template <class A, class B>
+    inline A lsp_max(A a, B b)
+    {
+        return (a > b) ? a : b;
+    }
+
+template <class A, class B>
+    inline A lsp_min(A a, B b)
+    {
+        return (a <= b) ? a : b;
+    }
+
 /** Free aligned pointer and write NULL to it
  *
  * @param ptr pointer to free

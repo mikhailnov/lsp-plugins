@@ -33,9 +33,10 @@ namespace lsp
 
         lsp_trace("max_size = %d, size = %d", int(max_size), int(size));
 
-        pBuffer     = new float[size];
-        if (pBuffer == NULL)
+        float *ptr      = reinterpret_cast<float *>(::realloc(pBuffer, size * sizeof(float)));
+        if (ptr == NULL)
             return false;
+        pBuffer         = ptr;
 
         dsp::fill_zero(pBuffer, size);
         nHead           = 0;
@@ -50,7 +51,7 @@ namespace lsp
     {
         if (pBuffer != NULL)
         {
-            delete [] pBuffer;
+            ::free(pBuffer);
             pBuffer     = NULL;
         }
     }
@@ -122,7 +123,7 @@ namespace lsp
                 size_t to_copy  = nSize - nTail;
                 if (to_copy > out)
                     to_copy         = out;
-                dsp::scale3(dst, &pBuffer[nTail], gain, to_copy);
+                dsp::mul_k3(dst, &pBuffer[nTail], gain, to_copy);
                 nTail           = (nTail + to_copy) % nSize;
                 dst            += to_copy;
                 out            -= to_copy;

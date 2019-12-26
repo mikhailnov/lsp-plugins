@@ -14,6 +14,9 @@ namespace lsp
     {
         class CtlListBox: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 LSPMessageBox      *pDialog;
 
@@ -26,7 +29,7 @@ namespace lsp
                 status_t            on_ok();
 
             public:
-                CtlListBox(CtlRegistry *src, LSPListBox *widget);
+                explicit CtlListBox(CtlRegistry *src, LSPListBox *widget);
                 virtual ~CtlListBox();
         };
     }

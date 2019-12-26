@@ -23,6 +23,8 @@ namespace lsp
 
         void CtlPort::bind(CtlPortListener *listener)
         {
+            if (vListeners.index_of(listener) >= 0)
+                return;
             vListeners.add(listener);
         }
 
@@ -38,6 +40,11 @@ namespace lsp
 
         void CtlPort::write(const void *buffer, size_t size)
         {
+        }
+
+        void CtlPort::write(const void *buffer, size_t size, size_t flags)
+        {
+            write(buffer, size);
         }
 
         void *CtlPort::get_buffer()
@@ -59,6 +66,11 @@ namespace lsp
         {
         }
 
+        void CtlPort::set_value(float value, size_t flags)
+        {
+            set_value(value);
+        }
+
         const char *CtlPort::id() const
         {
             return (pMetadata != NULL) ? pMetadata->id : NULL;
@@ -66,9 +78,28 @@ namespace lsp
 
         void CtlPort::notify_all()
         {
-            size_t count = vListeners.size();
+            // Prevent from modifying list of listeners at the sync stage
+            cvector<CtlPortListener> listeners;
+            if (!listeners.copy_from(&vListeners))
+                return;
+
+            // Call notify() for all listeners in the list
+            size_t count = listeners.size();
             for (size_t i=0; i<count; ++i)
-                vListeners[i]->notify(this);
+                listeners.at(i)->notify(this);
+        }
+
+        void CtlPort::sync_metadata()
+        {
+            // Prevent from modifying list of listeners at the sync stage
+            cvector<CtlPortListener> listeners;
+            if (!listeners.copy_from(&vListeners))
+                return;
+
+            // Call sync_metadata() for all listeners in the list
+            size_t count = listeners.size();
+            for (size_t i=0; i<count; ++i)
+                listeners.at(i)->sync_metadata(this);
         }
     
     } /* namespace tk */

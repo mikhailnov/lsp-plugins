@@ -14,13 +14,15 @@ namespace lsp
     {
         class CtlGraph: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlColor        sColor;
-                CtlColor        sBgColor;
                 CtlPadding      sPadding;
 
             public:
-                CtlGraph(CtlRegistry *src, LSPGraph *graph);
+                explicit CtlGraph(CtlRegistry *src, LSPGraph *graph);
                 virtual ~CtlGraph();
 
             public:
@@ -40,7 +42,7 @@ namespace lsp
                  *
                  * @param child child widget to add
                  */
-                virtual status_t add(LSPWidget *child);
+                virtual status_t add(CtlWidget *child);
         };
     
     } /* namespace ctl */

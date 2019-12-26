@@ -49,8 +49,12 @@ namespace x86
     enum cpu_vendor_enum
     {
         CPU_VENDOR_UNKNOWN,
+        CPU_VENDOR_AMD,
+        CPU_VENDOR_HYGON,
         CPU_VENDOR_INTEL,
-        CPU_VENDOR_AMD
+        CPU_VENDOR_NSC,
+        CPU_VENDOR_TRANSMETA,
+        CPU_VENDOR_VIA
     };
 
     typedef struct cpu_features_t
@@ -65,7 +69,8 @@ namespace x86
     enum feature_t
     {
         FEAT_FAST_MOVS,         // Processor implements optimized MOVS instruction
-        FEAT_FAST_AVX           // Fast AVX implementation
+        FEAT_FAST_AVX,          // Fast AVX implementation
+        FEAT_FAST_FMA3          // Fast FMA3 implementation
     };
 
     /**

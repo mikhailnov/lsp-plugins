@@ -56,6 +56,18 @@ namespace lsp
                 status_t    set(const LSPString *path);
                 status_t    set(const Path *path);
 
+                status_t    set(const char *path, const char *child);
+                status_t    set(const char *path, const LSPString *child);
+                status_t    set(const char *path, const Path *child);
+
+                status_t    set(const LSPString *path, const char *child);
+                status_t    set(const LSPString *path, const LSPString *child);
+                status_t    set(const LSPString *path, const Path *child);
+
+                status_t    set(const Path *path, const char *child);
+                status_t    set(const Path *path, const LSPString *child);
+                status_t    set(const Path *path, const Path *child);
+
                 inline const char *get() const                          { return sPath.get_utf8();  }
                 status_t    get(char *path, size_t maxlen) const;
                 status_t    get(LSPString *path) const;
@@ -133,14 +145,14 @@ namespace lsp
                 status_t    stat(fattr_t *attr) const;
                 status_t    sym_stat(fattr_t *attr) const;
                 wssize_t    size() const;
-                wssize_t    exists() const;
-                wssize_t    is_reg() const;
-                wssize_t    is_dir() const;
-                wssize_t    is_block_dev() const;
-                wssize_t    is_char_dev() const;
-                wssize_t    is_fifo() const;
-                wssize_t    is_symlink() const;
-                wssize_t    is_socket() const;
+                bool        exists() const;
+                bool        is_reg() const;
+                bool        is_dir() const;
+                bool        is_block_dev() const;
+                bool        is_char_dev() const;
+                bool        is_fifo() const;
+                bool        is_symlink() const;
+                bool        is_socket() const;
                 status_t    mkdir() const;
                 status_t    mkdir(bool recursive) const;
                 status_t    remove() const;

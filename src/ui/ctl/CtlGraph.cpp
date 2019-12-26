@@ -11,8 +11,11 @@ namespace lsp
 {
     namespace ctl
     {
+        const ctl_class_t CtlGraph::metadata = { "CtlGraph", &CtlWidget::metadata };
+
         CtlGraph::CtlGraph(CtlRegistry *src, LSPGraph *graph): CtlWidget(src, graph)
         {
+            pClass          = &metadata;
         }
 
         CtlGraph::~CtlGraph()
@@ -25,17 +28,16 @@ namespace lsp
             if (pWidget == NULL)
                 return;
 
-            LSPGraph *gr    = static_cast<LSPGraph *>(pWidget);
+            LSPGraph *gr    = widget_cast<LSPGraph>(pWidget);
 
             // Initialize color controllers
             sColor.init_hsl(pRegistry, gr, gr->color(), A_COLOR, A_HUE_ID, A_SAT_ID, A_LIGHT_ID);
-            sBgColor.init_basic(pRegistry, gr, gr->bg_color(), A_BG_COLOR);
             sPadding.init(gr->padding());
         }
 
         void CtlGraph::set(widget_attribute_t att, const char *value)
         {
-            LSPGraph *gr    = (pWidget != NULL) ? static_cast<LSPGraph *>(pWidget) : NULL;
+            LSPGraph *gr    = (pWidget != NULL) ? widget_cast<LSPGraph>(pWidget) : NULL;
 
             switch (att)
             {
@@ -57,24 +59,21 @@ namespace lsp
                     break;
                 default:
                 {
-                    bool set = sColor.set(att, value);
-                    set |= sBgColor.set(att, value);
-                    set |= sPadding.set(att, value);
-
-                    if (!set)
-                        CtlWidget::set(att, value);
+                    sColor.set(att, value);
+                    sPadding.set(att, value);
+                    CtlWidget::set(att, value);
                     break;
                 }
             }
         }
 
-        status_t CtlGraph::add(LSPWidget *child)
+        status_t CtlGraph::add(CtlWidget *child)
         {
             if (pWidget == NULL)
                 return STATUS_BAD_STATE;
 
-            LSPGraph *gr    = static_cast<LSPGraph *>(pWidget);
-            return gr->add(child);
+            LSPGraph *gr    = widget_cast<LSPGraph>(pWidget);
+            return gr->add(child->widget());
         }
     } /* namespace ctl */
 } /* namespace lsp */

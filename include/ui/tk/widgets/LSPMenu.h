@@ -28,6 +28,8 @@ namespace lsp
                     protected:
                         virtual LSPWidget    *find_widget(ssize_t x, ssize_t y);
 
+                        LSPMenu             *get_handler(ws_event_t *e);
+
                     public:
                         MenuWindow(LSPDisplay *dpy, LSPMenu *menu, size_t screen);
                         virtual ~MenuWindow();
@@ -55,9 +57,10 @@ namespace lsp
 
             protected:
                 cvector<LSPMenuItem>    vItems;
-                LSPWidgetFont           sFont;
+                LSPFont                 sFont;
                 MenuWindow             *pWindow;
-                LSPMenu                *pActive;
+                LSPMenu                *pParentMenu;
+                LSPMenu                *pActiveMenu;
                 LSPTimer                sScroll;
                 ssize_t                 nPopupLeft;
                 ssize_t                 nPopupTop;
@@ -65,16 +68,17 @@ namespace lsp
                 ssize_t                 nScroll;
                 ssize_t                 nScrollMax;
                 size_t                  nMBState;
-                Color                   sColor;
-                Color                   sSelColor;
-                Color                   sBorderColor;
+                LSPColor                sSelColor;
+                LSPColor                sBorderColor;
                 size_t                  nBorder;
                 size_t                  nSpacing;
 
             protected:
-                ssize_t                 find_item(ssize_t x, ssize_t y);
+                ssize_t                 find_item(ssize_t x, ssize_t y, ssize_t *ry);
                 static status_t         timer_handler(timestamp_t time, void *arg);
                 void                    update_scroll();
+                void                    selection_changed(ssize_t sel, ssize_t ry);
+                LSPMenu                *check_inside_submenu(ws_event_t *e);
 
                 void                    do_destroy();
 
@@ -91,16 +95,15 @@ namespace lsp
                 inline size_t   border() const      { return nBorder; };
                 inline size_t   spacing() const     { return nSpacing; };
                 inline ssize_t  scroll() const      { return nScroll; };
-                Color          *color()             { return &sColor; }
-                Color          *sel_color()         { return &sSelColor; }
-                Color          *border_color()      { return &sBorderColor; }
+                LSPColor       *sel_color()         { return &sSelColor; }
+                LSPColor       *border_color()      { return &sBorderColor; }
 
             public:
-                inline void set_popup_left(ssize_t value) { nPopupLeft = value; }
-                inline void set_popup_top(ssize_t value) { nPopupTop = value; }
-                void set_border(size_t value);
-                void set_spacing(size_t value);
-                void set_scroll(ssize_t scroll);
+                inline void         set_popup_left(ssize_t value) { nPopupLeft = value; }
+                inline void         set_popup_top(ssize_t value) { nPopupTop = value; }
+                void                set_border(size_t value);
+                void                set_spacing(size_t value);
+                void                set_scroll(ssize_t scroll);
 
                 virtual status_t    add(LSPWidget *child);
 
@@ -110,31 +113,33 @@ namespace lsp
 
                 virtual void        query_resize();
 
-                virtual void size_request(size_request_t *r);
+                virtual void        size_request(size_request_t *r);
 
-                virtual void realize(const realize_t *r);
+                virtual void        realize(const realize_t *r);
 
-                virtual bool hide();
+                virtual bool        hide();
 
-                virtual bool show();
+                virtual bool        show();
 
-                virtual bool show(size_t screen);
+                virtual bool        show(size_t screen);
 
-                virtual bool show(size_t screen, ssize_t left, ssize_t top);
+                virtual bool        show(size_t screen, ssize_t left, ssize_t top);
 
-                virtual bool show(LSPWidget *w);
+                virtual bool        show(LSPWidget *w, size_t screen, ssize_t left, ssize_t top);
 
-                virtual bool show(LSPWidget *w, ssize_t left, ssize_t top);
+                virtual bool        show(LSPWidget *w);
 
-                virtual bool show(LSPWidget *w, const ws_event_t *ev);
+                virtual bool        show(LSPWidget *w, ssize_t left, ssize_t top);
 
-                virtual status_t on_mouse_down(const ws_event_t *e);
+                virtual bool        show(LSPWidget *w, const ws_event_t *ev);
 
-                virtual status_t on_mouse_up(const ws_event_t *e);
+                virtual status_t    on_mouse_down(const ws_event_t *e);
 
-                virtual status_t on_mouse_move(const ws_event_t *e);
+                virtual status_t    on_mouse_up(const ws_event_t *e);
 
-                virtual status_t on_mouse_scroll(const ws_event_t *e);
+                virtual status_t    on_mouse_move(const ws_event_t *e);
+
+                virtual status_t    on_mouse_scroll(const ws_event_t *e);
         };
     
     } /* namespace tk */

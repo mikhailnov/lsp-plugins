@@ -14,8 +14,12 @@ namespace lsp
     {
         class CtlEdit: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 LSPFileDialog      *pDialog;
+                cvector<LSPWidget>  vWidgets;
 
             protected:
                 static status_t slot_on_submit(LSPWidget *sender, void *ptr, void *data);
@@ -23,7 +27,7 @@ namespace lsp
                 static status_t slot_on_cancel(LSPWidget *sender, void *ptr, void *data);
 
             public:
-                CtlEdit(CtlRegistry *src, LSPEdit *widget);
+                explicit CtlEdit(CtlRegistry *src, LSPEdit *widget);
                 virtual ~CtlEdit();
 
             public:

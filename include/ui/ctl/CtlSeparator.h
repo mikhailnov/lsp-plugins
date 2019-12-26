@@ -14,13 +14,15 @@ namespace lsp
     {
         class CtlSeparator: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 CtlColor        sColor;
-                CtlColor        sBgColor;
                 ssize_t         nOrientation;
 
             public:
-                CtlSeparator(CtlRegistry *src, LSPSeparator *widget, ssize_t orientation = -1);
+                explicit CtlSeparator(CtlRegistry *src, LSPSeparator *widget, ssize_t orientation = -1);
                 virtual ~CtlSeparator();
 
             public:

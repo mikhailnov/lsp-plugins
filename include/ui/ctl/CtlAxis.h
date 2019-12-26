@@ -14,6 +14,9 @@ namespace lsp
     {
         class CtlAxis: public CtlWidget
         {
+            public:
+                static const ctl_class_t metadata;
+
             protected:
                 enum flags_t
                 {
@@ -34,7 +37,7 @@ namespace lsp
                 void            update_axis();
 
             public:
-                CtlAxis(CtlRegistry *src, LSPAxis *axis);
+                explicit CtlAxis(CtlRegistry *src, LSPAxis *axis);
                 virtual ~CtlAxis();
 
             public:
