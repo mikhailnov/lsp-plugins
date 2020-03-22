@@ -15,6 +15,8 @@ Build-Depends:
  libsndfile-dev
 Standards-Version: 3.9.8
 Homepage: http://lsp-plug.in/
+Vcs-Git: https://github.com/mikhailnov/lsp-plugins.git
+Vcs-Browser: https://github.com/mikhailnov/lsp-plugins
 
 Package: lsp-plugins
 Architecture: all

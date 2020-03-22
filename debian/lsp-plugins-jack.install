@@ -1,2 +1,6 @@
 usr/bin/lsp-plugins-*
 usr/lib/lsp-plugins
+usr/share/applications/
+usr/share/desktop-directories/
+usr/share/icons/
+etc/xdg/
