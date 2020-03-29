@@ -1,3 +1,9 @@
+lsp-plugins (1.1.15-1) unstable; urgency=medium
+
+  * Version 1.1.15
+
+ -- Mikhail Novosyolov <mikhailnov@dumalogiya.ru>  Mon, 30 Mar 2020 02:34:15 +0300
+
 lsp-plugins (1.1.14-1) unstable; urgency=medium
 
   * Version 1.1.14
