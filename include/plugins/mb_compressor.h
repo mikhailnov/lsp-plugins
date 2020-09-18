@@ -1,8 +1,22 @@
 /*
- * mb_compressor.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 30 янв. 2018 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 30 янв. 2018 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef PLUGINS_MB_COMPRESSOR_H_
@@ -14,7 +28,6 @@
 #include <core/util/Bypass.h>
 #include <core/util/Sidechain.h>
 #include <core/util/Delay.h>
-#include <core/util/MeterGraph.h>
 #include <core/util/MeterGraph.h>
 #include <core/util/Analyzer.h>
 #include <core/filters/DynamicFilters.h>
@@ -62,7 +75,6 @@ namespace lsp
                 float           fFreqHCF;           // Cutoff frequency for low-pass filter
                 float           fFreqLCF;           // Cutoff frequency for high-pass filter
                 float           fMakeup;            // Makeup gain
-                float           fEnvLevel;          // Envelope level
                 float           fGainLevel;         // Gain adjustment level
                 size_t          nLookahead;         // Lookahead amount
 

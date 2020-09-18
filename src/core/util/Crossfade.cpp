@@ -1,8 +1,22 @@
 /*
- * Crossfade.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 22 янв. 2020 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 22 янв. 2020 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <dsp/dsp.h>
@@ -13,14 +27,19 @@ namespace lsp
     
     Crossfade::Crossfade()
     {
-        nSamples    = 0;
-        nCounter    = 0;
-        fDelta      = 0.0f;
-        fGain       = 1.0f;
+        construct();
     }
 
     Crossfade::~Crossfade()
     {
+    }
+
+    void Crossfade::construct()
+    {
+        nSamples    = 0;
+        nCounter    = 0;
+        fDelta      = 0.0f;
+        fGain       = 1.0f;
     }
 
     void Crossfade::init(int sample_rate, float time)
@@ -130,5 +149,12 @@ namespace lsp
         }
     }
 
+    void Crossfade::dump(IStateDumper *v) const
+    {
+        v->write("nSamples", nSamples);
+        v->write("nCounter", nCounter);
+        v->write("fDelta", fDelta);
+        v->write("fGain", fGain);
+    }
 
 } /* namespace lsp */

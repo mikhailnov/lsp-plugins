@@ -1,15 +1,31 @@
 /*
- * Sidechain.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 14 сент. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 14 сент. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CORE_UTIL_SIDECHAIN_H_
 #define CORE_UTIL_SIDECHAIN_H_
 
 #include <core/types.h>
+#include <core/IStateDumper.h>
 #include <core/util/ShiftBuffer.h>
+#include <core/filters/Equalizer.h>
 
 namespace lsp
 {
@@ -38,6 +54,9 @@ namespace lsp
 
     class Sidechain
     {
+        private:
+            Sidechain & operator = (const Sidechain &);
+
         protected:
             ShiftBuffer     sBuffer;                // Shift buffer for history
             size_t          nReactivity;            // Reactivity (in samples)
@@ -53,13 +72,16 @@ namespace lsp
             float           fGain;                  // Sidechain gain
             bool            bUpdate;                // Update sidechain parameters flag
             bool            bMidSide;               // Mid-side mode
+            Equalizer      *pPreEq;                 // Pre-equalizer
 
         protected:
             void            update_settings();
             void            refresh_processing();
+            bool            preprocess(float *out, const float **in, size_t samples);
+            bool            preprocess(float *out, const float *in);
 
         public:
-            Sidechain();
+            explicit Sidechain();
             ~Sidechain();
 
         public:
@@ -74,6 +96,12 @@ namespace lsp
              *
              */
             void destroy();
+
+            /** Set pre-processing equalizer
+             *
+             * @param eq equalizer
+             */
+            inline void set_pre_equalizer(Equalizer *eq)            { pPreEq = eq; }
 
             /** Set sample rate
              *
@@ -152,6 +180,12 @@ namespace lsp
              * @param in input data (one sample per channel)
              */
             float process(const float *in);
+
+            /**
+             * Dump the state
+             * @param dumper dumper
+             */
+            void dump(IStateDumper *v) const;
     };
 
 } /* namespace lsp */

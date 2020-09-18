@@ -1,8 +1,22 @@
 /*
- * LSPWindow.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 16 июн. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 16 июн. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/tk/tk.h>
@@ -24,10 +38,14 @@ namespace lsp
             if (res != STATUS_OK)
                 return;
 
-            const char *caption = text.get_native();
+            char *ascii = text.clone_ascii();
+            const char *caption = text.get_utf8();
             if (caption == NULL)
                 caption = "";
-            window->pWindow->set_caption(caption);
+
+            window->pWindow->set_caption((ascii != NULL) ? ascii : "", caption);
+            if (ascii != NULL)
+                ::free(ascii);
         }
 
         LSPWindow::LSPWindow(LSPDisplay *dpy, void *handle, ssize_t screen):
@@ -39,16 +57,17 @@ namespace lsp
             lsp_trace("native_handle = %p", handle);
 
             pWindow         = NULL;
-            pChild          = NULL;
             pNativeHandle   = handle;
-            enStyle         = BS_SIZABLE;
+            pChild          = NULL;
+            enStyle         = BS_SIZEABLE;
             nScreen         = screen;
+
             pFocus          = NULL;
             pPointed        = NULL;
             bHasFocus       = false;
             bOverridePointer= false;
-            bMapFlag        = false;
             bSizeRequest    = true;
+            bMapFlag        = false;
             nVertPos        = 0.5f;
             nHorPos         = 0.5f;
             nVertScale      = 0.0f;
@@ -101,9 +120,9 @@ namespace lsp
             sRedraw.set_handler(tmr_redraw_request, self());
 
             // Create and initialize window
-            pWindow     = (pNativeHandle != NULL) ? dpy->createWindow(pNativeHandle) :
-                          (nScreen >= 0) ? dpy->createWindow(nScreen) :
-                          dpy->createWindow();
+            pWindow     = (pNativeHandle != NULL) ? dpy->create_window(pNativeHandle) :
+                          (nScreen >= 0) ? dpy->create_window(nScreen) :
+                          dpy->create_window();
             if (pWindow == NULL)
                 return STATUS_UNKNOWN_ERR;
             pWindow->set_handler(this);
@@ -174,7 +193,9 @@ namespace lsp
 
             // Set window's size constraints and update geometry
             pWindow->set_size_constraints(&sr);
-            realize_t r = sSize;
+            realize_t r     = sSize;
+            lsp_trace("size = {%d %d %d %d}", int(sSize.nLeft), int(sSize.nTop), int(sSize.nWidth), int(sSize.nHeight));
+
             if (enPolicy == WP_GREEDY)
             {
                 if (sr.nMinWidth > 0)
@@ -182,8 +203,28 @@ namespace lsp
                 if (sr.nMinHeight > 0)
                     r.nHeight       = sr.nMinHeight;
             }
+            else
+            {
+                // Check whether window matches constraints
+                if ((sr.nMaxWidth > 0) && (r.nWidth > sr.nMaxWidth))
+                    r.nWidth        = sr.nMaxWidth;
+                if ((sr.nMaxHeight > 0) && (r.nHeight > sr.nMaxHeight))
+                    r.nHeight       = sr.nMaxHeight;
 
-            pWindow->resize(r.nWidth, r.nHeight);
+                if ((sr.nMinWidth > 0) && (r.nWidth < sr.nMinWidth))
+                    r.nWidth        = sr.nMinWidth;
+                if ((sr.nMinHeight > 0) && (r.nHeight < sr.nMinHeight))
+                    r.nHeight       = sr.nMinHeight;
+            }
+
+            if ((sSize.nWidth != r.nWidth) && (sSize.nHeight != r.nHeight))
+                pWindow->resize(r.nWidth, r.nHeight);
+
+            lsp_trace("r = {%d %d %d %d}", int(r.nLeft), int(r.nTop), int(r.nWidth), int(r.nHeight));
+
+            bSizeRequest    = false;
+            query_draw(REDRAW_CHILD | REDRAW_SURFACE);
+            realize(&r);
 
             return STATUS_OK;
         }
@@ -241,9 +282,6 @@ namespace lsp
             {
                 lsp_trace("Synchronizing size");
                 sync_size();
-                bSizeRequest    = false;
-                query_draw(REDRAW_CHILD | REDRAW_SURFACE);
-                realize(&sSize);
             }
 
             if (!redraw_pending())
@@ -254,8 +292,12 @@ namespace lsp
             if (s == NULL)
                 return STATUS_OK;
 
+            bool force = nFlags & REDRAW_SURFACE;
+            ws::ISurface *bs = get_surface(s);
+
             s->begin();
-                render(s, nFlags & REDRAW_SURFACE);
+                render(bs, force);
+                s->draw(bs, 0, 0);
                 commit_redraw();
             s->end();
 
@@ -552,6 +594,12 @@ namespace lsp
                         result      = sSlots.execute(LSPSLOT_HIDE, this, &ev);
                         bMapFlag    = nFlags & F_VISIBLE;
                     }
+                    if ((!bMapFlag) && (pSurface != NULL))
+                    {
+                        pSurface->destroy();
+                        delete pSurface;
+                        pSurface = NULL;
+                    }
                     break;
 
                 case UIE_REDRAW:
@@ -580,7 +628,10 @@ namespace lsp
                     r.nWidth    = e->nWidth;
                     r.nHeight   = e->nHeight;
                     if (result == STATUS_OK)
+                    {
                         this->realize(&r);
+                        query_draw(REDRAW_CHILD | REDRAW_SURFACE);
+                    }
                     break;
                 }
 
@@ -660,6 +711,8 @@ namespace lsp
 
         status_t LSPWindow::resize(ssize_t width, ssize_t height)
         {
+            lsp_trace("Resize: width=%d, height=%d", int(width), int(height));
+
             if (pWindow != NULL)
             {
                 status_t r = pWindow->resize(width, height);
@@ -1077,6 +1130,41 @@ namespace lsp
                 return STATUS_BAD_STATE;
 
             return pWindow->set_icon(bgra, width, height);
+        }
+
+        status_t LSPWindow::set_class(const char *instance, const char *wclass)
+        {
+            if (pWindow == NULL)
+                return STATUS_BAD_STATE;
+            return pWindow->set_class(instance, wclass);
+        }
+
+        status_t LSPWindow::set_class(const LSPString *instance, const LSPString *wclass)
+        {
+            if ((instance == NULL) || (wclass == NULL))
+                return STATUS_BAD_ARGUMENTS;
+            if (pWindow == NULL)
+                return STATUS_BAD_STATE;
+            char *i = instance->clone_ascii();
+            if (i == NULL)
+                return STATUS_NO_MEM;
+            const char *c = instance->get_utf8();
+
+            status_t res = (c != NULL) ? set_class(i, c) : STATUS_NO_MEM;
+            ::free(i);
+            return res;
+        }
+
+        status_t LSPWindow::set_role(const char *role)
+        {
+            if (pWindow == NULL)
+                return STATUS_BAD_STATE;
+            return pWindow->set_role(role);
+        }
+
+        status_t LSPWindow::set_role(const LSPString *role)
+        {
+            return set_role(role->get_utf8());
         }
 
     } /* namespace tk */

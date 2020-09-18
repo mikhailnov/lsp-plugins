@@ -1,8 +1,22 @@
 /*
- * parse.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 29 мая 2019 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 29 мая 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #define __LSP_PROTOCOL_OSC_IMPL
@@ -813,7 +827,7 @@ namespace lsp
             return STATUS_BAD_TYPE;
         }
 
-        status_t parse_midi(parse_frame_t *ref, midi_event_t *event)
+        status_t parse_midi(parse_frame_t *ref, midi::event_t *event)
         {
             // Check state and arguments
             if (!parse_check_msg(ref))
@@ -828,9 +842,10 @@ namespace lsp
                     if (left < sizeof(uint32_t))
                         return STATUS_CORRUPTED;
 
-                    midi_event_t ev;
-                    if (!decode_midi_message(&ev, &buf->data[buf->offset]))
-                        return STATUS_CORRUPTED;
+                    midi::event_t ev;
+                    ssize_t res = midi::decode(&ev, &buf->data[buf->offset]);
+                    if (res < 0)
+                        return -res;
                     if (event != NULL)
                         *event  = ev;
 
@@ -865,14 +880,14 @@ namespace lsp
                     if (left < sizeof(uint32_t))
                         return STATUS_CORRUPTED;
 
-                    midi_event_t ev;
-                    if (!decode_midi_message(&ev, &buf->data[buf->offset]))
-                        return STATUS_CORRUPTED;
-
+                    midi::event_t ev;
+                    ssize_t res = midi::decode(&ev, &buf->data[buf->offset]);
+                    if (res < 0)
+                        return -res;
                     if (event != NULL)
                         *event  = &buf->data[buf->offset];
                     if (len != NULL)
-                        *len    = encoded_midi_message_size(&ev);
+                        *len    = res;
 
                     buf->offset    += sizeof(uint32_t);
                     ++buf->args;

@@ -1,8 +1,22 @@
 /*
- * StringInputStream.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 14 июн. 2018 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 14 июн. 2018 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/io/InStringSequence.h>
@@ -115,10 +129,10 @@ namespace lsp
                 return set_error(STATUS_CLOSED);
 
             size_t avail = pString->length() - nOffset;
+            if (avail <= 0)
+                return -set_error(STATUS_EOF);
             if (count > avail)
                 count = avail;
-            if (count <= 0)
-                return 0;
 
             // Perform a copy
             const lsp_wchar_t *v = pString->characters();
@@ -176,7 +190,7 @@ namespace lsp
         ssize_t InStringSequence::skip(size_t count)
         {
             if (pString == NULL)
-                return set_error(STATUS_CLOSED);
+                return -set_error(STATUS_CLOSED);
 
             size_t avail = pString->length() - nOffset;
             if (count > avail)

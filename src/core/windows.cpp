@@ -1,8 +1,22 @@
 /*
- * Windowing.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 20 февр. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 20 февр. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/windows.h>
@@ -33,6 +47,8 @@ namespace lsp
             "Rectangular",
             "Flat top",
             "Cosine",
+            "Squared Cosine",
+            "Cubic",
             NULL
         };
 
@@ -59,6 +75,8 @@ namespace lsp
                 case RECTANGULAR: rectangular(dst, n); break;
                 case FLAT_TOP: flat_top(dst, n); break;
                 case COSINE: cosine(dst, n); break;
+                case SQR_COSINE: sqr_cosine(dst, n); break;
+                case CUBIC: cubic(dst, n); break;
                 default:
                     break;
             }
@@ -230,6 +248,41 @@ namespace lsp
             float f         = M_PI / (n - 1);
             for (size_t i=0; i<n; ++i)
                 dst[i]      = sinf(f * i);
+        }
+
+        void sqr_cosine(float *dst, size_t n)
+        {
+            if (n == 0)
+                return;
+
+            float f         = M_PI / n;
+            for (size_t i=0; i<n; ++i)
+            {
+                float a     = sinf(f * i);
+                dst[i]      = a*a;
+            }
+        }
+
+        void cubic(float *dst, size_t n)
+        {
+            if (n <= 1)
+            {
+                if (n == 1)
+                    dst[n] = 1.0f;
+                return;
+            }
+
+            size_t middle   = n >> 1;
+            float kx        = 1.0f / middle;
+            size_t i        = 0;
+            for (; i < middle; ++i)
+            {
+                float x         = i * kx;
+                dst[i]          = x*x*(3.0f - 2.0f*x);
+            }
+            middle          = n - 1;
+            for (; i<n; ++i)
+                dst[i]          = 1.0f - dst[middle - i];
         }
 
         void gaussian_general(float *dst, size_t n, float s)

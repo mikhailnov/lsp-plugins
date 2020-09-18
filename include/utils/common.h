@@ -1,8 +1,22 @@
 /*
- * common.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 15 июл. 2019 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 15 июл. 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UTILS_COMMON_H_
@@ -10,18 +24,6 @@
 
 #include <core/resource.h>
 
-namespace lsp
-{
-#ifdef LSP_BUILTIN_RESOURCES
-    const resource_t builtin_resources[] =
-    {
-        { NULL, NULL, RESOURCE_UNKNOWN }
-    };
-
-    const char *string_dictionary = "";
-    const float float_dictionary[] = { 0.0f };
-#endif /* LSP_BUILTIN_RESOURCES */
-
-}
+BUILTIN_RESOURCES_STUB
 
 #endif /* UTILS_COMMON_H_ */

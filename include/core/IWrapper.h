@@ -1,8 +1,22 @@
 /*
- * IWrapper.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 27 янв. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 27 янв. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CORE_IWRAPPER_H_
@@ -16,10 +30,18 @@
 
 namespace lsp
 {
+    class plugin_t;
+
     class IWrapper
     {
+        private:
+            IWrapper & operator = (const IWrapper &);
+
+        protected:
+            plugin_t       *pPlugin;
+
         public:
-            explicit IWrapper();
+            explicit IWrapper(plugin_t *plugin);
             virtual ~IWrapper();
 
         public:
@@ -67,6 +89,16 @@ namespace lsp
              * @return true on success
              */
             virtual bool kvt_release();
+
+            /**
+             * Notify the host about internal state change
+             */
+            virtual void state_changed();
+
+            /**
+             * Dump the state of plugin
+             */
+            virtual void dump_plugin_state();
     };
 
 } /* namespace lsp */

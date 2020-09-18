@@ -1,8 +1,22 @@
 /*
- * ConfigFile.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 11 июн. 2018 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 11 июн. 2018 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/files/config.h>
@@ -801,15 +815,15 @@ namespace lsp
 
             while (true)
             {
-                size_t items = resource_fetch_number(&data);
+                size_t items = resource::fetch_number(&data);
                 if (items == 0) // Regular parameter
                 {
-                    const char *id = resource_fetch_dstring(&data);
+                    const char *id = resource::fetch_dstring(&data);
                     if (::strlen(id) <= 0) // End of sequence?
                         break;
 
-                    size_t flags        = resource_fetch_number(&data);
-                    const char *value   = resource_fetch_dstring(&data);
+                    size_t flags        = resource::fetch_number(&data);
+                    const char *value   = resource::fetch_dstring(&data);
                     res = h->handle_parameter(id, value, flags);
                     if (res != STATUS_OK)
                         return res;
@@ -822,49 +836,49 @@ namespace lsp
                     {
                         if (!path.append('/'))
                             return STATUS_NO_MEM;
-                        if (!path.append_utf8(resource_fetch_dstring(&data)))
+                        if (!path.append_utf8(resource::fetch_dstring(&data)))
                             return STATUS_NO_MEM;
                     }
 
 
-                    size_t flags        = resource_fetch_number(&data);
+                    size_t flags        = resource::fetch_number(&data);
 
                     switch (flags & SF_TYPE_MASK)
                     {
                         case SF_TYPE_I32:
                             kp.type     = KVT_INT32;
-                            kp.i32      = resource_fetch_number(&data);
+                            kp.i32      = resource::fetch_number(&data);
                             break;
                         case SF_TYPE_U32:
                             kp.type     = KVT_UINT32;
-                            kp.u32      = resource_fetch_number(&data);
+                            kp.u32      = resource::fetch_number(&data);
                             break;
                         case SF_TYPE_I64:
                             kp.type     = KVT_INT64;
-                            kp.i64      = resource_fetch_number(&data);
+                            kp.i64      = resource::fetch_number(&data);
                             break;
                         case SF_TYPE_U64:
                             kp.type     = KVT_UINT64;
-                            kp.u64      = resource_fetch_number(&data);
+                            kp.u64      = resource::fetch_number(&data);
                             break;
                         case SF_TYPE_F32:
                             kp.type     = KVT_FLOAT32;
-                            kp.f32      = resource_fetch_dfloat(&data);
+                            kp.f32      = resource::fetch_dfloat(&data);
                             break;
                         case SF_TYPE_F64:
                             kp.type     = KVT_FLOAT64;
-                            resource_fetch_bytes(&kp.f64, &data, sizeof(kp.f64));
+                            resource::fetch_bytes(&kp.f64, &data, sizeof(kp.f64));
                             break;
                         case SF_TYPE_STR:
                             kp.type     = KVT_STRING;
-                            kp.str      = resource_fetch_dstring(&data);
+                            kp.str      = resource::fetch_dstring(&data);
                             break;
                         case SF_TYPE_BLOB:
                             kp.type         = KVT_BLOB;
-                            kp.blob.size    = resource_fetch_number(&data);
-                            kp.blob.ctype   = resource_fetch_dstring(&data);
+                            kp.blob.size    = resource::fetch_number(&data);
+                            kp.blob.ctype   = resource::fetch_dstring(&data);
                             kp.blob.data    = (kp.blob.size > 0) ? data : NULL;
-                            resource_skip_bytes(&data, kp.blob.size);
+                            resource::skip_bytes(&data, kp.blob.size);
                             break;
                         default:
                             return STATUS_CORRUPTED;
@@ -895,7 +909,7 @@ namespace lsp
                 if (!tmp.set(path, 10))    // strlen("builtin://");
                     return STATUS_NO_MEM;
 
-                const resource_t *r = resource_get(tmp.get_utf8(), RESOURCE_PRESET);
+                const resource::resource_t *r = resource::get(tmp.get_utf8(), resource::RESOURCE_PRESET);
                 if (r == NULL)
                     return STATUS_NOT_FOUND;
 

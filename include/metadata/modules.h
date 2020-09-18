@@ -1,8 +1,22 @@
 /*
- * modules.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 06 окт. 2015 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 06 окт. 2015 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 // Define capabilities
@@ -31,12 +45,12 @@ MOD_PLUGIN(spectrum_analyzer_x16, plugin_ui)
 // Sampler
 MOD_PLUGIN(sampler_mono, plugin_ui)
 MOD_PLUGIN(sampler_stereo, plugin_ui)
-MOD_PLUGIN(multisampler_x12, plugin_ui)
-MOD_PLUGIN(multisampler_x12_do, plugin_ui)
-MOD_PLUGIN(multisampler_x24, plugin_ui)
-MOD_PLUGIN(multisampler_x24_do, plugin_ui)
-MOD_PLUGIN(multisampler_x48, plugin_ui)
-MOD_PLUGIN(multisampler_x48_do, plugin_ui)
+MOD_PLUGIN(multisampler_x12, multisampler_ui)
+MOD_PLUGIN(multisampler_x12_do, multisampler_ui)
+MOD_PLUGIN(multisampler_x24, multisampler_ui)
+MOD_PLUGIN(multisampler_x24_do, multisampler_ui)
+MOD_PLUGIN(multisampler_x48, multisampler_ui)
+MOD_PLUGIN(multisampler_x48_do, multisampler_ui)
 
 // Trigger
 MOD_PLUGIN(trigger_mono, plugin_ui)
@@ -155,6 +169,31 @@ MOD_PLUGIN(sc_mb_expander_mono, plugin_ui)
 MOD_PLUGIN(sc_mb_expander_stereo, plugin_ui)
 MOD_PLUGIN(sc_mb_expander_lr, plugin_ui)
 MOD_PLUGIN(sc_mb_expander_ms, plugin_ui)
+
+// Multiband gates
+MOD_PLUGIN(mb_gate_mono, plugin_ui)
+MOD_PLUGIN(mb_gate_stereo, plugin_ui)
+MOD_PLUGIN(mb_gate_lr, plugin_ui)
+MOD_PLUGIN(mb_gate_ms, plugin_ui)
+MOD_PLUGIN(sc_mb_gate_mono, plugin_ui)
+MOD_PLUGIN(sc_mb_gate_stereo, plugin_ui)
+MOD_PLUGIN(sc_mb_gate_lr, plugin_ui)
+MOD_PLUGIN(sc_mb_gate_ms, plugin_ui)
+
+// Loudness compensator
+MOD_PLUGIN(loud_comp_mono, plugin_ui)
+MOD_PLUGIN(loud_comp_stereo, plugin_ui)
+
+// Surge filter
+MOD_PLUGIN(surge_filter_mono, plugin_ui)
+MOD_PLUGIN(surge_filter_stereo, plugin_ui)
+
+// Crossover plugin
+MOD_PLUGIN(crossover_mono, plugin_ui)
+MOD_PLUGIN(crossover_stereo, plugin_ui)
+MOD_PLUGIN(crossover_ms, plugin_ui)
+MOD_PLUGIN(crossover_lr, plugin_ui)
+
 
 #ifndef LSP_NO_EXPERIMENTAL
     // Nonlinear Convolver

@@ -1,8 +1,22 @@
 /*
- * metadata.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 08 апр. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 08 апр. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef METADATA_PLUGINS_H_
@@ -32,9 +46,14 @@
 #define LSP_LATENCY_METER_BASE          LSP_LADSPA_BASE + 69
 #define LSP_MB_COMPRESSOR_BASE          LSP_LADSPA_BASE + 70
 #define LSP_PROFILER_BASE               LSP_LADSPA_BASE + 78
-#define LSP_REVERB_BUILDER_BASE         LSP_LADSPA_BASE + 80
+#define LSP_ROOM_BUILDER_BASE           LSP_LADSPA_BASE + 80
 #define LSP_MB_EXPANDER_BASE            LSP_LADSPA_BASE + 82
-#define LSP_NONLINEAR_CONVOLVER_BASE    LSP_LADSPA_BASE + 86
+#define LSP_MB_GATE_BASE                LSP_LADSPA_BASE + 90
+#define LSP_LOUD_COMP_BASE              LSP_LADSPA_BASE + 98
+#define LSP_SURGE_FILTER_BASE           LSP_LADSPA_BASE + 100
+#define LSP_CROSSOVER_BASE              LSP_LADSPA_BASE + 102
+
+#define LSP_NONLINEAR_CONVOLVER_BASE    LSP_LADSPA_BASE + 1000
 
 
 // Plugin metadata definitions
@@ -60,6 +79,10 @@
 #include <metadata/profiler.h>
 #include <metadata/room_builder.h>
 #include <metadata/mb_expander.h>
+#include <metadata/mb_gate.h>
+#include <metadata/loud_comp.h>
+#include <metadata/surge_filter.h>
+#include <metadata/crossover.h>
 
 #include <metadata/nonlinear_convolver.h>
 

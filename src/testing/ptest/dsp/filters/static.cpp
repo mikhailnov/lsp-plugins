@@ -1,8 +1,22 @@
 /*
- * static.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 21 авг. 2018 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 21 авг. 2018 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <dsp/dsp.h>
@@ -114,11 +128,11 @@ PTEST_BEGIN("dsp.filters", static, 10, 1000)
         // Filters x 2
         for (size_t i=0; i<2; ++i)
         {
-            f.x2.a0[i]      = bq_normal.a0;
-            f.x2.a1[i]      = bq_normal.a1;
-            f.x2.a2[i]      = bq_normal.a2;
+            f.x2.b0[i]      = bq_normal.b0;
             f.x2.b1[i]      = bq_normal.b1;
             f.x2.b2[i]      = bq_normal.b2;
+            f.x2.a1[i]      = bq_normal.a1;
+            f.x2.a2[i]      = bq_normal.a2;
             f.x2.p[i]       = 0.0f;
         }
 
@@ -144,11 +158,11 @@ PTEST_BEGIN("dsp.filters", static, 10, 1000)
         // Filters x 4
         for (size_t i=0; i<4; ++i)
         {
-            f.x4.a0[i]     = bq_normal.a0;
-            f.x4.a1[i]     = bq_normal.a1;
-            f.x4.a2[i]     = bq_normal.a2;
+            f.x4.b0[i]     = bq_normal.b0;
             f.x4.b1[i]     = bq_normal.b1;
             f.x4.b2[i]     = bq_normal.b2;
+            f.x4.a1[i]     = bq_normal.a1;
+            f.x4.a2[i]     = bq_normal.a2;
         }
 
         for (size_t i=0; i<8; ++i)
@@ -170,11 +184,11 @@ PTEST_BEGIN("dsp.filters", static, 10, 1000)
         // Filters x 8
         for (size_t i=0; i<8; ++i)
         {
-            f.x8.a0[i]     = bq_normal.a0;
-            f.x8.a1[i]     = bq_normal.a1;
-            f.x8.a2[i]     = bq_normal.a2;
+            f.x8.b0[i]     = bq_normal.b0;
             f.x8.b1[i]     = bq_normal.b1;
             f.x8.b2[i]     = bq_normal.b2;
+            f.x8.a1[i]     = bq_normal.a1;
+            f.x8.a2[i]     = bq_normal.a2;
         }
 
         for (size_t i=0; i<8; ++i)

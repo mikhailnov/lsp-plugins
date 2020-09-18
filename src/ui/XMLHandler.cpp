@@ -1,8 +1,22 @@
 /*
- * XMLHandler.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 29 окт. 2019 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 29 окт. 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/debug.h>
@@ -36,7 +50,7 @@ namespace lsp
     {
         XMLNode *top        = vHandlers.last();
         XMLNode *child      = NULL;
-        //lsp_trace("start: %s", name->get_utf8());
+//        lsp_trace("start: %s", name->get_utf8());
 
         // Analyze
         if (top != NULL)
@@ -94,7 +108,7 @@ namespace lsp
 
     LSPString *XMLHandler::fetch_element_string(const void **data)
     {
-        const char *s = resource_fetch_dstring(data);
+        const char *s = resource::fetch_dstring(data);
         if (s == NULL)
             return NULL;
 
@@ -125,7 +139,7 @@ namespace lsp
         return parser.parse_file(this, path, "UTF-8");
     }
 
-    status_t XMLHandler::parse_resource(const resource_t *rs, XMLNode *root)
+    status_t XMLHandler::parse_resource(const resource::resource_t *rs, XMLNode *root)
     {
         // Obtain resource
         status_t res;
@@ -145,7 +159,7 @@ namespace lsp
 
         do
         {
-            size_t token = resource_fetch_byte(&data);
+            size_t token = resource::fetch_byte(&data);
             //lsp_trace("token = 0x%02x, path=%s", int(token), sPath.get_utf8());
 
             if (token != XML_CLOSE_TAG)
@@ -223,7 +237,7 @@ namespace lsp
             LSPString bpath;
             if (!bpath.set(uri, LSP_BUILTIN_PREFIX_LEN))
                 return STATUS_NO_MEM;
-            const resource_t *rs = resource_get(uri->get_utf8(), RESOURCE_XML);
+            const resource::resource_t *rs = resource::get(uri->get_utf8(), resource::RESOURCE_XML);
             return (rs != NULL) ? parse_resource(rs, root) : STATUS_NOT_FOUND;
         }
 
@@ -237,7 +251,7 @@ namespace lsp
             return res;
         return parse_file(p.as_string(), root);
 #else
-        const resource_t *rs = resource_get(uri->get_utf8(), RESOURCE_XML);
+        const resource::resource_t *rs = resource::get(uri->get_utf8(), resource::RESOURCE_XML);
         return (rs != NULL) ? parse_resource(rs, root) : STATUS_NOT_FOUND;
 #endif /* LSP_BUILTIN_RESOURCES */
     }

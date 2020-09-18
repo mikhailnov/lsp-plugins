@@ -1,8 +1,22 @@
 /*
- * compressor.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 30 янв. 2018 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 30 янв. 2018 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/types.h>
@@ -136,9 +150,9 @@ namespace lsp
             SWITCH("ce" id, "Compressor enable" label, 1.0f), \
             SWITCH("bs" id, "Solo band" label, 0.0f), \
             SWITCH("bm" id, "Mute band" label, 0.0f), \
-            LOG_CONTROL("al" id, "Attack level" label, U_GAIN_AMP, mb_compressor_base_metadata::ATTACK_LVL), \
+            LOG_CONTROL("al" id, "Attack threshold" label, U_GAIN_AMP, mb_compressor_base_metadata::ATTACK_LVL), \
             LOG_CONTROL("at" id, "Attack time" label, U_MSEC, mb_compressor_base_metadata::ATTACK_TIME), \
-            LOG_CONTROL("rrl" id, "Relative release level" label, U_GAIN_AMP, mb_compressor_base_metadata::RELEASE_LVL), \
+            LOG_CONTROL("rrl" id, "Release threshold" label, U_GAIN_AMP, mb_compressor_base_metadata::RELEASE_LVL), \
             LOG_CONTROL("rt" id, "Release time" label, U_MSEC, mb_compressor_base_metadata::RELEASE_TIME), \
             LOG_CONTROL("cr" id, "Ratio" label, U_NONE, mb_compressor_base_metadata::RATIO), \
             LOG_CONTROL("kn" id, "Knee" label, U_GAIN_AMP, mb_compressor_base_metadata::KNEE), \

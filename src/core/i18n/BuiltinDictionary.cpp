@@ -1,8 +1,22 @@
 /*
- * BuiltinDictionary.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 27 февр. 2020 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 27 февр. 2020 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <data/cvector.h>
@@ -52,7 +66,7 @@ namespace lsp
         return (vNodes.insert(first, src)) ?  STATUS_OK : STATUS_NO_MEM;
     }
 
-    status_t BuiltinDictionary::parse_dictionary(const resource_t *r)
+    status_t BuiltinDictionary::parse_dictionary(const resource::resource_t *r)
     {
         BuiltinDictionary *curr = NULL;
         cvector<BuiltinDictionary> stack;
@@ -64,7 +78,7 @@ namespace lsp
         for (const void *ptr = r->data; ; )
         {
             // Fetch the token
-            uint8_t v = resource_fetch_byte(&ptr);
+            uint8_t v = resource::fetch_byte(&ptr);
             if (v == 0)
                 break;
 
@@ -112,7 +126,7 @@ namespace lsp
                     if (curr == NULL)
                         return STATUS_BAD_STATE;
 
-                    node.sKey   = resource_fetch_dstring(&ptr);
+                    node.sKey   = resource::fetch_dstring(&ptr);
 //                    lsp_trace("  property key: %s", node.sKey);
                     if (!node.sKey)
                         return STATUS_CORRUPTED;
@@ -124,7 +138,7 @@ namespace lsp
                     if (curr == NULL)
                         return STATUS_BAD_STATE;
 
-                    node.sValue     = resource_fetch_dstring(&ptr);
+                    node.sValue     = resource::fetch_dstring(&ptr);
 //                    lsp_trace("  property value: %s", node.sValue);
                     if (!node.sValue)
                         return STATUS_CORRUPTED;
@@ -182,7 +196,7 @@ namespace lsp
             return STATUS_NO_MEM;
 
         // Try to load JSON resource
-        const resource_t *rs = resource_get(path->get_utf8(), RESOURCE_JSON);
+        const resource::resource_t *rs = resource::get(path->get_utf8(), resource::RESOURCE_JSON);
         if (rs == NULL)
             return STATUS_NOT_FOUND;
 

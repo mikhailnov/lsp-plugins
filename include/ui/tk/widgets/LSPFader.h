@@ -1,8 +1,22 @@
 /*
- * LSPFader.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 19 нояб. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 19 нояб. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UI_TK_WIDGETS_LSPFADER_H_
@@ -30,7 +44,6 @@ namespace lsp
                 float           fMin;
                 float           fMax;
                 float           fValue;
-                float           fDefault;
                 float           fStep;
                 float           fTinyStep;
                 ssize_t         nMinSize;
@@ -64,7 +77,6 @@ namespace lsp
 
             public:
                 inline float            value() const { return fValue; }
-                inline float            default_value() const { return fDefault; }
                 inline float            step() const { return fStep; }
                 inline float            tiny_step() const { return fTinyStep; }
                 inline float            min_value() const { return fMin; }
@@ -95,8 +107,6 @@ namespace lsp
                 virtual status_t on_mouse_down(const ws_event_t *e);
 
                 virtual status_t on_mouse_up(const ws_event_t *e);
-
-                virtual status_t on_mouse_dbl_click(const ws_event_t *e);
 
                 virtual status_t on_mouse_move(const ws_event_t *e);
 

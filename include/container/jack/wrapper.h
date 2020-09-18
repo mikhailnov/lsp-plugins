@@ -1,8 +1,22 @@
 /*
- * wrapper.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 11 мая 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 11 мая 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CONTAINER_JACK_WRAPPER_H_
@@ -45,7 +59,6 @@ namespace lsp
             };
 
         private:
-            plugin_t               *pPlugin;
             plugin_ui              *pUI;
             ipc::IExecutor         *pExecutor;
             jack_client_t          *pClient;
@@ -56,6 +69,8 @@ namespace lsp
             state_t                 nState;
             size_t                  nCounter;
             ssize_t                 nLatency;
+            volatile atomic_t       nDumpReq;
+            atomic_t                nDumpResp;
 
             position_t              sPosition;
 
@@ -69,7 +84,8 @@ namespace lsp
             ipc::Mutex              sKVTMutex;
 
         public:
-            JACKWrapper(plugin_t *plugin, plugin_ui *ui)
+            JACKWrapper(plugin_t *plugin, plugin_ui *ui):
+                IWrapper(plugin)
             {
                 pPlugin         = plugin;
                 pUI             = ui;
@@ -82,6 +98,8 @@ namespace lsp
                 nState          = S_CREATED;
                 nCounter        = 0;
                 nLatency        = 0;
+                nDumpReq        = 0;
+                nDumpResp       = 0;
 
                 position_t::init(&sPosition);
             }
@@ -121,6 +139,7 @@ namespace lsp
             status_t disconnect();
 
             void destroy();
+            void show_ui();
             bool transfer_dsp_to_ui();
 
             inline bool initialized() const     { return nState != S_CREATED;       }
@@ -167,6 +186,11 @@ namespace lsp
              * @return true on success
              */
             virtual bool kvt_release();
+
+            /**
+             * Request for state dump
+             */
+            virtual void dump_state_request();
     };
 }
 
@@ -302,6 +326,14 @@ namespace lsp
             lsp_trace("updating settings");
             pPlugin->update_settings();
             bUpdateSettings = false;
+        }
+
+        // Need to dump state?
+        atomic_t dump_req   = nDumpReq;
+        if (dump_req != nDumpResp)
+        {
+            dump_plugin_state();
+            nDumpResp           = dump_req;
         }
 
         // Call the main processing unit
@@ -724,9 +756,6 @@ namespace lsp
     bool JACKWrapper::transfer_dsp_to_ui()
     {
         // Validate state
-        if (nState != S_CONNECTED)
-            return false;
-
         dsp::context_t ctx;
         dsp::start(&ctx);
 
@@ -928,6 +957,41 @@ namespace lsp
     bool JACKWrapper::kvt_release()
     {
         return sKVTMutex.unlock();
+    }
+
+    void JACKWrapper::show_ui()
+    {
+        for (size_t i=0, n=vUIPorts.size(); i<n; ++i)
+        {
+            JACKUIPort *port = vUIPorts.at(i);
+            if (port != NULL)
+                port->notify_all();
+        }
+
+        size_request_t r;
+        LSPWindow *wnd      = pUI->root_window();
+        LSPDisplay *dpy     = wnd->display();
+
+        // Limit window size
+        wnd->size_request(&r);
+
+        // Set location and size of window
+        ssize_t w, h;
+        if (dpy->screen_size(wnd->screen(), &w, &h) == STATUS_OK)
+        {
+            w = (w - r.nMinWidth) >> 1;
+            h = (h - r.nMinHeight) >> 1;
+            wnd->set_geometry(w, h, r.nMinWidth, r.nMinHeight);
+        }
+        else
+            wnd->resize(r.nMinWidth, r.nMinHeight);
+
+        pUI->show();
+    }
+
+    void JACKWrapper::dump_state_request()
+    {
+        atomic_add(&nDumpReq, 1);
     }
 }
 

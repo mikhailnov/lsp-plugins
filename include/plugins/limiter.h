@@ -1,8 +1,22 @@
 /*
- * limiter.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 25 нояб. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 25 нояб. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef PLUGINS_LIMITER_H_
@@ -77,9 +91,6 @@ namespace lsp
             float           fInGain;        // Input gain
             float           fOutGain;       // Output gain
             float           fPreamp;        // Sidechain pre-amplification
-            float           fThresh;        // Limiter threshold
-            float           fKnee;          // Limiter knee
-            bool            bBoost;         // Gain boost
             size_t          nOversampling;  // Oversampling
             float           fStereoLink;    // Stereo linking
             float_buffer_t *pIDisplay;      // Inline display buffer
@@ -91,6 +102,9 @@ namespace lsp
             IPort          *pInGain;        // Input gain
             IPort          *pOutGain;       // Output gain
             IPort          *pPreamp;        // Sidechain pre-amplification
+            IPort          *pAlrOn;         // Automatic level regulation
+            IPort          *pAlrAttack;     // Automatic level regulation attack
+            IPort          *pAlrRelease;    // Automatic level regulation release
             IPort          *pMode;          // Operating mode
             IPort          *pThresh;        // Limiter threshold
             IPort          *pLookahead;     // Lookahead time
@@ -129,6 +143,7 @@ namespace lsp
 
             virtual void process(size_t samples);
             virtual bool inline_display(ICanvas *cv, size_t width, size_t height);
+            virtual void dump(IStateDumper *v) const;
     };
 
     class limiter_mono: public limiter_base, public limiter_mono_metadata

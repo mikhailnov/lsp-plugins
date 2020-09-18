@@ -1,8 +1,22 @@
 /*
- * Oversampler.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 19 нояб. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 19 нояб. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <dsp/dsp.h>
@@ -27,6 +41,16 @@ namespace lsp
 
     Oversampler::Oversampler()
     {
+        construct();
+    }
+
+    Oversampler::~Oversampler()
+    {
+        destroy();
+    }
+
+    void Oversampler::construct()
+    {
         pCallback   = NULL;
         fUpBuffer   = NULL;
         fDownBuffer = NULL;
@@ -36,10 +60,6 @@ namespace lsp
         nUpdate     = UP_ALL;
         bData       = NULL;
         bFilter     = true;
-    }
-    
-    Oversampler::~Oversampler()
-    {
     }
 
     bool Oversampler::init()
@@ -78,6 +98,7 @@ namespace lsp
             delete [] bData;
             fUpBuffer   = NULL;
             fDownBuffer = NULL;
+            bData       = NULL;
         }
         pCallback = NULL;
     }
@@ -708,6 +729,20 @@ namespace lsp
         }
 
         return 0;
+    }
+
+    void Oversampler::dump(IStateDumper *v) const
+    {
+        v->write("pCallback", pCallback);
+        v->write("fUpBuffer", fUpBuffer);
+        v->write("fDownBuffer", fDownBuffer);
+        v->write("nUpHead", nUpHead);
+        v->write("nMode", nMode);
+        v->write("nSampleRate", nSampleRate);
+        v->write("nUpdate", nUpdate);
+        v->write_object("sFilter", &sFilter);
+        v->write("bData", bData);
+        v->write("bFilter", bFilter);
     }
 
 } /* namespace lsp */

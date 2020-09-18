@@ -1,8 +1,22 @@
 /*
- * expander.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 4 нояб. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 4 нояб. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef PLUGINS_EXPANDER_H_
@@ -70,8 +84,10 @@ namespace lsp
             {
                 Bypass          sBypass;            // Bypass
                 Sidechain       sSC;                // Sidechain module
+                Equalizer       sSCEq;              // Sidechain equalizer
                 Expander        sExp;               // Expansion module
                 Delay           sDelay;             // Lookahead delay
+                Delay           sCompDelay;         // Compensation delay
                 MeterGraph      sGraph[G_TOTAL];    // Input meter graph
 
                 float          *vIn;                // Input data
@@ -102,6 +118,10 @@ namespace lsp
                 IPort          *pScSource;          // Sidechain source
                 IPort          *pScReactivity;      // Sidechain reactivity
                 IPort          *pScPreamp;          // Sidechain pre-amplification
+                IPort          *pScHpfMode;         // Sidechain high-pass filter mode
+                IPort          *pScHpfFreq;         // Sidechain high-pass filter frequency
+                IPort          *pScLpfMode;         // Sidechain low-pass filter mode
+                IPort          *pScLpfFreq;         // Sidechain low-pass filter frequency
 
                 IPort          *pMode;              // Mode
                 IPort          *pAttackLvl;         // Attack level

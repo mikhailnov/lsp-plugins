@@ -1,8 +1,22 @@
 /*
- * neon-d32.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 2 сент. 2018 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 2 сент. 2018 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 
@@ -62,6 +76,7 @@ namespace neon_d32 // TODO: make constants common for all architectures
 #include <dsp/arch/arm/neon-d32/pmath/abs_vv.h>
 #include <dsp/arch/arm/neon-d32/pmath/exp.h>
 #include <dsp/arch/arm/neon-d32/pmath/log.h>
+#include <dsp/arch/arm/neon-d32/pmath/minmax.h>
 #include <dsp/arch/arm/neon-d32/pmath/pow.h>
 
 #include <dsp/arch/arm/neon-d32/hmath/hsum.h>
@@ -184,6 +199,19 @@ namespace neon_d32
         EXPORT1(mul3);
         EXPORT1(div3);
         EXPORT1(mod3);
+
+        EXPORT1(pmin2);
+        EXPORT1(pmax2);
+        EXPORT1(psmin2);
+        EXPORT1(psmax2);
+        EXPORT1(pamin2);
+        EXPORT1(pamax2);
+        EXPORT1(pmin3);
+        EXPORT1(pmax3);
+        EXPORT1(psmin3);
+        EXPORT1(psmax3);
+        EXPORT1(pamin3);
+        EXPORT1(pamax3);
 
         EXPORT1(fmadd_k3);
         EXPORT1(fmsub_k3);

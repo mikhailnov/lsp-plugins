@@ -1,8 +1,22 @@
 /*
- * Randomizer.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 23 марта 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 23 марта 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/util/Randomizer.h>
@@ -40,6 +54,16 @@ namespace lsp
         0x000c2521, 0x000dd113, 0x0009eea5, 0x000ae007,
         0x00092df5, 0x000b42bd, 0x000e1b15, 0x000f054d
     };
+
+    Randomizer::Randomizer()
+    {
+        construct();
+    }
+
+    void Randomizer::construct()
+    {
+        nBufID = -1;
+    }
 
     void Randomizer::init(uint32_t seed)
     {
@@ -90,11 +114,30 @@ namespace lsp
                 return (rv <= 0.5f) ?
                     M_SQRT2 * RAND_T * sqrtf(rv) :
                     2.0f*RAND_T - sqrtf(4.0f - 2.0f*(1.0f + rv)) * RAND_T;
-//                    rv*rv/(2.0f * RAND_T * RAND_T) :
-//                    rv*(2.0f/RAND_T) - rv*rv/(2.0f * RAND_T * RAND_T) - 1.0f;
 
             default:
                 return rv;
         }
     }
+
+    void Randomizer::dump(IStateDumper *v) const
+    {
+        v->begin_array("vRandom", vRandom, 4);
+        for (size_t i=0; i<4; ++i)
+        {
+            const randgen_t *r = &vRandom[i];
+            v->begin_object(r, sizeof(randgen_t));
+            {
+                v->write("vLast", r->vLast);
+                v->write("vMul1", r->vMul1);
+                v->write("vMul2", r->vMul2);
+                v->write("vAdd", r->vAdd);
+            }
+            v->end_object();
+        }
+        v->end_array();
+
+        v->write("nBufID", nBufID);
+    }
+
 } /* namespace lsp */

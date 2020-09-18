@@ -1,8 +1,22 @@
 /*
- * INativeWindow.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 12 дек. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 12 дек. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/ws/ws.h>
@@ -305,7 +319,7 @@ namespace lsp
             return STATUS_NOT_IMPLEMENTED;
         }
 
-        status_t INativeWindow::set_caption(const char *text)
+        status_t INativeWindow::set_caption(const char *ascii, const char *utf8)
         {
             return STATUS_OK;
         }
@@ -353,6 +367,16 @@ namespace lsp
         status_t INativeWindow::ungrab_events()
         {
             return STATUS_NO_GRAB;
+        }
+
+        status_t INativeWindow::set_class(const char *instance, const char *wclass)
+        {
+            return STATUS_OK;
+        }
+
+        status_t INativeWindow::set_role(const char *wrole)
+        {
+            return STATUS_OK;
         }
     } /* namespace ws */
 } /* namespace lsp */

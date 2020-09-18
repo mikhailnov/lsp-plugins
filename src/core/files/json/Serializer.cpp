@@ -1,8 +1,22 @@
 /*
- * Serializer.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 17 окт. 2019 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 17 окт. 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/io/File.h>
@@ -481,6 +495,7 @@ namespace lsp
             {
                 lsp_wchar_t ch = value->char_at(curr);
 
+                // Check that we need to escape character
                 switch (ch)
                 {
                     case '\0': xb[bl++] = '0'; break;
@@ -495,9 +510,31 @@ namespace lsp
                     default:
                         if (ch < 0x20)
                         {
-                            xb[bl++] = 'x';
-                            xb[bl++] = hex(ch >> 4);
-                            xb[bl++] = hex(ch);
+                            xb[1]   = 'u';
+                            xb[2]   = '0';
+                            xb[3]   = '0';
+                            xb[4]   = hex(ch >> 4);
+                            xb[5]   = hex(ch);
+                            bl      = 6;
+                        }
+                        else if (ch >= 0x10000)
+                        {
+                            ch     -= 0x10000;
+                            lsp_wchar_t hi = 0xd800 | (ch >> 10);
+                            lsp_wchar_t lo = 0xdc00 | (ch & 0x3ff);
+
+                            xb[1]   = 'u';
+                            xb[2]   = hex(hi >> 12);
+                            xb[3]   = hex(hi >> 8);
+                            xb[4]   = hex(hi >> 4);
+                            xb[5]   = hex(hi);
+                            xb[6]   = '\\';
+                            xb[7]   = 'u';
+                            xb[8]   = hex(lo >> 12);
+                            xb[9]   = hex(lo >> 8);
+                            xb[10]  = hex(lo >> 4);
+                            xb[11]  = hex(lo);
+                            bl      = 12;
                         }
                         break;
                 }
@@ -563,7 +600,7 @@ namespace lsp
             size_t last = 0, curr = 0, bl = 4;
             char xb[0x10];
             xb[0] = '\\';
-            xb[1] = 'U';
+            xb[1] = 'u';
             xb[2] = '0';
             xb[3] = '0';
 

@@ -1,8 +1,22 @@
 /*
- * CtlExpression.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 23 июн. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 23 июн. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UI_CTL_CTLEXPRESSION_H_
@@ -37,11 +51,16 @@ namespace lsp
 
                     public:
                         virtual status_t on_resolved(const LSPString *name, CtlPort *p);
+
+                        virtual status_t resolve(calc::value_t *value, const char *name, size_t num_indexes, const ssize_t *indexes);
+
+                        virtual status_t resolve(calc::value_t *value, const LSPString *name, size_t num_indexes, const ssize_t *indexes);
                 };
 
             protected:
                 calc::Expression    sExpr;
                 calc::Variables     sVars;
+                calc::Parameters    sParams;
                 CtlResolver         sResolver;
                 CtlRegistry        *pCtl;
                 CtlPortListener    *pListener;
@@ -66,15 +85,17 @@ namespace lsp
                 void            init(CtlRegistry *ctl, CtlPortListener *listener);
                 void            destroy();
 
+                inline calc::Parameters *params()               { return &sParams; };
+
                 float           evaluate();
                 float           evaluate(size_t idx);
-                inline size_t   results()               { return sExpr.results(); }
+                inline size_t   results()                       { return sExpr.results(); }
                 float           result(size_t idx);
                 bool            parse(const char *expr, size_t flags = calc::Expression::FLAG_NONE);
                 bool            parse(const LSPString *expr, size_t flags = calc::Expression::FLAG_NONE);
                 bool            parse(io::IInSequence *expr, size_t flags = calc::Expression::FLAG_NONE);
-                inline bool     valid() const               { return sExpr.valid(); };
-                inline bool     depends(CtlPort *port) const { return vDependencies.index_of(port) >= 0; }
+                inline bool     valid() const                   { return sExpr.valid(); };
+                inline bool     depends(CtlPort *port) const    { return vDependencies.index_of(port) >= 0; }
 
                 #ifdef LSP_TRACE
                 inline const char *text() const         { return sText.get_utf8(); }

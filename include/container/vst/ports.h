@@ -1,8 +1,22 @@
 /*
- * ports.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 23 окт. 2015 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 23 окт. 2015 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CONTAINER_VST_PORTS_H_
@@ -138,6 +152,7 @@ namespace lsp
             float                   nCurrRow;
             size_t                  nCols;
             size_t                  nRows;
+            volatile vst_serial_t   nSID; // Serial ID of the parameter
 
         public:
             explicit VSTPortGroup(const port_t *meta, AEffect *effect, audioMasterCallback callback) : VSTPort(meta, effect, callback)
@@ -167,6 +182,11 @@ namespace lsp
                 return nCurrRow;
             }
 
+            inline vst_serial_t getSID()
+            {
+                return nSID;
+            }
+
             virtual bool serializable() const { return true; }
 
             virtual void serialize(vst_chunk_t *chunk)
@@ -181,7 +201,10 @@ namespace lsp
                     return -1;
                 int32_t value   = BE_TO_CPU(*(reinterpret_cast<const int32_t *>(data)));
                 if ((value >= 0) && (value < ssize_t(nRows)))
+                {
                     nCurrRow        = value;
+                    ++nSID;
+                }
                 return sizeof(int32_t);
             }
 
@@ -192,7 +215,10 @@ namespace lsp
 
                 int32_t v       = BE_TO_CPU(*(reinterpret_cast<const int32_t *>(data)));
                 if ((v >= 0) && (v < ssize_t(nRows)))
+                {
                     nCurrRow        = v;
+                    ++nSID;
+                }
 
                 return true;
             }
@@ -312,12 +338,10 @@ namespace lsp
 
             virtual bool pre_process(size_t samples)
             {
-                return fVstValue != fVstPrev;
-            }
-
-            virtual void post_process(size_t samples)
-            {
-                fVstPrev        = fVstValue;
+                if (fVstValue == fVstPrev)
+                    return false;
+                fVstPrev = fVstValue;
+                return true;
             }
 
             virtual void writeValue(float value)
@@ -364,6 +388,7 @@ namespace lsp
                     return -1;
                 float value     = BE_TO_CPU(*(reinterpret_cast<const float *>(data)));
                 writeValue(value);
+                ++nSID;
                 return sizeof(float);
             }
 
@@ -374,6 +399,7 @@ namespace lsp
 
                 float v         = BE_TO_CPU(*(reinterpret_cast<const float *>(data)));
                 writeValue(v);
+                ++nSID;
                 return true;
             }
     };
@@ -521,8 +547,8 @@ namespace lsp
                     const uint8_t *bytes        = reinterpret_cast<const uint8_t *>(vme->midiData);
 
                     // Decode MIDI event
-                    midi_event_t me;
-                    if (!decode_midi_message(&me, bytes))
+                    midi::event_t me;
+                    if (midi::decode(&me, bytes) <= 0)
                         return;
 
                     // Put the event to the queue
@@ -530,7 +556,7 @@ namespace lsp
 
                     // Debug
                     #ifdef LSP_TRACE
-                        #define TRACE_KEY(x)    case MIDI_MSG_ ## x: evt_type = #x; break;
+                        #define TRACE_KEY(x)    case midi::MIDI_MSG_ ## x: evt_type = #x; break;
                         lsp_trace("midi dump: %02x %02x %02x", int(bytes[0]) & 0xff, int(bytes[1]) & 0xff, int(bytes[2]) & 0xff);
 
                         char tmp_evt_type[32];
@@ -619,12 +645,12 @@ namespace lsp
 
                 for (size_t i=0; i<sQueue.nEvents; ++i)
                 {
-                    const midi_event_t *me  = &sQueue.vEvents[i];
-                    VstMidiEvent       *dst = &vEvents[pEvents->numEvents];
+                    const midi::event_t    *me  = &sQueue.vEvents[i];
+                    VstMidiEvent           *dst = &vEvents[pEvents->numEvents];
 
                     // Debug
                     #ifdef LSP_TRACE
-                        #define TRACE_KEY(x)    case MIDI_MSG_ ## x: evt_type = #x; break;
+                        #define TRACE_KEY(x)    case midi::MIDI_MSG_ ## x: evt_type = #x; break;
 
                         char tmp_evt_type[32];
                         const char *evt_type = NULL;
@@ -661,7 +687,7 @@ namespace lsp
 
                     #endif /* LSP_TRACE */
 
-                    size_t bytes = encode_midi_message(me, reinterpret_cast<uint8_t *>(dst->midiData));
+                    ssize_t bytes = midi::encode(reinterpret_cast<uint8_t *>(dst->midiData), me);
                     if (bytes <= 0)
                     {
                         lsp_error("Tried to serialize invalid MIDI event");
@@ -671,6 +697,11 @@ namespace lsp
                     dst->type           = kVstMidiType;
                     dst->byteSize       = sizeof(VstMidiEvent);
                     dst->deltaFrames    = me->timestamp;
+                    dst->flags          = (me->type >= midi::MIDI_MSG_CLOCK) ? kVstMidiEventIsRealtime : 0;
+                    dst->noteLength     = 0;
+                    dst->noteOffset     = 0;
+                    dst->detune         = 0;
+                    dst->noteOffVelocity= (me->type == midi::MIDI_MSG_NOTE_OFF) ? me->note.velocity : 0;
 
                     lsp_trace("midi dump: %02x %02x %02x",
                         int(dst->midiData[0]) & 0xff, int(dst->midiData[1]) & 0xff, int(dst->midiData[2]) & 0xff);

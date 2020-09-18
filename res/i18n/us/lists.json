@@ -17,6 +17,22 @@
 		"upward": "Upward"
 	},
 	
+	"crossover": {
+		"sel": {
+			"left": "Processor Left",
+			"mid": "Processor Middle",
+			"right": "Processor Right",
+			"side": "Processor Side"
+		},
+		"slope": {
+			"24dbo": "24 dB/oct",
+			"48dbo": "48 dB/oct",
+			"72dbo": "72 dB/oct",
+			"96dbo": "96 dB/oct",
+			"off": "Off"
+		}
+	},
+	
 	"dither": {
         "none": "None",
         "bits": {
@@ -71,10 +87,17 @@
 			"lrx_mt": "LRX (MT)",
 			"apo_dr": "APO (DR)"
 		},
+		"pos": {
+		    "post_eq": "Post-eq",
+			"pre_eq": "Pre-eq"
+		},
 		"slope": {
 			"6dbo": "6 dB/oct",
 			"12dbo": "12 dB/oct",
 			"18dbo": "18 dB/oct",
+			"24dbo": "24 dB/oct",
+			"30dbo": "30 dB/oct",
+			"36dbo": "36 dB/oct",
 			"off": "Off",
 			"x1": "x1",
 			"x2": "x2",
@@ -105,6 +128,7 @@
 			"blackman_harris": "Blackman-Harris",
 			"blackman_nuttall": "Blackman-Nuttall",
 			"cosine": "Cosine",
+			"cubic": "Cubic Hermite Spline",
 			"flat_top": "Flat top",
 			"gauss": "Gaussian",
 			"hamming": "Hamming",
@@ -115,6 +139,7 @@
 			"parzen": "Parzen",
 			"poisson": "Poisson",
 			"rectangular": "Rectangular",
+			"sqr_cosine": "Squared cosine",
 			"triangular": "Triangular",
 			"tukey": "Tukey",
 			"welch": "Welch"
@@ -175,9 +200,16 @@
 		}
 	},
 	
+	"lcomp": {
+		"curve": {
+			"flat": "Flat",
+			"fm": "Fletcher-Munson",
+			"iso226": "ISO 226:2003",
+			"rd": "Robinson-Dadson"
+		}
+	},
+	
 	"limiter": {
-	    "classic": "Classic",
-
         "exp_duck": "Exp Duck",
         "exp_tail": "Exp Tail",
         "exp_thin": "Exp Thin",
@@ -191,11 +223,7 @@
         "line_duck": "Line Duck",
         "line_tail": "Line Tail",
         "line_thin": "Line Thin",
-        "line_wide": "Line Wide",
-
-        "mided_exp": "Mixed Exp",
-        "mixed_herm": "Mixed Herm",
-        "mided_line": "Mixed Line"
+        "line_wide": "Line Wide"
 	},
 	
 	"mb_comp": {
@@ -215,6 +243,22 @@
 	},
 	
 	"mb_expand": {
+		"band0": "Band 0",
+		"band1": "Band 1",
+		"band2": "Band 2",
+		"band3": "Band 3",
+		"band4": "Band 4",
+		"band5": "Band 5",
+		"band6": "Band 6",
+		"band7": "Band 7",
+		"split": "Split",
+		"split_left": "Split Left",
+		"split_middle": "Split Mid",
+		"split_right": "Split Right",
+		"split_side": "Split Side"
+	},
+	
+	"mb_gate": {
 		"band0": "Band 0",
 		"band1": "Band 1",
 		"band2": "Band 2",
@@ -311,15 +355,15 @@
 		"flt_l_24:31": "Filters Left 24-31",
 		"flt_l_8:15": "Filters Left 8-15",
 		
-		"flt_m_0:7": "Filters Right 0-7",
-		"flt_m_16:23": "Filters Right 16-23",
-		"flt_m_24:31": "Filters Right 24-31",
-		"flt_m_8:15": "Filters Right 8-15",
+		"flt_m_0:7": "Filters Mid 0-7",
+		"flt_m_16:23": "Filters Mid 16-23",
+		"flt_m_24:31": "Filters Mid 24-31",
+		"flt_m_8:15": "Filters Mid 8-15",
 		
-		"flt_r_0:7": "Filters Mid 0-7",
-		"flt_r_16:23": "Filters Mid 16-23",
-		"flt_r_24:31": "Filters Mid 24-31",
-		"flt_r_8:15": "Filters Mid 8-15",
+		"flt_r_0:7": "Filters Right 0-7",
+		"flt_r_16:23": "Filters Right 16-23",
+		"flt_r_24:31": "Filters Right 24-31",
+		"flt_r_8:15": "Filters Right 8-15",
 		
 		"flt_s_0:7": "Filters Side 0-7",
 		"flt_s_16:23": "Filters Side 16-23",
@@ -381,7 +425,7 @@
 		"ir_eq": "IR Equalizer",
 		"mat": {
 			"alder": "Alder",
-			"aluminium": "Aluminum",
+			"aluminium": "Aluminium",
 			"ash": "Ash",
 			"basalt_fiber": "Basalt Fiber",
 			"birch": "Birch",
@@ -586,6 +630,14 @@
 		},
 		"spectralizer": "Spectralizer",
 		"spectralizer_s": "Spectralizer Stereo"
+	},
+	
+	"surge": {
+		"cubic": "Cubic",
+		"gaussian": "Gaussian",
+		"linear": "Linear",
+		"parabolic": "Parabolic",
+		"sine": "Sine"
 	},
 	
 	"trigger": {

@@ -1,8 +1,22 @@
 /*
- * Window.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 10 окт. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 10 окт. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UI_X11_WINDOW_H_
@@ -126,9 +140,11 @@ namespace lsp
                      */
                     virtual size_t screen();
 
-                    virtual status_t set_caption(const char *text);
+                    virtual status_t set_caption(const char *ascii, const char *utf8);
 
                     inline ::Window x11handle() const { return hWindow; }
+
+                    inline ::Window x11parent() const { return hParent; }
 
                 public:
                     /** Handle X11 event
@@ -324,6 +340,20 @@ namespace lsp
                      */
                     virtual mouse_pointer_t get_mouse_pointer();
 
+                    /**
+                     * Set window class
+                     * @param instance window instance, ASCII-string
+                     * @param wclass window class, ASCII-string
+                     * @return status of operation
+                     */
+                    virtual status_t set_class(const char *instance, const char *wclass);
+
+                    /**
+                     * Set window role
+                     * @param wrole window role, ASCII-string
+                     * @return status of operation
+                     */
+                    virtual status_t set_role(const char *wrole);
             };
         }
     

@@ -1,8 +1,22 @@
 /*
- * plugin_ui.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 20 окт. 2015 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 20 окт. 2015 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/debug.h>
@@ -261,6 +275,7 @@ namespace lsp
         PATH(UI_DLG_IR_PATH_ID, "Dialog path for selecting impulse response files"),
         PATH(UI_DLG_CONFIG_PATH_ID, "Dialog path for saving/loading configuration files"),
         PATH(UI_DLG_REW_PATH_ID, "Dialog path for importing REW settings files"),
+        PATH(UI_DLG_HYDROGEN_PATH_ID, "Dialog path for importing Hydrogen drumkit files"),
         PATH(UI_DLG_MODEL3D_PATH_ID, "Dialog for saving/loading 3D model files"),
         PATH(UI_DLG_DEFAULT_PATH_ID, "Dialog default path for other files"),
         PATH(UI_R3D_BACKEND_PORT_ID, "Identifier of selected backend for 3D rendering"),
@@ -686,6 +701,13 @@ namespace lsp
                 vWidgets.add(sep);
                 return new CtlSeparator(this, sep);
             }
+            case WC_VOID:
+            {
+                LSPVoid *v = new LSPVoid(&sDisplay);
+                v->init();
+                vWidgets.add(v);
+                return new CtlVoid(this, v);
+            }
 
             // File
             case WC_FILE:
@@ -761,13 +783,6 @@ namespace lsp
                 cnt->init();
                 vWidgets.add(cnt);
                 return new CtlCenter(this, cnt);
-            }
-            case WC_BASIS:
-            {
-                LSPBasis *basis = new LSPBasis(&sDisplay);
-                basis->init();
-                vWidgets.add(basis);
-                return new CtlBasis(this, basis);
             }
             case WC_MARKER:
             {
@@ -917,10 +932,10 @@ namespace lsp
         base[PATH_MAX] = '\0';
         size_t prefix_len = ::strlen(base);
 
-        for (const resource_t *r = resource_all(); (r->id != NULL); ++r)
+        for (const resource::resource_t *r = resource::all(); (r->id != NULL); ++r)
         {
             // Check that resource matches
-            if (r->type != RESOURCE_PRESET)
+            if (r->type != resource::RESOURCE_PRESET)
                 continue;
             if (::strstr(r->id, base) != r->id)
                 continue;
@@ -1271,6 +1286,7 @@ namespace lsp
     {
         c.append_utf8       ("This file contains configuration of the audio plugin.\n");
         c.fmt_append_utf8   ("  Plugin name:         %s (%s)\n", pMetadata->name, pMetadata->description);
+        c.fmt_append_utf8   ("  Package version:     %s\n", LSP_MAIN_VERSION);
         c.fmt_append_utf8   ("  Plugin version:      %d.%d.%d\n",
                 int(LSP_VERSION_MAJOR(pMetadata->version)),
                 int(LSP_VERSION_MINOR(pMetadata->version)),
@@ -1601,6 +1617,12 @@ namespace lsp
 
         }
         return NULL;
+    }
+
+    void plugin_ui::request_state_dump()
+    {
+        if (pWrapper != NULL)
+            pWrapper->dump_state_request();
     }
 
 

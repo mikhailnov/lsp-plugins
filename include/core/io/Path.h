@@ -1,8 +1,22 @@
 /*
- * Path.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 8 февр. 2019 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 8 февр. 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef INCLUDE_CORE_IO_PATH_H_
@@ -97,6 +111,10 @@ namespace lsp
                 status_t    append_child(const LSPString *path);
                 status_t    append_child(const Path *path);
 
+                status_t    append(const char *path);
+                status_t    append(const LSPString *path);
+                status_t    append(const Path *path);
+
                 status_t    remove_last();
                 status_t    remove_last(char *path, size_t maxlen);
                 status_t    remove_last(LSPString *path);
@@ -105,6 +123,11 @@ namespace lsp
                 status_t    remove_base(const char *path);
                 status_t    remove_base(const LSPString *path);
                 status_t    remove_base(const Path *path);
+
+                ssize_t     fmt(const char *fmt...);
+                ssize_t     fmt(const LSPString *fmt...);
+                ssize_t     vfmt(const char *fmt, va_list args);
+                ssize_t     vfmt(const LSPString *fmt, va_list args);
 
                 bool        is_absolute() const;
                 bool        is_relative() const;
@@ -136,7 +159,8 @@ namespace lsp
                 bool        equals(const LSPString *path) const;
                 bool        equals(const char *path) const;
 
-                inline const LSPString *as_string() const { return &sPath; }
+                inline const LSPString *as_string() const           { return &sPath; }
+                inline const char *as_utf8() const                  { return sPath.get_utf8(); }
                 inline const char *as_native(const char *charset = NULL) const { return sPath.get_native(charset); }
                 inline void take(Path *src) { sPath.take(&src->sPath); }
                 void take(LSPString *src);

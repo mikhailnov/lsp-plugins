@@ -1,8 +1,22 @@
 /*
- * CtlMeter.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 12 июл. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 12 июл. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/ctl/ctl.h>
@@ -62,9 +76,12 @@ namespace lsp
 
         float CtlMeter::calc_value(const port_t *p, float value)
         {
+            if (p == NULL)
+                return 0.0f;
+
             bool xlog = (nFlags & MF_LOG_SET) && (nFlags & MF_LOG);
 
-            if ((!xlog) && (p != NULL))
+            if (!xlog)
                 xlog = is_decibel_unit(p->unit) || (p->flags & F_LOG);
 
             if ((xlog) && (value < GAIN_AMP_M_120_DB))

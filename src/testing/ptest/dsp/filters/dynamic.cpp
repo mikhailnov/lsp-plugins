@@ -1,8 +1,22 @@
 /*
- * dynamic.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 22 авг. 2018 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 22 авг. 2018 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <dsp/dsp.h>
@@ -130,11 +144,11 @@ PTEST_BEGIN("dsp.filters", dynamic, 10, 1000)
         {
             for (size_t j=0; j<2; ++j)
             {
-                f[i].a0[j]  = bq_normal.a0;
-                f[i].a1[j]  = bq_normal.a1;
-                f[i].a2[j]  = bq_normal.a2;
+                f[i].b0[j]  = bq_normal.b0;
                 f[i].b1[j]  = bq_normal.b1;
                 f[i].b2[j]  = bq_normal.b2;
+                f[i].a1[j]  = bq_normal.a1;
+                f[i].a2[j]  = bq_normal.a2;
                 f[i].p[j]   = 0.0f;
             }
         }
@@ -165,11 +179,11 @@ PTEST_BEGIN("dsp.filters", dynamic, 10, 1000)
         {
             for (size_t j=0; j<4; ++j)
             {
-                f[i].a0[j]  = bq_normal.a0;
-                f[i].a1[j]  = bq_normal.a1;
-                f[i].a2[j]  = bq_normal.a2;
+                f[i].b0[j]  = bq_normal.b0;
                 f[i].b1[j]  = bq_normal.b1;
                 f[i].b2[j]  = bq_normal.b2;
+                f[i].a1[j]  = bq_normal.a1;
+                f[i].a2[j]  = bq_normal.a2;
             }
         }
 
@@ -197,11 +211,11 @@ PTEST_BEGIN("dsp.filters", dynamic, 10, 1000)
         {
             for (size_t j=0; j<8; ++j)
             {
-                f[i].a0[j]  = bq_normal.a0;
-                f[i].a1[j]  = bq_normal.a1;
-                f[i].a2[j]  = bq_normal.a2;
+                f[i].b0[j]  = bq_normal.b0;
                 f[i].b1[j]  = bq_normal.b1;
                 f[i].b2[j]  = bq_normal.b2;
+                f[i].a1[j]  = bq_normal.a1;
+                f[i].a2[j]  = bq_normal.a2;
             }
         }
 

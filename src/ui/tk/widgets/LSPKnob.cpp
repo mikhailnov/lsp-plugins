@@ -1,8 +1,22 @@
 /*
- * LSPKnob.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 10 июл. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 10 июл. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/tk/tk.h>
@@ -26,7 +40,6 @@ namespace lsp
             nButtons    = 0;
 
             fValue      = 0.5f;
-            fDflValue   = 0.5f;
             fStep       = 0.01f;
             fTinyStep   = 0.001f;
             fMin        = 0.0f;
@@ -127,15 +140,6 @@ namespace lsp
 
             fValue      = value;
             query_draw();
-        }
-
-        void LSPKnob::set_default_value(float value)
-        {
-            value       = limit_value(value);
-            if (fDflValue == value)
-                return;
-
-            fDflValue   = value;
         }
 
         void LSPKnob::set_step(float value)
@@ -374,17 +378,17 @@ namespace lsp
             return STATUS_OK;
         }
 
-        status_t LSPKnob::on_mouse_dbl_click(const ws_event_t *e)
-        {
-//            lsp_trace("x=%d, y=%d, state=%x, code=%x", int(e->nLeft), int(e->nTop), int(e->nState), int(e->nCode));
-            if (check_mouse_over(e->nLeft, e->nTop) == S_NONE)
-                return STATUS_OK;
-
-            set_value(fDflValue);
-            sSlots.execute(LSPSLOT_CHANGE, this);
-
-            return STATUS_OK;
-        }
+//        status_t LSPKnob::on_mouse_dbl_click(const ws_event_t *e)
+//        {
+////            lsp_trace("x=%d, y=%d, state=%x, code=%x", int(e->nLeft), int(e->nTop), int(e->nState), int(e->nCode));
+//            if (check_mouse_over(e->nLeft, e->nTop) == S_NONE)
+//                return STATUS_OK;
+//
+//            set_value(fDflValue);
+//            sSlots.execute(LSPSLOT_CHANGE, this);
+//
+//            return STATUS_OK;
+//        }
 
         void LSPKnob::draw(ISurface *s)
         {

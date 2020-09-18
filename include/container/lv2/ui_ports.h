@@ -1,8 +1,22 @@
 /*
- * lv2ui.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 23 окт. 2015 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 23 окт. 2015 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CONTAINER_LV2_UI_PORTS_H_
@@ -80,14 +94,8 @@ namespace lsp
                 if ((new_value >= 0) && (new_value < nRows) && (new_value != nCurrRow))
                 {
                     nCurrRow        = new_value;
-                    if (pPort != NULL)
-                    {
-                        lsp_trace("Directly writing group port id=%s, value=%d",
-                            pPort->metadata()->id, int(nCurrRow));
-                        pPort->setValue(nCurrRow);
-                    }
-                    else if (urid > 0)
-                        pExt->ui_write_state(this);
+                    lsp_trace("writing patch event id=%s, value=%d", pMetadata->id, int(new_value));
+                    pExt->ui_write_patch(this);
                 }
             }
 
@@ -150,14 +158,8 @@ namespace lsp
                 }
                 else
                 {
-                    if (pPort != NULL)
-                    {
-                        lsp_trace("Directly writing float port id=%s, value=%f",
-                            pPort->metadata()->id, fValue);
-                        pPort->setValue(fValue);
-                    }
-                    else if (urid > 0)
-                        pExt->ui_write_state(this);
+                    lsp_trace("writing patch event id=%s, value=%f", pMetadata->id, fValue);
+                    pExt->ui_write_patch(this);
                 }
             }
 
@@ -222,14 +224,8 @@ namespace lsp
                 }
                 else
                 {
-                    if (pPort != NULL)
-                    {
-                        lsp_trace("Directly writing float port id=%s, value=%f",
-                            pPort->metadata()->id, fValue);
-                        pPort->setValue(fValue);
-                    }
-                    else if (urid > 0)
-                        pExt->ui_write_state(this);
+                    lsp_trace("writing patch event id=%s, value=%f", pMetadata->id, fValue);
+                    pExt->ui_write_patch(this);
                 }
             }
 
@@ -268,7 +264,7 @@ namespace lsp
                     return;
                 }
                 LV2UIFloatPort::notify(buffer, protocol, size);
-                lsp_trace("id=%s, value=%f", pMetadata->id, fValue);
+//                lsp_trace("id=%s, value=%f", pMetadata->id, fValue);
             }
     };
 
@@ -658,20 +654,10 @@ namespace lsp
                 set_string(reinterpret_cast<const char *>(buffer), size);
 
                 // Try to perform direct access to the port using LV2:Instance interface
-                lv2_path_t *path    = (pPort != NULL) ? static_cast<lv2_path_t *>(pPort->getBuffer()) : NULL;
-                if (path != NULL)
-                {
-                    lsp_trace("Directly writing path port id=%s, path=%s (%d)",
-                            pPort->metadata()->id, static_cast<const char *>(buffer), int(size));
-                    path->submit(static_cast<const char *>(buffer), size, flags);
-                    return;
-                }
-
-                // Write data using atom port
-                if ((nID >= 0) && (flags == 0))
-                    pExt->ui_write_patch(this);
-                else
-                    pExt->ui_write_state(this, flags);
+                lsp_trace("writing patch event id=%s, path=%s (%d)",
+                        pMetadata->id, static_cast<const char *>(buffer), int(size)
+                );
+                pExt->ui_write_patch(this);
             }
 
             virtual void write(const void* buffer, size_t size)

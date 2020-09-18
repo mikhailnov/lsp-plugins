@@ -1,6 +1,6 @@
-<plugin resizable="false">
+<plugin resizable="true">
 	<vbox spacing="4">
-		<grid rows="2" cols="3" vspacing="4" hspacing="4">
+		<grid rows="2" cols="3" vspacing="4" hspacing="4" expand="true">
 			<graph width="640" height="320" expand="true" fill="true">
 				<center hpos="-1" vpos="-1" visible="false" />
 				
@@ -182,7 +182,7 @@
 					<label text="labels.chan.L_eft" font_size="9" color="left_channel" />
 					<label text="labels.chan.R_ight" font_size="9" color="right_channel" />
 				</grid>
-				<label text="Out" />
+				<label text="labels.chan.out" />
 				<vsep />
 				<grid rows="2" cols="2" hspacing="2" vspacing="2">
 					<button id="flt_l" size="10" color="green" led="true" />
@@ -201,7 +201,7 @@
 			<cgroup id="bsel" embed=":bsel ilt 2">
 				<grid rows="11" cols="24">
 					<label text="labels.band_hue" bg_color="bg2" />
-					<hbox fill="false" bg_color="bg2" >
+					<hbox fill="false" bg_color="bg2">
 						<button value="1" editable="false" size="16" color="red" hue_id="hue_0l" led="true" />
 						<label text="labels.chan.num_id_L_eft" text:id="0" />
 					</hbox>
@@ -211,7 +211,7 @@
 						<cell rows="11">
 							<vsep />
 						</cell>
-						<hbox fill="false" bg_color="bg2" >
+						<hbox fill="false" bg_color="bg2">
 							<button id="cbe_${i}l" size="16" color="red" hue_id="hue_${i}l" led="true" />
 							<label text="labels.chan.num_id_L_eft" text:id="${i}" bright="((${i} ieq 0) or :cbe_${i}l) ? 1 : 0.5" />
 						</hbox>
@@ -507,9 +507,9 @@
 								<cell cols="2"><label text="labels.attack" /></cell>
 								<cell cols="2"><label text="labels.release" /></cell>
 								
-								<cell><label text="labels.threshold" /></cell>
+								<cell><label text="labels.thresh_old" /></cell>
 								<cell><label text="labels.time" /></cell>
-								<cell><label text="labels.threshold" /></cell>
+								<cell><label text="labels.thresh_old" /></cell>
 								<cell><label text="labels.time" /></cell>
 								
 								<cell rows="2">
@@ -602,7 +602,7 @@
 							<center hpos="-1" vpos="-1" visible="false" />
 							<axis min="-72 db" max="24 db" color="g_gray" angle="0.0" logarithmic="true" /> <!-- horizontal axis -->
 							<axis min="-72 db" max="24 db" color="g_gray" angle="0.5" logarithmic="true" /> <!-- vertical axis -->
-							<marker value="1" offset="1" color="g_gray" basis="1" parallel="0" angle="0.25" width="2" smooth="true" /> <!-- 1:1 -->
+							<marker value="1" offset="1" color="g_gray" basis="1" parallel="0" dx=":_a_width" dy=":_a_height" width="2" smooth="true" /> <!-- 1:1 -->
 							<marker value="24 db" color="g_gray" basis="1" parallel="0" /> <!-- +24 dB -->
 							<marker value="24 db" color="g_gray" basis="0" parallel="1" /> <!-- +24 dB -->
 		

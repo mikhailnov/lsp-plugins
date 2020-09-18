@@ -1,8 +1,22 @@
 /*
- * Compressor.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 16 сент. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 16 сент. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <dsp/dsp.h>
@@ -103,10 +117,6 @@ namespace lsp
                 fEnvelope       += fTauAttack * (s - fEnvelope);
 
             out[i]          = fEnvelope;
-            if (isinf(out[i]))
-            {
-                lsp_trace("debug");
-            }
         }
 
         // Copy envelope to array if specified
@@ -294,4 +304,32 @@ namespace lsp
 
         return 1.0f;
     }
+
+    void Compressor::dump(IStateDumper *v) const
+    {
+        v->write("fAttackThresh", fAttackThresh);
+        v->write("fReleaseThresh", fReleaseThresh);
+        v->write("fBoostThresh", fBoostThresh);
+        v->write("fAttack", fAttack);
+        v->write("fRelease", fRelease);
+        v->write("fKnee", fKnee);
+        v->write("fRatio", fRatio);
+        v->write("fEnvelope", fEnvelope);
+        v->write("fTauAttack", fTauAttack);
+        v->write("fTauRelease", fTauRelease);
+        v->write("fXRatio", fXRatio);
+        v->write("fLogTH", fLogTH);
+        v->write("fKS", fKS);
+        v->write("fKE", fKE);
+        v->writev("vHermite", vHermite, 3);
+        v->write("fBLogTH", fBLogTH);
+        v->write("fBKS", fBKS);
+        v->write("fBKE", fBKE);
+        v->writev("vBHermite", vBHermite, 3);
+        v->write("fBoost", fBoost);
+        v->write("nSampleRate", nSampleRate);
+        v->write("bUpward", bUpward);
+        v->write("bUpdate", bUpdate);
+    }
+
 } /* namespace lsp */

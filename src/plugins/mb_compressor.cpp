@@ -1,8 +1,22 @@
 /*
- * mb_compressor.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 30 янв. 2018 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 30 янв. 2018 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/debug.h>
@@ -240,7 +254,6 @@ namespace lsp
                 b->fFreqHCF     = 0.0f;
                 b->fFreqLCF     = 0.0f;
                 b->fMakeup      = GAIN_AMP_0_DB;
-                b->fEnvLevel    = GAIN_AMP_0_DB;
                 b->fGainLevel   = GAIN_AMP_0_DB;
                 b->bEnabled     = j < mb_compressor_base_metadata::BANDS_DFL;
                 b->bCustHCF     = false;
@@ -268,6 +281,7 @@ namespace lsp
                 b->pSolo        = NULL;
                 b->pMute        = NULL;
                 b->pAttLevel    = NULL;
+                b->pAttTime     = NULL;
                 b->pRelLevel    = NULL;
                 b->pRelTime     = NULL;
                 b->pRatio       = NULL;
@@ -275,8 +289,11 @@ namespace lsp
                 b->pBThresh     = NULL;
                 b->pMakeup      = NULL;
                 b->pFreqEnd     = NULL;
+                b->pCurveGraph  = NULL;
+                b->pRelLevelOut = NULL;
                 b->pEnvLvl      = NULL;
                 b->pCurveLvl    = NULL;
+                b->pMeterGain   = NULL;
             }
 
             // Initialize split
@@ -581,6 +598,12 @@ namespace lsp
         if (pData != NULL)
             free_aligned(pData);
 
+        if (pIDisplay != NULL)
+        {
+            pIDisplay->detroy();
+            pIDisplay   = NULL;
+        }
+
         // Destroy analyzer
         sAnalyzer.destroy();
 
@@ -698,7 +721,7 @@ namespace lsp
         if (sAnalyzer.needs_reconfiguration())
         {
             sAnalyzer.reconfigure();
-            sAnalyzer.get_frequencies(vFreqs, vIndexes, SPEC_FREQ_MIN, SPEC_FREQ_MAX, para_equalizer_base_metadata::MESH_POINTS);
+            sAnalyzer.get_frequencies(vFreqs, vIndexes, SPEC_FREQ_MIN, SPEC_FREQ_MAX, mb_compressor_base_metadata::MESH_POINTS);
         }
 
         size_t latency = 0;
@@ -902,8 +925,8 @@ namespace lsp
                     }
 
                     // Update transfer function for equalizer
-                    b->sEQ[0].freq_chart(0, b->vTr, vFreqs, mb_compressor_base_metadata::FFT_MESH_POINTS);
-                    b->sEQ[0].freq_chart(1, vTr, vFreqs, mb_compressor_base_metadata::FFT_MESH_POINTS);
+                    b->sEQ[0].freq_chart(size_t(0), b->vTr, vFreqs, mb_compressor_base_metadata::FFT_MESH_POINTS);
+                    b->sEQ[0].freq_chart(size_t(1), vTr, vFreqs, mb_compressor_base_metadata::FFT_MESH_POINTS);
                     dsp::pcomplex_mul2(b->vTr, vTr, mb_compressor_base_metadata::FFT_MESH_POINTS);
                     dsp::pcomplex_mod(b->vTr, b->vTr, mb_compressor_base_metadata::FFT_MESH_POINTS);
 
@@ -1203,7 +1226,6 @@ namespace lsp
                         b->pCurveLvl->setValue(lvl);
 
                         // Remember last envelope level and buffer level
-                        b->fEnvLevel    = vEnv[to_process-1];
                         b->fGainLevel   = b->vVCA[to_process-1];
 
                         // Check muting option
@@ -1213,7 +1235,6 @@ namespace lsp
                     else
                     {
                         dsp::fill(b->vVCA, (b->bMute) ? GAIN_AMP_M_36_DB : GAIN_AMP_0_DB, to_process);
-                        b->fEnvLevel    = GAIN_AMP_0_DB;
                         b->fGainLevel   = GAIN_AMP_0_DB;
                     }
                 }
@@ -1364,9 +1385,9 @@ namespace lsp
                     {
                         // Add extra points
                         mesh->pvData[0][0] = SPEC_FREQ_MIN*0.5f;
-                        mesh->pvData[0][para_equalizer_base_metadata::MESH_POINTS+1] = SPEC_FREQ_MAX * 2.0f;
+                        mesh->pvData[0][mb_compressor_base_metadata::MESH_POINTS+1] = SPEC_FREQ_MAX * 2.0f;
                         mesh->pvData[1][0] = 0.0f;
-                        mesh->pvData[1][para_equalizer_base_metadata::MESH_POINTS+1] = 0.0f;
+                        mesh->pvData[1][mb_compressor_base_metadata::MESH_POINTS+1] = 0.0f;
 
                         // Fill mesh
                         dsp::copy(&mesh->pvData[0][1], vFreqs, mb_compressor_base_metadata::MESH_POINTS);

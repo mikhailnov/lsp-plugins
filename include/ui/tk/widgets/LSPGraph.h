@@ -1,8 +1,22 @@
 /*
- * LSPGraph.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 18 июл. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 18 июл. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UI_TK_LSPGRAPH_H_
@@ -28,6 +42,8 @@ namespace lsp
                 size_t                  nRadius;
                 float                   fCanvasLeft;
                 float                   fCanvasTop;
+                float                   fCanvasWidth;
+                float                   fCanvasHeight;
                 ISurface               *pGlass;
                 ISurface               *pCanvas;
 
@@ -95,7 +111,9 @@ namespace lsp
                 inline float    area_left() const           { return 1.0f; }
                 inline float    area_top() const            { return (pCanvas != NULL) ? pCanvas->height() - 1.0f: 0.0f; }
                 inline float    area_bottom() const         { return 1.0f; }
-                inline float    area_right()  const         { return (pCanvas != NULL) ? pCanvas->width() - 1.0f: 0.0f; }
+                inline float    area_right() const          { return (pCanvas != NULL) ? pCanvas->width() - 1.0f: 0.0f; }
+                inline float    area_width() const          { return fCanvasWidth; }
+                inline float    area_height() const         { return fCanvasHeight; }
 
             public:
                 virtual void        query_draw(size_t flags);
@@ -108,7 +126,11 @@ namespace lsp
 
                 virtual status_t    on_mouse_down(const ws_event_t *e);
 
+                virtual status_t    on_resize(const realize_t *r);
+
                 virtual void        draw(ISurface *s);
+
+                virtual void        realize(const realize_t *r);
         };
     
     } /* namespace tk */

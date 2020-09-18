@@ -1,14 +1,29 @@
 /*
- * Meter.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 20 мая 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 20 мая 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CORE_UTIL_METER_GRAPH_H_
 #define CORE_UTIL_METER_GRAPH_H_
 
 #include <core/types.h>
+#include <core/IStateDumper.h>
 #include <core/util/ShiftBuffer.h>
 
 namespace lsp
@@ -22,6 +37,9 @@ namespace lsp
     class MeterGraph
     {
         private:
+            MeterGraph & operator = (const MeterGraph &);
+
+        protected:
             ShiftBuffer         sBuffer;
             float               fCurrent;
             size_t              nCount;
@@ -29,7 +47,7 @@ namespace lsp
             bool                bMinimize;
 
         public:
-            MeterGraph();
+            explicit MeterGraph();
             ~MeterGraph();
 
         public:
@@ -41,6 +59,12 @@ namespace lsp
              */
             bool init(size_t frames, size_t period);
 
+            /**
+             * Get number of frames
+             * @return number of frames
+             */
+            inline size_t get_frames() const        { return sBuffer.size(); }
+
             /** Destroy meter graph
              *
              */
@@ -50,7 +74,7 @@ namespace lsp
              *
              * @param m metering method
              */
-            inline void set_method(meter_method_t m) { bMinimize = (m == MM_MINIMUM); };
+            inline void set_method(meter_method_t m) { bMinimize = (m == MM_MINIMUM); }
 
             /** Get data stored in buffer
              *
@@ -84,13 +108,19 @@ namespace lsp
              *
              * @return current level
              */
-            inline float level() const { return sBuffer.last(); }
+            inline float level() const      { return sBuffer.last(); }
 
             /** Fill graph with specific level
              *
              * @param level level
              */
-            inline void fill(float level) { sBuffer.fill(level); };
+            inline void fill(float level)   { sBuffer.fill(level); }
+
+            /**
+             * Dump internal state
+             * @param v state dumper
+             */
+            void dump(IStateDumper *v) const;
     };
 }
 

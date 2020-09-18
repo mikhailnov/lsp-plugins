@@ -1,8 +1,22 @@
 /*
- * trigger.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 04 мая 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 04 мая 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <metadata/plugins.h>
@@ -46,6 +60,15 @@ namespace lsp
     {
         { "Trigger",    "trigger.trig" },
         { "Instrument", "trigger.inst" },
+        { NULL, NULL }
+    };
+
+    static const port_item_t trigger_filter_slope[] =
+    {
+        { "off",        "eq.slope.off"      },
+        { "12 dB/oct",  "eq.slope.12dbo"    },
+        { "24 dB/oct",  "eq.slope.24dbo"    },
+        { "36 dB/oct",  "eq.slope.36dbo"    },
         { NULL, NULL }
     };
 
@@ -100,6 +123,10 @@ namespace lsp
         SWITCH("pause", "Pause graph analysis", 0.0f), \
         TRIGGER("clear", "Clear graph analysis"), \
         AMP_GAIN100("preamp", "Signal pre-amplification", 1.0f), \
+        COMBO("shpm", "High-pass filter mode", 0, trigger_filter_slope),      \
+        LOG_CONTROL("shpf", "High-pass filter frequency", U_HZ, compressor_base_metadata::HPF),   \
+        COMBO("slpm", "Low-pass filter mode", 0, trigger_filter_slope),      \
+        LOG_CONTROL("slpf", "Low-pass filter frequency", U_HZ, compressor_base_metadata::LPF), \
         AMP_GAIN10("dl", "Detect level", trigger_base_metadata::DETECT_LEVEL_DFL), \
         CONTROL("dt", "Detect time", U_MSEC, trigger_base_metadata::DETECT_TIME), \
         AMP_GAIN1("rrl", "Relative release level", trigger_base_metadata::RELEASE_LEVEL_DFL), \
@@ -190,7 +217,7 @@ namespace lsp
         "trigger_mono",
         "zghv",
         0,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         trigger_classes,
         E_INLINE_DISPLAY,
         trigger_mono_ports,
@@ -208,7 +235,7 @@ namespace lsp
         "trigger_stereo",
         "zika",
         0,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         trigger_classes,
         E_INLINE_DISPLAY,
         trigger_stereo_ports,
@@ -226,7 +253,7 @@ namespace lsp
         "trigger_midi_mono",
         "t4yz",
         0,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         trigger_classes,
         E_INLINE_DISPLAY,
         trigger_mono_midi_ports,
@@ -244,7 +271,7 @@ namespace lsp
         "trigger_midi_stereo",
         "9cqf",
         0,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         trigger_classes,
         E_INLINE_DISPLAY,
         trigger_stereo_midi_ports,

@@ -1,8 +1,22 @@
 /*
- * avx.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 09 марта 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 09 марта 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <dsp/dsp.h>
@@ -29,6 +43,7 @@
 #include <dsp/arch/x86/avx/pmath/fmop_kx.h>
 #include <dsp/arch/x86/avx/pmath/fmop_vv.h>
 #include <dsp/arch/x86/avx/pmath/abs_vv.h>
+#include <dsp/arch/x86/avx/pmath/minmax.h>
 
 #include <dsp/arch/x86/avx/hmath/hsum.h>
 #include <dsp/arch/x86/avx/hmath/hdotp.h>
@@ -144,6 +159,19 @@ namespace avx
         CEXPORT1(favx, mul3);
         CEXPORT1(favx, div3);
         CEXPORT1(favx, mod3);
+
+        CEXPORT1(favx, pmin2);
+        CEXPORT1(favx, pmax2);
+        CEXPORT1(favx, psmin2);
+        CEXPORT1(favx, psmax2);
+        CEXPORT1(favx, pamin2);
+        CEXPORT1(favx, pamax2);
+        CEXPORT1(favx, pmin3);
+        CEXPORT1(favx, pmax3);
+        CEXPORT1(favx, psmin3);
+        CEXPORT1(favx, psmax3);
+        CEXPORT1(favx, pamin3);
+        CEXPORT1(favx, pamax3);
 
         CEXPORT1(favx, fmadd_k3);
         CEXPORT1(favx, fmsub_k3);

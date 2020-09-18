@@ -1,8 +1,22 @@
 /*
- * X11Window.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 10 окт. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 10 окт. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/ws/x11/ws.h>
@@ -32,12 +46,12 @@ namespace lsp
                 }
                 else
                 {
-                    hWindow                 = 0;
+                    hWindow                 = None;
                     hParent                 = wnd;
                 }
                 nScreen                 = screen;
                 pSurface                = NULL;
-                enBorderStyle           = BS_SIZABLE;
+                enBorderStyle           = BS_SIZEABLE;
                 vMouseUp[0].nType       = UIE_UNKNOWN;
                 vMouseUp[1].nType       = UIE_UNKNOWN;
                 nActions                = WA_SINGLE;
@@ -71,7 +85,7 @@ namespace lsp
 
                 if (bWrapper)
                 {
-                    if (!pX11Display->addWindow(this))
+                    if (!pX11Display->add_window(this))
                         return STATUS_NO_MEM;
 
                     // Now select input for the handle
@@ -182,7 +196,7 @@ namespace lsp
                     pX11Display->flush();
 
                     // Now create X11Window instance
-                    if (!pX11Display->addWindow(this))
+                    if (!pX11Display->add_window(this))
                     {
                         XDestroyWindow(dpy, wnd);
                         pX11Display->flush();
@@ -220,7 +234,10 @@ namespace lsp
                     );
                     if (hParent > 0)
                     {
-                        ::XSelectInput(dpy, hParent, PropertyChangeMask);
+                        ::XSelectInput(dpy, hParent,
+                            PropertyChangeMask |
+                            StructureNotifyMask
+                        );
                     }
 
                     pX11Display->flush();
@@ -234,7 +251,7 @@ namespace lsp
                     hWindow = wnd;
 
                     // Initialize window border style and actions
-                    set_border_style(BS_SIZABLE);
+                    set_border_style(BS_SIZEABLE);
                     set_window_actions(WA_ALL);
                     set_mouse_pointer(MP_DEFAULT);
                 }
@@ -327,6 +344,10 @@ namespace lsp
                     sz.max_width    = sSize.nWidth;
                     sz.max_height   = sSize.nHeight;
                 }
+
+                lsp_trace("Window constraints: min_width=%d, min_height=%d, max_width=%d, max_height=%d",
+                        int(sz.min_width), int(sz.min_height), int(sz.max_width), int(sz.max_height)
+                    );
 
                 XSetWMNormalHints(pX11Display->x11display(), hWindow, &sz);
 //                pX11Display->sync();
@@ -496,7 +517,7 @@ namespace lsp
                         break;
 
                     case BS_SINGLE:
-                    case BS_SIZABLE:
+                    case BS_SIZEABLE:
                         sMotif.decorations  = MWM_DECOR_ALL;
                         sMotif.input_mode   = MWM_INPUT_MODELESS;
                         sMotif.status       = 0;
@@ -541,7 +562,7 @@ namespace lsp
                         break;
 
                     case BS_SINGLE:
-                    case BS_SIZABLE:
+                    case BS_SIZEABLE:
                     default:
                         atoms[n_items++] = a.X11__NET_WM_WINDOW_TYPE_NORMAL;
                         break;
@@ -573,7 +594,7 @@ namespace lsp
                         break;
 
                     case BS_SINGLE:         // Not resizable; minimize/maximize menu
-                    case BS_SIZABLE:       // Standard resizable border
+                    case BS_SIZEABLE:       // Standard resizable border
                         break;
                 }
 
@@ -962,32 +983,47 @@ namespace lsp
             }
 
 
-            status_t X11Window::set_caption(const char *text)
+            status_t X11Window::set_caption(const char *ascii, const char *utf8)
             {
+                if (ascii == NULL)
+                    return STATUS_BAD_ARGUMENTS;
                 if (hWindow == None)
                     return STATUS_OK;
 
+                if (utf8 == NULL)
+                    utf8 = ascii;
+
                 const x11_atoms_t &a = pX11Display->atoms();
 
-                XChangeProperty(
+                ::XChangeProperty(
+                    pX11Display->x11display(),
+                    hWindow,
+                    a.X11_XA_WM_NAME,
+                    a.X11_XA_STRING,
+                    8,
+                    PropModeReplace,
+                    reinterpret_cast<const unsigned char *>(ascii),
+                    ::strlen(ascii)
+                );
+                ::XChangeProperty(
                     pX11Display->x11display(),
                     hWindow,
                     a.X11__NET_WM_NAME,
                     a.X11_UTF8_STRING,
                     8,
                     PropModeReplace,
-                    reinterpret_cast<const unsigned char *>(text),
-                    strlen(text)
+                    reinterpret_cast<const unsigned char *>(utf8),
+                    ::strlen(utf8)
                 );
-                XChangeProperty(
+                ::XChangeProperty(
                     pX11Display->x11display(),
                     hWindow,
                     a.X11__NET_WM_ICON_NAME,
                     a.X11_UTF8_STRING,
                     8,
                     PropModeReplace,
-                    reinterpret_cast<const unsigned char *>(text),
-                    strlen(text)
+                    reinterpret_cast<const unsigned char *>(utf8),
+                    ::strlen(utf8)
                 );
 
                 pX11Display->flush();
@@ -1177,6 +1213,57 @@ namespace lsp
             mouse_pointer_t X11Window::get_mouse_pointer()
             {
                 return enPointer;
+            }
+
+            status_t X11Window::set_class(const char *instance, const char *wclass)
+            {
+                if ((instance == NULL) || (wclass == NULL))
+                    return STATUS_BAD_ARGUMENTS;
+
+                size_t l1 = ::strlen(instance);
+                size_t l2 = ::strlen(wclass);
+
+                char *dup = reinterpret_cast<char *>(::malloc((l1 + l2 + 2) * sizeof(char)));
+                if (dup == NULL)
+                    return STATUS_NO_MEM;
+
+                ::memcpy(dup, instance, l1+1);
+                ::memcpy(&dup[l1+1], wclass, l2+1);
+
+                const x11_atoms_t &a = pX11Display->atoms();
+                ::XChangeProperty(
+                    pX11Display->x11display(),
+                    hWindow,
+                    a.X11_XA_WM_CLASS,
+                    a.X11_XA_STRING,
+                    8,
+                    PropModeReplace,
+                    reinterpret_cast<unsigned char *>(dup),
+                    (l1 + l2 + 2)
+                );
+
+                ::free(dup);
+                return STATUS_OK;
+            }
+
+            status_t X11Window::set_role(const char *wrole)
+            {
+                if (wrole == NULL)
+                    return STATUS_BAD_ARGUMENTS;
+
+                const x11_atoms_t &a = pX11Display->atoms();
+                ::XChangeProperty(
+                    pX11Display->x11display(),
+                    hWindow,
+                    a.X11_WM_WINDOW_ROLE,
+                    a.X11_XA_STRING,
+                    8,
+                    PropModeReplace,
+                    reinterpret_cast<const unsigned char *>(wrole),
+                    ::strlen(wrole)
+                );
+
+                return STATUS_OK;
             }
         }
     } /* namespace ws */

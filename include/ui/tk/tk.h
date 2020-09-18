@@ -1,8 +1,22 @@
 /*
- * tk.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 15 июн. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 15 июн. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UI_TK_TK_H_
@@ -154,6 +168,7 @@ namespace lsp
             LSPSLOT_CHANGE,             //!< LSPSLOT_CHANGE Triggered only when value(s) stored by the widget is(are) changed
             LSPSLOT_DESTROY,            //!< LSPSLOT_DESTROY Triggered when widget associated with slot is destroyed
             LSPSLOT_RESIZE,             //!< LSPSLOT_RESIZE Triggered when the geometry of widget has been changed
+            LSPSLOT_RESIZE_PARENT,      //!< LSPSLOT_RESIZE_PARENT Triggered when the parent widget has been resized
             LSPSLOT_CLOSE,              //!< LSPSLOT_CLOSE Triggered when the window is requested to close
             LSPSLOT_HSCROLL,            //!< LSPSLOT_HSCROLL Triggered when the horizontal scrolling is applied
             LSPSLOT_VSCROLL,            //!< LSPSLOT_VSCROLL Triggered when the vertical scrolling is applied
@@ -242,6 +257,7 @@ namespace lsp
 #include <ui/tk/basic/LSPWidgetContainer.h>
 
 // Basic widgets
+#include <ui/tk/widgets/LSPVoid.h>
 #include <ui/tk/widgets/LSPWindow.h>
 #include <ui/tk/widgets/LSPBox.h>
 #include <ui/tk/widgets/LSPGrid.h>
@@ -284,7 +300,6 @@ namespace lsp
 #include <ui/tk/widgets/graph/LSPGraphItem.h>
 #include <ui/tk/widgets/graph/LSPAxis.h>
 #include <ui/tk/widgets/graph/LSPCenter.h>
-#include <ui/tk/widgets/graph/LSPBasis.h>
 #include <ui/tk/widgets/graph/LSPMarker.h>
 #include <ui/tk/widgets/graph/LSPMesh.h>
 #include <ui/tk/widgets/graph/LSPDot.h>

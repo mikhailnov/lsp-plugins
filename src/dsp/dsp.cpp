@@ -1,8 +1,22 @@
 /*
- * dsp.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 02 окт. 2015 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 02 окт. 2015 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <math.h>
@@ -143,6 +157,19 @@ namespace dsp
     void    (* powvc2)(float *dst, const float *c, float v, size_t count) = NULL;
     void    (* powvx1)(float *v, const float *x, size_t count) = NULL;
     void    (* powvx2)(float *dst, const float *v, const float *x, size_t count) = NULL;
+
+    void    (* pmin2)(float *dst, const float *src, size_t count) = NULL;
+    void    (* psmin2)(float *dst, const float *src, size_t count) = NULL;
+    void    (* pamin2)(float *dst, const float *src, size_t count) = NULL;
+    void    (* pmax2)(float *dst, const float *src, size_t count) = NULL;
+    void    (* psmax2)(float *dst, const float *src, size_t count) = NULL;
+    void    (* pamax2)(float *dst, const float *src, size_t count) = NULL;
+    void    (* pmin3)(float *dst, const float *a, const float *b, size_t count) = NULL;
+    void    (* psmin3)(float *dst, const float *a, const float *b, size_t count) = NULL;
+    void    (* pamin3)(float *dst, const float *a, const float *b, size_t count) = NULL;
+    void    (* pmax3)(float *dst, const float *a, const float *b, size_t count) = NULL;
+    void    (* psmax3)(float *dst, const float *a, const float *b, size_t count) = NULL;
+    void    (* pamax3)(float *dst, const float *a, const float *b, size_t count) = NULL;
 
     float   (* h_sum)(const float *src, size_t count) = NULL;
     float   (* h_sqr_sum)(const float *src, size_t count) = NULL;
@@ -475,11 +502,6 @@ namespace dsp
 
 namespace dsp
 {
-    void init_context(dsp::context_t *ctx)
-    {
-        ctx->top        = 0;
-    }
-
     void init()
     {
         // Consider already initialized

@@ -1,8 +1,22 @@
 /*
- * Gate.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 7 нояб. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 7 нояб. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <dsp/dsp.h>
@@ -249,6 +263,38 @@ namespace lsp
         }
 
         return fReduction;
+    }
+
+    void Gate::dump(IStateDumper *v) const
+    {
+        v->begin_array("sCurves", sCurves, 2);
+        for (size_t i=0; i<2; ++i)
+        {
+            const curve_t *c = &sCurves[i];
+            v->begin_object(c, sizeof(curve_t));
+            {
+                v->write("fThreshold", c->fThreshold);
+                v->write("fZone", c->fZone);
+                v->write("fZS", c->fZS);
+                v->write("fZE", c->fZE);
+                v->write("fLogZS", c->fLogZS);
+                v->write("fLogZE", c->fLogZE);
+                v->writev("vHermite", c->vHermite, 4);
+            }
+            v->end_object();
+        }
+        v->end_array();
+
+        v->write("fAttack", fAttack);
+        v->write("fRelease", fRelease);
+        v->write("fTauAttack", fTauAttack);
+        v->write("fTauRelease", fTauRelease);
+        v->write("fReduction", fReduction);
+        v->write("fEnvelope", fEnvelope);
+
+        v->write("nSampleRate", nSampleRate);
+        v->write("nCurve", nCurve);
+        v->write("bUpdate", bUpdate);
     }
 
 } /* namespace lsp */

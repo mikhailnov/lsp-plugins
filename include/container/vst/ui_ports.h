@@ -1,8 +1,22 @@
 /*
- * ui_ports.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 16 янв. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 16 янв. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CONTAINER_VST_UI_PORTS_H_
@@ -39,11 +53,13 @@ namespace lsp
     {
         private:
             VSTPortGroup           *pPG;
+            vst_serial_t            nSID;
 
         public:
             explicit VSTUIPortGroup(VSTPortGroup *port) : VSTUIPort(port->metadata(), port)
             {
                 pPG                 = port;
+                nSID                = port->getSID() - 1;
             }
 
             virtual ~VSTUIPortGroup()
@@ -59,6 +75,23 @@ namespace lsp
             virtual void set_value(float value)
             {
                 pPort->setValue(value);
+            }
+
+            virtual bool sync()
+            {
+                vst_serial_t sid = pPG->getSID();
+                if (sid == nSID)
+                    return false;
+
+                nSID        = sid;
+                return true;
+            }
+
+            virtual void resync()
+            {
+                if (pPG == NULL)
+                    return;
+                nSID    = pPG->getSID() - 1;
             }
 
         public:

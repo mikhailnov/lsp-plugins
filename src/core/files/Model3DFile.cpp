@@ -1,19 +1,33 @@
 /*
- * Model3DFile.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 21 апр. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 21 апр. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/debug.h>
+#include <core/files/3d/IObjHandler.h>
 #include <core/resource.h>
 #include <core/files/Model3DFile.h>
-#include <core/files/3d/ObjFileParser.h>
-#include <core/files/3d/IFileHandler3D.h>
+#include <core/files/3d/Parser.h>
 
 namespace lsp
 {
-    class FileHandler3D: public IFileHandler3D
+    class FileHandler3D: public obj::IObjHandler
     {
         protected:
             typedef struct vertex_t
@@ -303,13 +317,13 @@ namespace lsp
         size_t in = scene->num_normals();
 
         // Fetch vertexes
-        size_t nv = resource_fetch_number(&data);
+        size_t nv = resource::fetch_number(&data);
         for (size_t i=0; i<nv; ++i)
         {
             point3d_t p;
-            p.x     = resource_fetch_dfloat(&data);
-            p.y     = resource_fetch_dfloat(&data);
-            p.z     = resource_fetch_dfloat(&data);
+            p.x     = resource::fetch_dfloat(&data);
+            p.y     = resource::fetch_dfloat(&data);
+            p.z     = resource::fetch_dfloat(&data);
             p.w     = 1.0f;
 
             ssize_t res = scene->add_vertex(&p);
@@ -318,13 +332,13 @@ namespace lsp
         }
 
         // Fetch normals
-        size_t nn = resource_fetch_number(&data);
+        size_t nn = resource::fetch_number(&data);
         for (size_t i=0; i<nn; ++i)
         {
             vector3d_t v;
-            v.dx    = resource_fetch_dfloat(&data);
-            v.dy    = resource_fetch_dfloat(&data);
-            v.dz    = resource_fetch_dfloat(&data);
+            v.dx    = resource::fetch_dfloat(&data);
+            v.dy    = resource::fetch_dfloat(&data);
+            v.dz    = resource::fetch_dfloat(&data);
             v.dw    = 0.0f;
 
             ssize_t res = scene->add_normal(&v);
@@ -333,24 +347,24 @@ namespace lsp
         }
 
         // Fetch objects
-        size_t no = resource_fetch_number(&data);
+        size_t no = resource::fetch_number(&data);
         for (size_t i=0; i<no; ++i)
         {
-            const char *name = resource_fetch_dstring(&data);
+            const char *name = resource::fetch_dstring(&data);
             Object3D *obj = scene->add_object(name);
             if (obj == NULL)
                 return STATUS_NO_MEM;
 
-            size_t triangles= resource_fetch_number(&data);
+            size_t triangles= resource::fetch_number(&data);
             for (size_t j=0; j<triangles; ++j)
             {
-                size_t face_id  = resource_fetch_number(&data);
-                size_t v0       = resource_fetch_number(&data) + iv;
-                size_t v1       = resource_fetch_number(&data) + iv;
-                size_t v2       = resource_fetch_number(&data) + iv;
-                size_t n0       = resource_fetch_number(&data) + in;
-                size_t n1       = resource_fetch_number(&data) + in;
-                size_t n2       = resource_fetch_number(&data) + in;
+                size_t face_id  = resource::fetch_number(&data);
+                size_t v0       = resource::fetch_number(&data) + iv;
+                size_t v1       = resource::fetch_number(&data) + iv;
+                size_t v2       = resource::fetch_number(&data) + iv;
+                size_t n0       = resource::fetch_number(&data) + in;
+                size_t n1       = resource::fetch_number(&data) + in;
+                size_t n2       = resource::fetch_number(&data) + in;
 
                 ssize_t res     = obj->add_triangle(face_id, v0, v1, v2, n0, n1, n2);
                 if (res < 0)
@@ -369,10 +383,10 @@ namespace lsp
         // Check builtin prefix
         status_t status = STATUS_OK;
 
-        if (path->starts_with_ascii("builtin://"))
+        if (path->starts_with_ascii(LSP_BUILTIN_PREFIX))
         {
         #ifdef LSP_BUILTIN_RESOURCES
-            const resource_t *r = resource_get(path->get_utf8(10), RESOURCE_3D_SCENE);
+            const resource::resource_t *r = resource::get(path->get_utf8(10), resource::RESOURCE_3D_SCENE);
             if (r == NULL)
                 return STATUS_NOT_FOUND;
 
@@ -386,7 +400,7 @@ namespace lsp
 
             // Try to parse as obj file
             FileHandler3D fh(scene);
-            status = ObjFileParser::parse(&tmp, &fh);
+            status = obj::Parser::parse(&tmp, &fh);
             if (status == STATUS_OK)
                 return fh.complete();
 
@@ -397,7 +411,7 @@ namespace lsp
         {
             // Try to parse as obj file
             FileHandler3D fh(scene);
-            status = ObjFileParser::parse(path, &fh);
+            status = obj::Parser::parse(path, &fh);
             if (status == STATUS_OK)
                 return fh.complete();
 

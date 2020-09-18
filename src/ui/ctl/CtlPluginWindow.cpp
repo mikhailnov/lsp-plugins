@@ -1,8 +1,22 @@
 /*
- * CtlPluginWindow.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 27 июн. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 27 июн. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/ctl/ctl.h>
@@ -23,7 +37,7 @@ namespace lsp
             pClass          = &metadata;
             pWnd            = wnd;
             pMessage        = NULL;
-            bResizable      = true;
+            bResizable      = false;
             nVisible        = 1;
             pUI             = src;
             pBox            = NULL;
@@ -36,6 +50,7 @@ namespace lsp
             pPath           = NULL;
             pR3DBackend     = NULL;
             pLanguage       = NULL;
+            nVisible        = 0;
         }
         
         CtlPluginWindow::~CtlPluginWindow()
@@ -105,8 +120,10 @@ namespace lsp
             // Initialize window
             LSPDisplay *dpy = pWnd->display();
 
+            pWnd->set_class(meta->lv2_uid, LSP_ARTIFACT_ID);
+            pWnd->set_role("audio-plugin");
             pWnd->title()->set_raw(meta->name);
-            pWnd->set_policy(WP_GREEDY);
+
             if (!pWnd->nested())
                 pWnd->actions()->deny_actions(WA_RESIZE);
 
@@ -193,6 +210,17 @@ namespace lsp
                     itm->text()->set("actions.toggle_rack_mount");
                     itm->slots()->bind(LSPSLOT_SUBMIT, slot_toggle_rack_mount, this);
                     pMenu->add(itm);
+
+                    // Create 'Dump state' menu item if supported
+                    if (meta->extensions & E_DUMP_STATE)
+                    {
+                        itm     = new LSPMenuItem(dpy);
+                        vWidgets.add(itm);
+                        itm->init();
+                        itm->text()->set("actions.debug_dump");
+                        itm->slots()->bind(LSPSLOT_SUBMIT, slot_debug_dump, this);
+                        pMenu->add(itm);
+                    }
 
                     // Create language selection menu
                     init_i18n_support(pMenu);
@@ -488,7 +516,7 @@ namespace lsp
             for (size_t id=0; ; ++id)
             {
                 // Enumerate next backend information
-                const R3DBackendInfo *info = dpy->enumBackend(id);
+                const R3DBackendInfo *info = dpy->enum_backend(id);
                 if (info == NULL)
                     break;
 
@@ -544,12 +572,12 @@ namespace lsp
             if (dpy == NULL)
                 return STATUS_BAD_STATE;
 
-            const R3DBackendInfo *info = dpy->enumBackend(sel->id);
+            const R3DBackendInfo *info = dpy->enum_backend(sel->id);
             if (info == NULL)
                 return STATUS_BAD_ARGUMENTS;
 
             // Mark backend as selected
-            dpy->selectBackendId(sel->id);
+            dpy->select_backend_id(sel->id);
 
             // Need to commit backend identifier to config file?
             const char *value = info->uid.get_ascii();
@@ -621,31 +649,36 @@ namespace lsp
             if (pWidget != NULL)
             {
                 // Update window geometry
-                LSPWindow *wnd  = static_cast<LSPWindow *>(pWidget);
-                wnd->set_min_size(nMinWidth, nMinHeight);
-                wnd->set_border_style((bResizable) ? BS_SIZABLE : BS_SINGLE);
+                LSPWindow *wnd  = widget_cast<LSPWindow>(pWidget);
+//                wnd->set_min_size(nMinWidth, nMinHeight);
+                wnd->set_border_style((bResizable) ? BS_SIZEABLE : BS_SINGLE);
+                wnd->actions()->set_resizable(bResizable);
+                wnd->actions()->set_maximizable(bResizable);
             }
 
             if (pPMStud != NULL)
                 notify(pPMStud);
 
-            if (!pWnd->nested())
-            {
-                size_request_t r;
-                pWnd->size_request(&r);
+            pWnd->set_policy((bResizable) ? WP_NORMAL : WP_GREEDY);
 
-                LSPDisplay *dpy = pWnd->display();
-                if (dpy != NULL)
-                {
-                    ssize_t w, h;
-                    if (dpy->screen_size(pWnd->screen(), &w, &h) == STATUS_OK)
-                    {
-                        w = (w - r.nMinWidth) >> 1;
-                        h = (h - r.nMinHeight) >> 1;
-                        pWnd->move(w, h);
-                    }
-                }
-            }
+//            if (!pWnd->nested())
+//            {
+//                size_request_t r;
+//                pWnd->size_request(&r);
+//                pWnd->resize(r.nMinWidth, r.nMinHeight);
+//
+//                LSPDisplay *dpy = pWnd->display();
+//                if (dpy != NULL)
+//                {
+//                    ssize_t w, h;
+//                    if (dpy->screen_size(pWnd->screen(), &w, &h) == STATUS_OK)
+//                    {
+//                        w = (w - r.nMinWidth) >> 1;
+//                        h = (h - r.nMinHeight) >> 1;
+//                        pWnd->move(w, h);
+//                    }
+//                }
+//            }
 
 
             // Call for parent class method
@@ -775,6 +808,15 @@ namespace lsp
                 mstud->set_value((x) ? 0.0f : 1.0f);
                 mstud->notify_all();
             }
+
+            return STATUS_OK;
+        }
+
+        status_t CtlPluginWindow::slot_debug_dump(LSPWidget *sender, void *ptr, void *data)
+        {
+            CtlPluginWindow *__this = static_cast<CtlPluginWindow *>(ptr);
+            if (__this->pUI != NULL)
+                __this->pUI->request_state_dump();
 
             return STATUS_OK;
         }
@@ -944,7 +986,7 @@ namespace lsp
                 vWidgets.add(pMessage);
                 pMessage->init();
                 pMessage->set_border_style(BS_DIALOG);
-                pMessage->title()->set("titles.update_nofitication");
+                pMessage->title()->set("titles.update_notification");
                 pMessage->actions()->deny_all();
                 pMessage->actions()->set_closeable(true);
                 pMessage->padding()->set_all(16);

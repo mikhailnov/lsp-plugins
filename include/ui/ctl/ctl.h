@@ -1,8 +1,22 @@
 /*
- * ctl.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 15 июн. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 15 июн. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UI_CTL_CTL_H_
@@ -32,7 +46,6 @@ namespace lsp
 
             WC_ALIGN,
             WC_AXIS,
-            WC_BASIS,
             WC_BODY,
             WC_BOX,
             WC_BUTTON,
@@ -85,6 +98,7 @@ namespace lsp
             WC_VBOX,
             WC_VGRID,
             WC_VIEWER3D,
+            WC_VOID,
             WC_VSBAR,
             WC_VSBOX,
             WC_VSEP,
@@ -122,6 +136,8 @@ namespace lsp
             A_DETAILED,
             A_DISTANCE_ID,
             A_DURATION_ID,
+            A_DX,
+            A_DY,
             A_EDITABLE,
             A_EMBED,
             A_EXPAND,
@@ -298,6 +314,7 @@ namespace lsp
 
 // Widget controllers
 #include <ui/ctl/CtlWidget.h>
+#include <ui/ctl/CtlVoid.h>
 #include <ui/ctl/CtlPluginWindow.h>
 #include <ui/ctl/CtlBox.h>
 #include <ui/ctl/CtlScrollBox.h>
@@ -329,7 +346,6 @@ namespace lsp
 #include <ui/ctl/CtlGraph.h>
 #include <ui/ctl/CtlAxis.h>
 #include <ui/ctl/CtlCenter.h>
-#include <ui/ctl/CtlBasis.h>
 #include <ui/ctl/CtlMarker.h>
 #include <ui/ctl/CtlMesh.h>
 #include <ui/ctl/CtlDot.h>

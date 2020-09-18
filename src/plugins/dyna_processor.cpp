@@ -1,8 +1,22 @@
 /*
- * dyna_processor.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 21 окт. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 21 окт. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/debug.h>
@@ -78,6 +92,10 @@ namespace lsp
 
             if (!c->sSC.init(channels, dyna_processor_base_metadata::REACTIVITY_MAX))
                 return;
+            if (!c->sSCEq.init(2, 12))
+                return;
+            c->sSCEq.set_mode(EQM_IIR);
+            c->sSC.set_pre_equalizer(&c->sSCEq);
 
             c->vIn              = reinterpret_cast<float *>(ptr);
             ptr                += buf_size;
@@ -117,6 +135,10 @@ namespace lsp
             c->pScSource        = NULL;
             c->pScReactivity    = NULL;
             c->pScPreamp        = NULL;
+            c->pScHpfMode       = NULL;
+            c->pScHpfFreq       = NULL;
+            c->pScLpfMode       = NULL;
+            c->pScLpfFreq       = NULL;
 
             for (size_t j=0; j<dyna_processor_base_metadata::DOTS; ++j)
             {
@@ -211,7 +233,6 @@ namespace lsp
             if ((i > 0) && (nMode == DYNA_STEREO))
             {
                 channel_t *sc       = &vChannels[0];
-                c->pSC              = sc->pSC;
                 c->pScType          = sc->pScType;
                 c->pScSource        = sc->pScSource;
                 c->pScMode          = sc->pScMode;
@@ -219,6 +240,10 @@ namespace lsp
                 c->pScListen        = sc->pScListen;
                 c->pScReactivity    = sc->pScReactivity;
                 c->pScPreamp        = sc->pScPreamp;
+                c->pScHpfMode       = sc->pScHpfMode;
+                c->pScHpfFreq       = sc->pScHpfFreq;
+                c->pScLpfMode       = sc->pScLpfMode;
+                c->pScLpfFreq       = sc->pScLpfFreq;
             }
             else
             {
@@ -239,6 +264,14 @@ namespace lsp
                 c->pScReactivity    =   vPorts[port_id++];
                 TRACE_PORT(vPorts[port_id]);
                 c->pScPreamp        =   vPorts[port_id++];
+                TRACE_PORT(vPorts[port_id]);
+                c->pScHpfMode       =   vPorts[port_id++];
+                TRACE_PORT(vPorts[port_id]);
+                c->pScHpfFreq       =   vPorts[port_id++];
+                TRACE_PORT(vPorts[port_id]);
+                c->pScLpfMode       =   vPorts[port_id++];
+                TRACE_PORT(vPorts[port_id]);
+                c->pScLpfFreq       =   vPorts[port_id++];
             }
         }
 
@@ -390,7 +423,9 @@ namespace lsp
             for (size_t i=0; i<channels; ++i)
             {
                 vChannels[i].sSC.destroy();
+                vChannels[i].sSCEq.destroy();
                 vChannels[i].sDelay.destroy();
+                vChannels[i].sCompDelay.destroy();
             }
 
             delete [] vChannels;
@@ -413,7 +448,8 @@ namespace lsp
     void dyna_processor_base::update_sample_rate(long sr)
     {
         size_t samples_per_dot  = seconds_to_samples(sr, dyna_processor_base_metadata::TIME_HISTORY_MAX / dyna_processor_base_metadata::TIME_MESH_SIZE);
-        size_t channels = (nMode == DYNA_MONO) ? 1 : 2;
+        size_t channels         = (nMode == DYNA_MONO) ? 1 : 2;
+        size_t max_delay        = millis_to_samples(fSampleRate, compressor_base_metadata::LOOKAHEAD_MAX);
 
         for (size_t i=0; i<channels; ++i)
         {
@@ -421,7 +457,9 @@ namespace lsp
             c->sBypass.init(sr);
             c->sProc.set_sample_rate(sr);
             c->sSC.set_sample_rate(sr);
-            c->sDelay.init(millis_to_samples(fSampleRate, compressor_base_metadata::LOOKAHEAD_MAX));
+            c->sSCEq.set_sample_rate(sr);
+            c->sDelay.init(max_delay);
+            c->sCompDelay.init(max_delay);
 
             for (size_t j=0; j<G_TOTAL; ++j)
                 c->sGraph[j].init(dyna_processor_base_metadata::TIME_MESH_SIZE, samples_per_dot);
@@ -432,6 +470,7 @@ namespace lsp
 
     void dyna_processor_base::update_settings()
     {
+        filter_params_t fp;
         size_t channels = (nMode == DYNA_MONO) ? 1 : 2;
         bool bypass     = pBypass->getValue() >= 0.5f;
 
@@ -441,6 +480,7 @@ namespace lsp
         bMSListen       = (pMSListen != NULL) ? pMSListen->getValue() >= 0.5f : false;
         fInGain         = pInGain->getValue();
         float out_gain  = pOutGain->getValue();
+        size_t latency  = 0;
 
         for (size_t i=0; i<channels; ++i)
         {
@@ -459,8 +499,31 @@ namespace lsp
             c->sSC.set_reactivity(c->pScReactivity->getValue());
             c->sSC.set_stereo_mode(((nMode == DYNA_MS) && (c->nScType != SCT_EXTERNAL)) ? SCSM_MIDSIDE : SCSM_STEREO);
 
+            // Setup hi-pass filter for sidechain
+            size_t hp_slope = c->pScHpfMode->getValue() * 2;
+            fp.nType        = (hp_slope > 0) ? FLT_BT_BWC_HIPASS : FLT_NONE;
+            fp.fFreq        = c->pScHpfFreq->getValue();
+            fp.fFreq2       = fp.fFreq;
+            fp.fGain        = 1.0f;
+            fp.nSlope       = hp_slope;
+            fp.fQuality     = 0.0f;
+            c->sSCEq.set_params(0, &fp);
+
+            // Setup low-pass filter for sidechain
+            size_t lp_slope = c->pScLpfMode->getValue() * 2;
+            fp.nType        = (lp_slope > 0) ? FLT_BT_BWC_LOPASS : FLT_NONE;
+            fp.fFreq        = c->pScLpfFreq->getValue();
+            fp.fFreq2       = fp.fFreq;
+            fp.fGain        = 1.0f;
+            fp.nSlope       = lp_slope;
+            fp.fQuality     = 0.0f;
+            c->sSCEq.set_params(1, &fp);
+
             // Update delay
-            c->sDelay.set_delay(millis_to_samples(fSampleRate, (c->pScLookahead != NULL) ? c->pScLookahead->getValue() : 0));
+            size_t delay    = millis_to_samples(fSampleRate, (c->pScLookahead != NULL) ? c->pScLookahead->getValue() : 0);
+            c->sDelay.set_delay(delay);
+            if (delay > latency)
+                latency         = delay;
 
             // Update processor settings
             c->sProc.set_attack_time(0, c->pAttackTime[0]->getValue());
@@ -469,10 +532,10 @@ namespace lsp
             for (size_t j=0; j<dyna_processor_base_metadata::DOTS; ++j)
             {
                 c->sProc.set_attack_level(j, (c->pAttackOn[j]->getValue() >= 0.5f) ? c->pAttackLvl[j]->getValue() : -1.0f);
-                c->sProc.set_attack_time(j, c->pAttackTime[j+1]->getValue());
+                c->sProc.set_attack_time(j+1, c->pAttackTime[j+1]->getValue());
 
                 c->sProc.set_release_level(j, (c->pReleaseOn[j]->getValue() >= 0.5f) ? c->pReleaseLvl[j]->getValue() : -1.0f);
-                c->sProc.set_release_time(j, c->pReleaseTime[j+1]->getValue());
+                c->sProc.set_release_time(j+1, c->pReleaseTime[j+1]->getValue());
 
                 if ((c->pDotOn[j] != NULL) && (c->pDotOn[j]->getValue() >= 0.5f))
                     c->sProc.set_dot(j, c->pThreshold[j]->getValue(), c->pGain[j]->getValue(), c->pKnee[j]->getValue());
@@ -504,6 +567,16 @@ namespace lsp
                 c->nSync           |= S_CURVE | S_MODEL;
             }
         }
+
+        // Tune compensation delays
+        for (size_t i=0; i<channels; ++i)
+        {
+            channel_t *c    = &vChannels[i];
+            c->sCompDelay.set_delay(latency - c->sDelay.get_delay());
+        }
+
+        // Report latency
+        set_latency(latency);
     }
 
     void dyna_processor_base::ui_activated()
@@ -708,8 +781,11 @@ namespace lsp
             {
                 channel_t *c        = &vChannels[i];
 
-                c->sDelay.process(c->vIn, c->vIn, to_process); // Add delay to original signal
-                dsp::mul3(c->vOut, c->vGain, c->vIn, to_process);
+                // Add delay to original signal and apply gain
+                c->sDelay.process(c->vOut, c->vIn, c->vGain, to_process);
+
+                // Apply latency compensation delay
+                c->sCompDelay.process(c->vOut, c->vOut, to_process);
 
                 // Process graph outputs
                 if ((i == 0) || (nMode != DYNA_STEREO))

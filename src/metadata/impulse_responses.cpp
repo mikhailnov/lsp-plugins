@@ -1,8 +1,22 @@
 /*
- * experimental.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
-*  Created on: 08 апр. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 08 апр. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <metadata/plugins.h>
@@ -40,7 +54,7 @@ namespace lsp
         { "4096",   NULL },
         { "8192",   NULL },
         { "16384",  NULL },
-        { "32767",  NULL },
+        { "32768",  NULL },
         { "65536",  NULL },
         { NULL, NULL }
     };
@@ -55,9 +69,9 @@ namespace lsp
     static const port_item_t filter_slope[] =
     {
         { "off",        "eq.slope.off" },
-        { "6 dB/oct",   "eq.slope.6dbo" },
         { "12 dB/oct",  "eq.slope.12dbo" },
-        { "18 dB/oct",  "eq.slope.18dbo" },
+        { "24 dB/oct",  "eq.slope.24dbo" },
+        { "36 dB/oct",  "eq.slope.36dbo" },
         { NULL, NULL }
     };
 

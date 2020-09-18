@@ -1,8 +1,22 @@
 /*
- * LSPFader.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 19 нояб. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 19 нояб. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/tk/tk.h>
@@ -20,7 +34,6 @@ namespace lsp
             fMin            = 0.0f;
             fMax            = 1.0f;
             fValue          = 0.5f;
-            fDefault        = 0.5f;
             fStep           = 0.01f;
             fTinyStep       = 0.001f;
             nMinSize        = 32;
@@ -79,11 +92,6 @@ namespace lsp
 
             fValue      = value;
             query_draw();
-        }
-
-        void LSPFader::set_default_value(float value)
-        {
-            fDefault    = value;
         }
 
         float LSPFader::limit_value(float value)
@@ -368,19 +376,6 @@ namespace lsp
             }
 
             return STATUS_OK;
-        }
-
-        status_t LSPFader::on_mouse_dbl_click(const ws_event_t *e)
-        {
-            if (e->nCode != MCB_LEFT)
-                return STATUS_OK;
-            float value     = limit_value(fDefault);
-            if (value == fValue)
-                return STATUS_OK;
-
-            fValue          = value;
-            query_draw();
-            return sSlots.execute(LSPSLOT_CHANGE, this);
         }
 
         void LSPFader::draw(ISurface *s)

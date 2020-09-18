@@ -1,8 +1,22 @@
 /*
- * LSPDisplay.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 19 июн. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 19 июн. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/ws/ws.h>
@@ -212,7 +226,7 @@ namespace lsp
 
         ISurface *LSPDisplay::create_surface(size_t width, size_t height)
         {
-            return (pDisplay != NULL) ? pDisplay->createSurface(width, height) : NULL;
+            return (pDisplay != NULL) ? pDisplay->create_surface(width, height) : NULL;
         }
 
         void LSPDisplay::sync()
@@ -375,27 +389,27 @@ namespace lsp
 
         status_t LSPDisplay::get_clipboard(size_t id, IDataSink *sink)
         {
-            return pDisplay->getClipboard(id, sink);
+            return pDisplay->get_clipboard(id, sink);
         }
 
         status_t LSPDisplay::set_clipboard(size_t id, IDataSource *src)
         {
-            return pDisplay->setClipboard(id, src);
+            return pDisplay->set_clipboard(id, src);
         }
 
         status_t LSPDisplay::reject_drag()
         {
-            return pDisplay->rejectDrag();
+            return pDisplay->reject_drag();
         }
 
         status_t LSPDisplay::accept_drag(IDataSink *sink, drag_t action, bool internal, const realize_t *r)
         {
-            return pDisplay->acceptDrag(sink, action, internal, r);
+            return pDisplay->accept_drag(sink, action, internal, r);
         }
 
         const char * const *LSPDisplay::get_drag_mime_types()
         {
-            return pDisplay->getDragContentTypes();
+            return pDisplay->get_drag_ctypes();
         }
 
         status_t LSPDisplay::queue_destroy(LSPWidget *widget)

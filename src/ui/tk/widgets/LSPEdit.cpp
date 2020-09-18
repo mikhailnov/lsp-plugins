@@ -1,8 +1,22 @@
 /*
- * LSPEdit.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 29 авг. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 29 авг. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/tk/tk.h>
@@ -732,50 +746,6 @@ namespace lsp
             return STATUS_OK;
         }
 
-        status_t LSPEdit::clipboard_handler(void *arg, status_t s, io::IInStream *is)
-        {
-            LSPEdit *_this = widget_ptrcast<LSPEdit>(arg);
-            return ((s == STATUS_OK) && (_this != NULL) && (is != NULL)) ? _this->paste_data(is) : STATUS_BAD_STATE;
-        }
-
-        status_t LSPEdit::paste_data(io::IInStream *is)
-        {
-            LSPString s;
-            size_t avail = is->avail();
-            char *buf = new char[avail + 1];
-            if (buf == NULL)
-                return STATUS_NO_MEM;
-
-            char *dst = buf;
-            while (avail > 0)
-            {
-                size_t count = is->read(dst, avail);
-                if (count <= 0)
-                {
-                    delete [] buf;
-                    return is->last_error();
-                }
-                dst    += count;
-                avail  -= count;
-            }
-            *dst = '\0'; // To be sure that line ends properly
-
-            if (!s.set_utf8(buf))
-            {
-                delete [] buf;
-                return STATUS_NO_MEM;
-            }
-
-            size_t pos = sCursor.location();
-            if (!sText.insert(pos, &s))
-                return STATUS_NO_MEM;
-
-            pos += s.length();
-            sCursor.set_location(pos);
-            sSelection.set(pos);
-            return STATUS_OK;
-        }
-
         void LSPEdit::paste_clipboard(const LSPString *s)
         {
             if (sSelection.valid() && sSelection.non_empty())
@@ -960,16 +930,6 @@ namespace lsp
 
             // Request clipboard contents in async mode
             pDisplay->get_clipboard(bufid, sink);
-
-//            pDisplay->get_clipboard(bufid, sink);
-//
-//            if (sSelection.valid() && sSelection.non_empty())
-//            {
-//                sText.remove(sSelection.starting(), sSelection.ending());
-//                sCursor.set_location(sSelection.starting());
-//                sSelection.clear();
-//            }
-//            pDisplay->fetch_clipboard(bufid, "UTF8_STRING", clipboard_handler, self());
         }
 
         status_t LSPEdit::on_key_up(const ws_event_t *e)

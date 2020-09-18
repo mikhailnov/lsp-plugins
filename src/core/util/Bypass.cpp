@@ -1,8 +1,22 @@
 /*
- * Bypass.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 07 дек. 2015 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 07 дек. 2015 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/util/Bypass.h>
@@ -13,13 +27,18 @@ namespace lsp
     
     Bypass::Bypass()
     {
-        nState      = S_OFF;
-        fDelta      = 0;
-        fGain       = 0;
+        construct();
     }
     
     Bypass::~Bypass()
     {
+    }
+
+    void Bypass::construct()
+    {
+        nState      = S_OFF;
+        fDelta      = 0;
+        fGain       = 0;
     }
 
     bool Bypass::set_bypass(bool bypass)
@@ -175,6 +194,13 @@ namespace lsp
                     dsp::fill_zero(dst, count);
             }
         }
+    }
+
+    void Bypass::dump(IStateDumper *v) const
+    {
+        v->write("nState", nState);
+        v->write("fDelta", fDelta);
+        v->write("fGain", fGain);
     }
 
 } /* namespace lsp */

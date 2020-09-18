@@ -53,8 +53,8 @@ export OBJ_FILES        = $(OBJ_CORE) $(OBJ_UI_CORE) $(OBJ_RES_CORE) $(OBJ_PLUGI
 # Libraries
 export LIB_LADSPA       = $(OBJDIR)/$(ARTIFACT_ID)-ladspa.so
 export LIB_LV2          = $(OBJDIR)/$(ARTIFACT_ID)-lv2.so
-export LIB_VST          = $(OBJDIR)/$(ARTIFACT_ID)-vst-core-$(VERSION).so
-export LIB_JACK         = $(OBJDIR)/$(ARTIFACT_ID)-jack-core-$(VERSION).so
+export LIB_VST          = $(OBJDIR)/$(ARTIFACT_ID)-vst-core-$(LSP_VERSION).so
+export LIB_JACK         = $(OBJDIR)/$(ARTIFACT_ID)-jack-core-$(LSP_VERSION).so
 export LIB_R3D_GLX      = $(OBJDIR)/$(R3D_ARTIFACT_ID)-glx.so
 
 # Binaries
@@ -75,13 +75,13 @@ export PHP_PLUGINS      = $(OBJDIR)/plugins.php
 FILE                    = $(@:$(OBJDIR)/%.o=%.cpp)
 FILES                   =
 
-LADSPA_ID              := $(ARTIFACT_ID)-ladspa-$(VERSION)
-LV2_ID                 := $(ARTIFACT_ID)-lv2-$(VERSION)
-VST_ID                 := $(ARTIFACT_ID)-lxvst-$(VERSION)
-JACK_ID                := $(ARTIFACT_ID)-jack-$(VERSION)
-PROFILE_ID             := $(ARTIFACT_ID)-profile-$(VERSION)
-SRC_ID                 := $(ARTIFACT_ID)-src-$(VERSION)
-DOC_ID                 := $(ARTIFACT_ID)-doc-$(VERSION)
+LADSPA_ID              := $(ARTIFACT_ID)-ladspa-$(LSP_VERSION)
+LV2_ID                 := $(ARTIFACT_ID)-lv2-$(LSP_VERSION)
+VST_ID                 := $(ARTIFACT_ID)-lxvst-$(LSP_VERSION)
+JACK_ID                := $(ARTIFACT_ID)-jack-$(LSP_VERSION)
+PROFILE_ID             := $(ARTIFACT_ID)-profile-$(LSP_VERSION)
+SRC_ID                 := $(ARTIFACT_ID)-src-$(LSP_VERSION)
+DOC_ID                 := $(ARTIFACT_ID)-doc-$(LSP_VERSION)
 
 .DEFAULT_GOAL          := all
 .PHONY: all experimental trace debug tracefile debugfile profile gdb test testdebug testprofile compile test_compile

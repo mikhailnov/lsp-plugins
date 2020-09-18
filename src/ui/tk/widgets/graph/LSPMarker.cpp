@@ -1,8 +1,22 @@
 /*
- * LSPMarker.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 19 июл. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 19 июл. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/tk/tk.h>
@@ -23,6 +37,8 @@ namespace lsp
             fLast       = 0.0f;
             fOffset     = 0.0f;
             fAngle      = 0.0f;
+            fDX         = 1.0f;
+            fDY         = 0.0f;
             fMin        = -1.0f;
             fMax        = 1.0f;
             nWidth      = 1;
@@ -93,7 +109,18 @@ namespace lsp
         {
             if (fAngle == value)
                 return;
-            fAngle = value;
+            fDX     = cosf(value);
+            fDY     = sinf(value);
+            fAngle  = value;
+            query_draw();
+        }
+
+        void LSPMarker::set_direction(float dx, float dy)
+        {
+            fDX         = dx;
+            fDY         = dy;
+            fAngle      = get_angle_2d(0.0f, 0.0f, dx, dy);
+
             query_draw();
         }
 
@@ -197,12 +224,12 @@ namespace lsp
             }
             else
             {
-                if (!parallel->angle(x, y, fAngle * M_PI, a, b, c))
+                if (!parallel->angle(x, y, fAngle, a, b, c))
                     return;
                 if (nBorder != 0)
                 {
-                    parallel->rotate_shift(x, y, fAngle * M_PI, nBorder, nx, ny);
-                    if (!parallel->angle(x, y, fAngle * M_PI, a2, b2, c2))
+                    parallel->rotate_shift(x, y, fAngle, nBorder, nx, ny);
+                    if (!parallel->angle(x, y, fAngle, a2, b2, c2))
                         return;
                 }
             }

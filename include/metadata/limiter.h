@@ -1,8 +1,22 @@
 /*
- * gate.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 24 нояб. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 24 нояб. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef METADATA_LIMITER_H_
@@ -33,13 +47,23 @@ namespace lsp
         static const float  RELEASE_TIME_DFL        = 5.0f;
         static const float  RELEASE_TIME_STEP       = 0.0025f;
 
+        static const float  ALR_ATTACK_TIME_MIN     = 0.1f;
+        static const float  ALR_ATTACK_TIME_MAX     = 200.0f;
+        static const float  ALR_ATTACK_TIME_DFL     = 5.0f;
+        static const float  ALR_ATTACK_TIME_STEP    = 0.0025f;
+
+        static const float  ALR_RELEASE_TIME_MIN    = 10.0f;
+        static const float  ALR_RELEASE_TIME_MAX    = 1000.0f;
+        static const float  ALR_RELEASE_TIME_DFL    = 50.0f;
+        static const float  ALR_RELEASE_TIME_STEP   = 0.0025f;
+
         static const float  THRESHOLD_MIN           = GAIN_AMP_M_48_DB;
         static const float  THRESHOLD_MAX           = GAIN_AMP_0_DB;
         static const float  THRESHOLD_DFL           = GAIN_AMP_0_DB;
         static const float  THRESHOLD_STEP          = 0.01f;
 
         static const float  KNEE_MIN                = GAIN_AMP_M_12_DB;
-        static const float  KNEE_MAX                = GAIN_AMP_0_DB;
+        static const float  KNEE_MAX                = GAIN_AMP_P_12_DB;
         static const float  KNEE_DFL                = GAIN_AMP_0_DB;
         static const float  KNEE_STEP               = 0.01f;
 
@@ -79,8 +103,6 @@ namespace lsp
 
         enum limiter_mode_t
         {
-            LOM_CLASSIC,
-
             LOM_HERM_THIN,
             LOM_HERM_WIDE,
             LOM_HERM_TAIL,
@@ -95,10 +117,6 @@ namespace lsp
             LOM_LINE_WIDE,
             LOM_LINE_TAIL,
             LOM_LINE_DUCK,
-
-            LOM_MIXED_HERM,
-            LOM_MIXED_EXP,
-            LOM_MIXED_LINE,
 
             LOM_DEFAULT     = LOM_HERM_THIN
         };

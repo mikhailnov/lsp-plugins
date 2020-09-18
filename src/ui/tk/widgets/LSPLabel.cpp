@@ -1,8 +1,22 @@
 /*
- * LSPLabel.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 6 июл. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 6 июл. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/tk/tk.h>
@@ -145,8 +159,6 @@ namespace lsp
             LSPString text;
             sText.format(&text);
 
-            if (text.is_empty())
-                return;
             if (pDisplay == NULL)
                 return;
             ISurface *s = pDisplay->create_surface(1, 1);
@@ -154,7 +166,11 @@ namespace lsp
                 return;
 
             text_parameters_t tp;
+            font_parameters_t fp;
+            sFont.get_parameters(s, &fp);
             sFont.get_multiline_text_parameters(s, &tp, &text);
+            if (tp.Height < fp.Height)
+                tp.Height   = fp.Height;
 
             r->nMinWidth    = tp.Width + (nBorder + 1) * 2;
             r->nMinHeight   = tp.Height + (nBorder + 1) * 2;

@@ -1,8 +1,22 @@
 /*
- * common.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 23 окт. 2015 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 23 окт. 2015 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef _UI_COMMON_H_
@@ -20,6 +34,7 @@
 #define UI_DLG_CONFIG_PATH_ID               "dlg_config_path"
 #define UI_DLG_MODEL3D_PATH_ID              "dlg_model3d_path"
 #define UI_DLG_REW_PATH_ID                  "dlg_rew_path"
+#define UI_DLG_HYDROGEN_PATH_ID             "dlg_hydrogen_path"
 #define UI_R3D_BACKEND_PORT_ID              "r3d_backend"
 #define UI_LANGUAGE_PORT_ID                 "language"
 

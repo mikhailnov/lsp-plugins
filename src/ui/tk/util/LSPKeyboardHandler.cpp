@@ -1,8 +1,22 @@
 /*
- * LSPKeyboardHandler.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 11 сент. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 11 сент. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/tk/tk.h>
@@ -61,7 +75,7 @@ namespace lsp
                 // Keypad characters
                 case WSK_KEYPAD_SPACE:      code = ' '; break;
                 case WSK_KEYPAD_TAB:        code = WSK_TAB; break;
-                case WSK_KEYPAD_ENTER:      code = WSK_LINEFEED; break;
+                case WSK_KEYPAD_ENTER:      code = WSK_RETURN; break;
                 case WSK_KEYPAD_F1:         code = WSK_F1; break;
                 case WSK_KEYPAD_F2:         code = WSK_F2; break;
                 case WSK_KEYPAD_F3:         code = WSK_F3; break;
@@ -82,7 +96,7 @@ namespace lsp
                 case WSK_KEYPAD_ADD:        code = '+'; break;
                 case WSK_KEYPAD_SEPARATOR:  code = ','; break;
                 case WSK_KEYPAD_SUBTRACT:   code = '-'; break;
-                case WSK_KEYPAD_DECIMAL:    break; // ???
+                case WSK_KEYPAD_DECIMAL:    code = '.'; break;
                 case WSK_KEYPAD_DIVIDE:     code = '/'; break;
 
                 case WSK_KEYPAD_0:          code = '0'; break;

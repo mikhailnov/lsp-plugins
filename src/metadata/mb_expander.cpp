@@ -1,8 +1,22 @@
 /*
- * mb_expander.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 27 дек. 2019 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 27 дек. 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/types.h>
@@ -150,9 +164,9 @@ namespace lsp
         SWITCH("ee" id, "Expander enable" label, 1.0f), \
         SWITCH("bs" id, "Solo band" label, 0.0f), \
         SWITCH("bm" id, "Mute band" label, 0.0f), \
-        LOG_CONTROL("al" id, "Attack level" label, U_GAIN_AMP, mb_expander_base_metadata::ATTACK_LVL), \
+        LOG_CONTROL("al" id, "Attack threshold" label, U_GAIN_AMP, mb_expander_base_metadata::ATTACK_LVL), \
         LOG_CONTROL("at" id, "Attack time" label, U_MSEC, mb_expander_base_metadata::ATTACK_TIME), \
-        LOG_CONTROL("rrl" id, "Relative release level" label, U_GAIN_AMP, mb_expander_base_metadata::RELEASE_LVL), \
+        LOG_CONTROL("rrl" id, "Release threshold" label, U_GAIN_AMP, mb_expander_base_metadata::RELEASE_LVL), \
         LOG_CONTROL("rt" id, "Release time" label, U_MSEC, mb_expander_base_metadata::RELEASE_TIME), \
         LOG_CONTROL("er" id, "Ratio" label, U_NONE, mb_expander_base_metadata::RATIO), \
         LOG_CONTROL("kn" id, "Knee" label, U_GAIN_AMP, mb_expander_base_metadata::KNEE), \
@@ -497,7 +511,7 @@ namespace lsp
         "MBE8M",
         &developers::v_sadovnikov,
         "mb_expander_mono",
-        "----",
+        "mygo",
         LSP_MB_EXPANDER_BASE + 0,
         LSP_VERSION(1, 0, 0),
         mb_expander_classes,
@@ -515,7 +529,7 @@ namespace lsp
         "MBE8S",
         &developers::v_sadovnikov,
         "mb_expander_stereo",
-        "----",
+        "hobt",
         LSP_MB_EXPANDER_BASE + 1,
         LSP_VERSION(1, 0, 0),
         mb_expander_classes,
@@ -533,7 +547,7 @@ namespace lsp
         "MBE8LR",
         &developers::v_sadovnikov,
         "mb_expander_lr",
-        "----",
+        "bfmk",
         LSP_MB_EXPANDER_BASE + 2,
         LSP_VERSION(1, 0, 0),
         mb_expander_classes,
@@ -551,7 +565,7 @@ namespace lsp
         "MBE8MS",
         &developers::v_sadovnikov,
         "mb_expander_ms",
-        "----",
+        "ulte",
         LSP_MB_EXPANDER_BASE + 3,
         LSP_VERSION(1, 0, 0),
         mb_expander_classes,
@@ -570,7 +584,7 @@ namespace lsp
         "SCMBE8M",
         &developers::v_sadovnikov,
         "sc_mb_expander_mono",
-        "----",
+        "szkf",
         LSP_MB_EXPANDER_BASE + 4,
         LSP_VERSION(1, 0, 0),
         mb_expander_classes,
@@ -588,7 +602,7 @@ namespace lsp
         "SCMBE8S",
         &developers::v_sadovnikov,
         "sc_mb_expander_stereo",
-        "----",
+        "f0qr",
         LSP_MB_EXPANDER_BASE + 5,
         LSP_VERSION(1, 0, 0),
         mb_expander_classes,
@@ -606,7 +620,7 @@ namespace lsp
         "SCMBE8LR",
         &developers::v_sadovnikov,
         "sc_mb_expander_lr",
-        "----",
+        "kxdv",
         LSP_MB_EXPANDER_BASE + 6,
         LSP_VERSION(1, 0, 0),
         mb_expander_classes,
@@ -624,7 +638,7 @@ namespace lsp
         "SCMBE8MS",
         &developers::v_sadovnikov,
         "sc_mb_expander_ms",
-        "----",
+        "wkge",
         LSP_MB_EXPANDER_BASE + 7,
         LSP_VERSION(1, 0, 0),
         mb_expander_classes,

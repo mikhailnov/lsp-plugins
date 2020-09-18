@@ -1,8 +1,22 @@
 /*
- * INativeWindow.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 12 дек. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 12 дек. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UI_WS_INATIVEWINDOW_H_
@@ -90,10 +104,11 @@ namespace lsp
 
                 /** Set caption of the window
                  *
-                 * @param text text of the caption
+                 * @param ascii ASCII-encoded caption
+                 * @param utf8 UTF-8-encoded caption
                  * @return status of operation
                  */
-                virtual status_t set_caption(const char *text);
+                virtual status_t set_caption(const char *ascii, const char *utf8);
 
             public:
                 /** Get native handle of the window
@@ -370,6 +385,21 @@ namespace lsp
                  * @return status of operation
                  */
                 virtual status_t ungrab_events();
+
+                /**
+                 * Set window class
+                 * @param instance window instance, ASCII-string
+                 * @param wclass window class, ASCII-string
+                 * @return status of operation
+                 */
+                virtual status_t set_class(const char *instance, const char *wclass);
+
+                /**
+                 * Set window role
+                 * @param wrole window role, ASCII-string
+                 * @return status of operation
+                 */
+                virtual status_t set_role(const char *wrole);
         };
     } /* namespace ws */
 } /* namespace lsp */

@@ -1,8 +1,22 @@
 /*
- * resource.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 13 июл. 2019 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 13 июл. 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UTILS_RESOURCE_GEN_RESOURCE_H_
@@ -40,7 +54,7 @@ namespace lsp
             if (resource->hex != NULL)
                 free(const_cast<char *>(resource->hex));
 
-            if (resource->type == RESOURCE_3D_SCENE)
+            if (resource->type == resource::RESOURCE_3D_SCENE)
             {
                 resource->scene->destroy();
                 delete resource->scene;
@@ -125,20 +139,20 @@ namespace lsp
         {
             const char *dot = strrchr(fname, '.');
             if (dot == NULL)
-                return RESOURCE_UNKNOWN;
+                return resource::RESOURCE_UNKNOWN;
 
             if (strcasecmp(dot, ".xml") == 0)
-                return RESOURCE_XML;
+                return resource::RESOURCE_XML;
             if (strcasecmp(dot, ".obj") == 0)
-                return RESOURCE_3D_SCENE;
+                return resource::RESOURCE_3D_SCENE;
             if (strcasecmp(dot, ".preset") == 0)
-                return RESOURCE_PRESET;
+                return resource::RESOURCE_PRESET;
             if (strcasecmp(dot, ".json") == 0)
-                return RESOURCE_JSON;
+                return resource::RESOURCE_JSON;
             if (strcasecmp(dot, ".json5") == 0)
-                return RESOURCE_JSON;
+                return resource::RESOURCE_JSON;
 
-            return RESOURCE_UNKNOWN;
+            return resource::RESOURCE_UNKNOWN;
         }
     }
 }

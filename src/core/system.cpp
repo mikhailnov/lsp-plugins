@@ -1,8 +1,22 @@
 /*
- * system.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 17 мар. 2019 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 17 мар. 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 
@@ -289,6 +303,43 @@ namespace lsp
 
             time->seconds   = t.tv_sec;
             time->nanos     = t.tv_nsec;
+        }
+#endif /* PLATFORM_WINDOWS */
+
+#ifdef PLATFORM_WINDOWS
+        status_t get_temporary_dir(LSPString *path)
+        {
+            if (get_env_var("TEMP", path) == STATUS_OK)
+                return STATUS_OK;
+            if (get_env_var("TMP", path) == STATUS_OK)
+                return STATUS_OK;
+            return (path->set_ascii("tmp")) ? STATUS_OK : STATUS_NO_MEM;
+        }
+
+        status_t get_temporary_dir(io::Path *path)
+        {
+            LSPString tmp;
+            if (get_env_var("TEMP", &tmp) == STATUS_OK)
+                return STATUS_OK;
+            if (get_env_var("TMP", &tmp) == STATUS_OK)
+                return STATUS_OK;
+            if (!tmp.set_ascii("tmp"))
+                return STATUS_NO_MEM;
+            return path->set(&tmp);
+        }
+#else
+        status_t get_temporary_dir(LSPString *path)
+        {
+            if (path == NULL)
+                return STATUS_BAD_ARGUMENTS;
+            return (path->set_ascii("/tmp")) ? STATUS_OK : STATUS_NO_MEM;
+        }
+
+        status_t get_temporary_dir(io::Path *path)
+        {
+            if (path == NULL)
+                return STATUS_BAD_ARGUMENTS;
+            return path->set("/tmp");
         }
 #endif /* PLATFORM_WINDOWS */
     }

@@ -1,8 +1,22 @@
 /*
- * compressor.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 16 сент. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 16 сент. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef PLUGINS_COMPRESSOR_H_
@@ -15,6 +29,7 @@
 #include <core/util/Sidechain.h>
 #include <core/util/Delay.h>
 #include <core/util/MeterGraph.h>
+#include <core/filters/Equalizer.h>
 #include <core/dynamics/Compressor.h>
 
 namespace lsp
@@ -71,8 +86,10 @@ namespace lsp
             {
                 Bypass          sBypass;            // Bypass
                 Sidechain       sSC;                // Sidechain module
+                Equalizer       sSCEq;              // Sidechain equalizer
                 Compressor      sComp;              // Compression module
                 Delay           sDelay;             // Lookahead delay
+                Delay           sCompDelay;         // Compensation delay
                 MeterGraph      sGraph[G_TOTAL];    // Input meter graph
 
                 float          *vIn;                // Input data
@@ -104,6 +121,10 @@ namespace lsp
                 IPort          *pScSource;          // Sidechain source
                 IPort          *pScReactivity;      // Sidechain reactivity
                 IPort          *pScPreamp;          // Sidechain pre-amplification
+                IPort          *pScHpfMode;         // Sidechain high-pass filter mode
+                IPort          *pScHpfFreq;         // Sidechain high-pass filter frequency
+                IPort          *pScLpfMode;         // Sidechain low-pass filter mode
+                IPort          *pScLpfFreq;         // Sidechain low-pass filter frequency
 
                 IPort          *pMode;              // Mode
                 IPort          *pAttackLvl;         // Attack level
@@ -161,6 +182,8 @@ namespace lsp
 
             virtual void process(size_t samples);
             virtual bool inline_display(ICanvas *cv, size_t width, size_t height);
+
+            virtual void dump(IStateDumper *v) const;
     };
 
     class compressor_mono: public compressor_base, public compressor_mono_metadata

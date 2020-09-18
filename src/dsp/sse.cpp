@@ -1,8 +1,22 @@
 /*
- * sse.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 04 марта 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 04 марта 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <dsp/dsp.h>
@@ -57,6 +71,7 @@ namespace sse // TODO: make constants common for all architectures
 #include <dsp/arch/x86/sse/pmath/fmop_kx.h>
 #include <dsp/arch/x86/sse/pmath/fmop_vv.h>
 #include <dsp/arch/x86/sse/pmath/abs_vv.h>
+#include <dsp/arch/x86/sse/pmath/minmax.h>
 
 #include <dsp/arch/x86/sse/hmath/hsum.h>
 #include <dsp/arch/x86/sse/hmath/hdotp.h>
@@ -201,6 +216,19 @@ namespace sse
         EXPORT1(mul_k3);
         EXPORT1(div_k3);
         EXPORT1(rdiv_k3);
+
+        EXPORT1(pmin2);
+        EXPORT1(pmax2);
+        EXPORT1(psmin2);
+        EXPORT1(psmax2);
+        EXPORT1(pamin2);
+        EXPORT1(pamax2);
+        EXPORT1(pmin3);
+        EXPORT1(pmax3);
+        EXPORT1(psmin3);
+        EXPORT1(psmax3);
+        EXPORT1(pamin3);
+        EXPORT1(pamax3);
 
         EXPORT1(h_sum);
         EXPORT1(h_sqr_sum);

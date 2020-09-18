@@ -1,8 +1,22 @@
 /*
- * CtlMarker.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 27 июл. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 27 июл. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/ctl/ctl.h>
@@ -29,6 +43,14 @@ namespace lsp
             CtlMarker *_this    = static_cast<CtlMarker *>(ptr);
             if (_this != NULL)
                 _this->submit_values();
+            return STATUS_OK;
+        }
+
+        status_t CtlMarker::slot_graph_resize(LSPWidget *sender, void *ptr, void *data)
+        {
+            CtlMarker *_this    = static_cast<CtlMarker *>(ptr);
+            if (_this != NULL)
+                _this->trigger_expr();
             return STATUS_OK;
         }
 
@@ -66,6 +88,12 @@ namespace lsp
 
             // Bind slots
             mark->slots()->bind(LSPSLOT_CHANGE, slot_change, this);
+            mark->slots()->bind(LSPSLOT_RESIZE_PARENT, slot_graph_resize, this);
+
+            sAngle.init(pRegistry, this);
+            sDX.init(pRegistry, this);
+            sDY.init(pRegistry, this);
+            sValue.init(pRegistry, this);
         }
 
         void CtlMarker::set(widget_attribute_t att, const char *value)
@@ -79,16 +107,20 @@ namespace lsp
                         BIND_PORT(pRegistry, pPort, value);
                     break;
                 case A_VALUE:
-                    if (mark != NULL)
-                        PARSE_FLOAT(value, mark->set_value(__));
+                    BIND_EXPR(sValue, value);
                     break;
                 case A_OFFSET:
                     if (mark != NULL)
                         PARSE_FLOAT(value, mark->set_offset(__));
                     break;
                 case A_ANGLE:
-                    if (mark != NULL)
-                        PARSE_FLOAT(value, mark->set_angle(__));
+                    BIND_EXPR(sAngle, value);
+                    break;
+                case A_DX:
+                    BIND_EXPR(sDX, value);
+                    break;
+                case A_DY:
+                    BIND_EXPR(sDY, value);
                     break;
                 case A_SMOOTH:
                     if (mark != NULL)
@@ -158,7 +190,64 @@ namespace lsp
                 }
             }
 
+            trigger_expr();
+
             CtlWidget::end();
+        }
+
+        float CtlMarker::eval_expr(CtlExpression *expr)
+        {
+            LSPMarker *mark   = widget_cast<LSPMarker>(pWidget);
+            if (mark == NULL)
+                return 0.0f;
+
+            LSPGraph *g = mark->graph();
+            if (g == NULL)
+                return 0.0f;
+
+            expr->params()->clear();
+            expr->params()->set_int("_g_width", g->width());
+            expr->params()->set_int("_g_height", g->height());
+            expr->params()->set_int("_a_width", g->area_width());
+            expr->params()->set_int("_a_height", g->area_height());
+
+            return expr->evaluate();
+        }
+
+        void CtlMarker::trigger_expr()
+        {
+            LSPMarker *mark   = widget_cast<LSPMarker>(pWidget);
+            if (mark == NULL)
+                return;
+
+            if (sAngle.valid())
+            {
+                float angle = eval_expr(&sAngle);
+                mark->set_angle(angle * M_PI);
+            }
+
+            if (sValue.valid())
+            {
+                float value = eval_expr(&sValue);
+                mark->set_value(value);
+            }
+
+            if (sDX.valid())
+            {
+                float dx = eval_expr(&sDX);
+                if (sDY.valid())
+                {
+                    float dy = eval_expr(&sDY);
+                    mark->set_direction(dx, dy);
+                }
+                else
+                    mark->set_dir_x(dx);
+            }
+            else if (sDY.valid())
+            {
+                float dy = eval_expr(&sDY);
+                mark->set_dir_y(dy);
+            }
         }
 
         void CtlMarker::notify(CtlPort *port)
@@ -171,6 +260,8 @@ namespace lsp
                 if (mark != NULL)
                     mark->set_value(pPort->get_value());
             }
+
+            trigger_expr();
         }
     } /* namespace ctl */
 } /* namespace lsp */

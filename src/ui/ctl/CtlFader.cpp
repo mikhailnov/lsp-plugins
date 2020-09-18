@@ -1,8 +1,22 @@
 /*
- * CtlFader.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 19 нояб. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 19 нояб. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/ctl/ctl.h>
@@ -19,6 +33,7 @@ namespace lsp
             pClass          = &metadata;
             pPort           = NULL;
             bLog            = false;
+            fDefaultValue   = 0.0f;
         }
         
         CtlFader::~CtlFader()
@@ -35,6 +50,7 @@ namespace lsp
 
             // Bind slots
             fader->slots()->bind(LSPSLOT_CHANGE, slot_change, this);
+            fader->slots()->bind(LSPSLOT_MOUSE_DBL_CLICK, slot_dbl_click, this);
         }
 
         void CtlFader::set(widget_attribute_t att, const char *value)
@@ -60,7 +76,7 @@ namespace lsp
                     break;
                 case A_DEFAULT:
                     if (fader != NULL)
-                        PARSE_FLOAT(value, fader->set_default_value(__));
+                        PARSE_FLOAT(value, fDefaultValue = __);
                     break;
                 case A_MIN:
                     if (fader != NULL)
@@ -182,6 +198,24 @@ namespace lsp
             return STATUS_OK;
         }
 
+        status_t CtlFader::slot_dbl_click(LSPWidget *sender, void *ptr, void *data)
+        {
+            CtlFader *_this     = static_cast<CtlFader *>(ptr);
+            if (_this != NULL)
+                _this->set_default_value();
+            return STATUS_OK;
+        }
+
+        void CtlFader::set_default_value()
+        {
+            LSPFader *fader = widget_cast<LSPFader>(pWidget);
+            if (fader == NULL)
+                return;
+
+            fader->set_value(fDefaultValue);
+            submit_value();
+        }
+
         void CtlFader::end()
         {
             // Ensure that widget is set
@@ -209,8 +243,7 @@ namespace lsp
                 fader->set_max_value(db_max);
                 fader->set_step(step * 10.0f);
                 fader->set_tiny_step(step);
-                fader->set_value(base * log(p->start));
-                fader->set_default_value(fader->value());
+                fDefaultValue   = base * log(p->start);
             }
             else if (is_discrete_unit(p->unit)) // Integer type
             {
@@ -226,8 +259,7 @@ namespace lsp
 
                 fader->set_step(step);
                 fader->set_tiny_step(step);
-                fader->set_value(p->start);
-                fader->set_default_value(p->start);
+                fDefaultValue   = p->start;
             }
             else if (bLog)  // Float and other values, logarithmic
             {
@@ -242,8 +274,7 @@ namespace lsp
                 fader->set_max_value(l_max);
                 fader->set_step(step * 10.0f);
                 fader->set_tiny_step(step);
-                fader->set_value(log(p->start));
-                fader->set_default_value(fader->value());
+                fDefaultValue   = log(p->start);
             }
             else // Float and other values, non-logarithmic
             {
@@ -251,9 +282,10 @@ namespace lsp
                 fader->set_max_value((p->flags & F_UPPER) ? p->max : 1.0f);
                 fader->set_tiny_step((p->flags & F_STEP) ? p->step : (fader->max_value() - fader->min_value()) * 0.01f);
                 fader->set_step(fader->tiny_step() * 10.0f);
-                fader->set_value(p->start);
-                fader->set_default_value(p->start);
+                fDefaultValue = p->start;
             }
+
+            fader->set_value(fDefaultValue);
         }
     
     } /* namespace ctl */

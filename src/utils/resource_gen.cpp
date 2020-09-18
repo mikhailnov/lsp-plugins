@@ -1,3 +1,24 @@
+/*
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
+ *
+ * This file is part of lsp-plugins
+ * Created on: 15 июл. 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -49,10 +70,10 @@ namespace lsp
             printf("Preprocessing resource file %s\n", resource->path);
             switch (resource->type)
             {
-                case RESOURCE_XML: return preprocess_xml_resource(resource, sdict);
-                case RESOURCE_3D_SCENE: return preprocess_3d_scene(resource, sdict, fdict);
-                case RESOURCE_PRESET: return preprocess_preset(resource, sdict, fdict);
-                case RESOURCE_JSON: return preprocess_json(resource, sdict, fdict);
+                case resource::RESOURCE_XML: return preprocess_xml_resource(resource, sdict);
+                case resource::RESOURCE_3D_SCENE: return preprocess_3d_scene(resource, sdict, fdict);
+                case resource::RESOURCE_PRESET: return preprocess_preset(resource, sdict, fdict);
+                case resource::RESOURCE_JSON: return preprocess_json(resource, sdict, fdict);
                 default: break;
             }
 
@@ -68,10 +89,10 @@ namespace lsp
             printf("Serializing resource file %s\n", resource->path);
             switch (resource->type)
             {
-                case RESOURCE_XML: return serialize_xml_resource(out, resource, dict);
-                case RESOURCE_3D_SCENE: return serialize_3d_scene(out, resource, dict, fdict);
-                case RESOURCE_PRESET: return serialize_preset(out, resource, dict, fdict);
-                case RESOURCE_JSON: return serialize_json(out, resource, dict, fdict);
+                case resource::RESOURCE_XML: return serialize_xml_resource(out, resource, dict);
+                case resource::RESOURCE_3D_SCENE: return serialize_3d_scene(out, resource, dict, fdict);
+                case resource::RESOURCE_PRESET: return serialize_preset(out, resource, dict, fdict);
+                case resource::RESOURCE_JSON: return serialize_json(out, resource, dict, fdict);
                 default: break;
             }
 
@@ -133,11 +154,11 @@ namespace lsp
                     continue;
 
                 // Check file type
-                int rtype = RESOURCE_UNKNOWN;
+                int rtype = resource::RESOURCE_UNKNOWN;
                 if (fattr.type == io::fattr_t::FT_REGULAR)
                 {
                     rtype = get_resource_type(ipath.get_utf8());
-                    if (rtype == RESOURCE_UNKNOWN)
+                    if (rtype == resource::RESOURCE_UNKNOWN)
                         continue;
                 }
                 else if (fattr.type != io::fattr_t::FT_DIRECTORY)
@@ -280,6 +301,8 @@ namespace lsp
             fprintf(out,    "// Resource definition\n");
             fprintf(out,    "namespace lsp\n");
             fprintf(out,    "{\n");
+            fprintf(out,    "namespace resource\n");
+            fprintf(out,    "{\n");
 
             // Convert XML files into CPP code
             cvector<xml_word_t> sdict;
@@ -338,10 +361,11 @@ namespace lsp
                     fprintf(out,    "\t\t{ \"%s\", builtin_resource%s, %d },\n", res->id, res->hex, res->type);
                 }
 
-                fprintf(out,    "\t\t{ NULL, NULL, %d }\n", RESOURCE_UNKNOWN);
+                fprintf(out,    "\t\t{ NULL, NULL, %d }\n", resource::RESOURCE_UNKNOWN);
                 fprintf(out,    "\t};\n\n");
 
-                fprintf(out,    "}\n"); // End of namespace
+                fprintf(out,    "} /* namespace resource */\n"); // End of namespace
+                fprintf(out,    "} /* namespace lsp */\n"); // End of namespace
             }
 
             // Free dictionary

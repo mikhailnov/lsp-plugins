@@ -1,8 +1,22 @@
 /*
- * defs.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 30 дек. 2015 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 30 дек. 2015 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef _CONTAINER_VST_DEFS_H_
@@ -56,9 +70,10 @@ typedef struct vst_state_header
 #define VST_GET_VERSION_STRNAME         "vst_get_lsp_build_version"
 
 #define LSP_VST_USER_MAGIC              CCONST('L', 'S', 'P', 'U')
-#define VST_PROGRAM_HDR_SIZE            (sizeof(fxProgram) - 2 * sizeof(VstInt32))
 #define VST_BANK_HDR_SKIP               (2*sizeof(VstInt32))
+#define VST_PROGRAM_HDR_SKIP            (2*sizeof(VstInt32))
 #define VST_BANK_HDR_SIZE               (sizeof(fxBank) - VST_BANK_HDR_SKIP)
+#define VST_PROGRAM_HDR_SIZE            (sizeof(fxProgram) - VST_PROGRAM_HDR_SKIP)
 #define VST_STATE_BUFFER_SIZE           (VST_BANK_HDR_SIZE + sizeof(vst_state))
 
 enum

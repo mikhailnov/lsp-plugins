@@ -27,27 +27,31 @@
 		"yaw": "Yaw",
 		"z_axis": "Z Axis"
 	},
-	
+
 	"Env_elope": "Env",
 	"Over_Sampling": "O/S",
 	"Over_Sampling:": "O/S:",
 	"Tri_gger": "Trg",
 	
 	"absolute_threshold": "Absolute",
-	
+
 	"active": "Active",
 	"actual_duration": "Actual\nDuration (s)",
+	
+	"alr": "ALR",
 	
 	"amplitude": "Amplitude",
 	
 	"att_ack": "Att",
 	"attack": "Attack",
 	"attack:db_ms": "Attack\n(dB, ms)",
+	"attack_release:ms_ms": "Attack,\nRelease\n(ms, ms)",
 	
 	"automatic_extension": "Automatic extension",
 	
 	"balance": "Balance",
 	
+	"band": "Band",
 	"band_hue": "Band, Hue",
 	
 	"bool": {
@@ -76,6 +80,7 @@
 		"M_ute": "M",
 		"OFF": "OFF",
 		"ON": "ON",
+		"P_hase": "P",
 		"R_ight": "R",
 		"R_ight:": "R:",
 		"S_ide": "S",
@@ -107,6 +112,7 @@
 		"on": "On",
 		"out": "Out",
 		"output": "Output",
+		"phase": "Phase",
 		"pitch": "Pitch",
 		"pitch_left": "Pitch Left",
 		"pitch_mid": "Pitch Mid",
@@ -118,13 +124,15 @@
 		"side": "Side",
 		"side_on": "Side on",
 		"solo": "Solo",
-		"solo_hold": "Solo/Hold"
+		"solo_hold": "Solo/Hold",
+		"volume": "Volume"
 	},
 	"channel": "Channel",
 	"channels": "Channels",
 	
 	"clear": "Clear",
 	
+	"contour:": "Contour:",
 	"controls": "Controls",
 	"ctl": "Ctl",
 	
@@ -150,7 +158,7 @@
 	"dither:": "Dither:",
 	"dithering": "Dithering",
 	
-	"dynamics": "Dynamis",
+	"dynamics": "Dynamics",
 	
 	"enable": "Enable",
 	
@@ -171,7 +179,7 @@
 		"tolerance": "Tolerance",
 		"window": "Window"
 	},
-	
+
 	"file": "File",
 	"file_list": "File list",
 	"file_name": "File name",
@@ -187,7 +195,7 @@
 		"H_ighC_ut": "HC",
 		"HCF": "HCF",
 		"HPF": "HPF",
-		"L_owC_ut": "LC", 
+		"L_owC_ut": "LC",
 		"LCF": "LCF",
 		"LPF": "LPF",
 		"bass": "Bass",
@@ -212,7 +220,7 @@
 		"curve": "CURVE",
 		"delay_line": "DELAY LINE",
 		"expansion": "EXPANSION",
-		"frequency": "FEQUENCY GRAPH",
+		"frequency": "FREQUENCY GRAPH",
 		"gating": "GATING",
 		"left_channel": "LEFT CHANNEL",
 		"oscillator_waveform": "OSCILLATOR_WAVEFORM",
@@ -232,12 +240,12 @@
 	"input_level:db": "Input Level (dB)",
 	"input:db": "Input (dB)",
 	"instrument_num": "Instrument #",
-	
+
 	"ir_equalizer": "IR equalizer",
 	
 	"knee": "Knee",
 	"knee_:db": "Knee\n(dB)",
-	
+
 	"latency:ms": "Latency (ms)",
 	"launch": "Launch",
 	"left": "Left",
@@ -340,6 +348,7 @@
 		"gate": "Gate",
 		"latency_detector": "Latency Detector",
 		"limiter": "Limiter",
+		"surge_filter": "Surge Filter",
 		"trigger": "Trigger"
 	},
 	
@@ -413,7 +422,7 @@
 	"sc_boost:": "SC boost:",
 	
 	"sc_preamp_makeup:db_db": "SC Preamp,\nMakeup\n(dB, dB)",
-	
+
 	"sel_time": "Sel time",
 	"setup": "Setup",
 	"search": "Search",
@@ -441,10 +450,15 @@
 		"P_hase": "P",
 		"S_ide": "S",
 		"amplitude": "Amplitude",
+		"clip": "Clip",
+		"clipping": "Clipping",
 		"dry": "Dry",
 		"dry:db": "Dry\n(dB)",
 		"dry_pan": "Dry pan",
 		"duty_ratio": "Duty Ratio",
+		"envelope": "Envleope",
+		"fade_in": "Fade in",
+		"fade_out": "Fade out",
 		"fall": "Fall",
 		"in_lr": "In L/R",
 		"invert": "Invert",
@@ -455,10 +469,14 @@
 		"pan_l": "Pan L",
 		"pan_left": "Pan Left",
 		"pan_r": "Pan R",
+		"pan_right": "Pan Right",
 		"peak": "Peak",
 		"phase": "Phase",
 		"positive_width": "Positive Width",
 		"raise": "Raise",
+		"reference": "Reference",
+		"relative": "Relative",
+		"rms": "RMS",
 		"stereo": "Stereo",
 		"width": "Width",
 		"wet": "Wet",
@@ -474,7 +492,7 @@
 		"idx": "{@id}",
 		"idx:": "{@id}:",
 		"num": "#"	
-	},	
+	},
 	"spectrogram": "Spectrogram",
 	"spread": "Spread",
 	
@@ -500,6 +518,7 @@
 	"thresh_gain:db_db": "Thresh, Gain\n(dB, dB)",
 	"thresh_old": "Thresh",
 	"thresh_old:db": "Thresh\n(dB)",
+	"thresh_zone:db_db": "Thresh,\nZone\n(dB, dB)",
 	
 	"time": "Time",
 	"time_:ms": "Time (ms)",
@@ -535,7 +554,8 @@
 		"fmt_value": "{@value}",
 		"selected": "Selected",
 		"worst": "Worst",
-		"x_k": "{@value}k"
+		"x_k": "{@value}k",
+		"x_khz": "{@value} kHz"
 	},
 	
 	"working_area": "Working area",

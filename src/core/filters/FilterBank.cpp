@@ -1,8 +1,22 @@
 /*
- * FilterBank.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 2 сент. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 2 сент. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/alloc.h>
@@ -15,6 +29,16 @@ namespace lsp
 {
     FilterBank::FilterBank()
     {
+        construct();
+    }
+
+    FilterBank::~FilterBank()
+    {
+        destroy();
+    }
+
+    void FilterBank::construct()
+    {
         vFilters    = NULL;
         vChains     = NULL;
         nItems      = 0;
@@ -24,25 +48,12 @@ namespace lsp
         vBackup     = NULL;
     }
 
-    FilterBank::~FilterBank()
-    {
-        destroy();
-    }
-
     void FilterBank::destroy()
     {
         if (vData != NULL)
-        {
             lsp_free(vData);
-            vData       = NULL;
-        }
 
-        vFilters    = NULL;
-        vChains     = NULL;
-        vBackup     = NULL;
-        nItems      = 0;
-        nMaxItems   = 0;
-        nLastItems  = -1;
+        construct();
     }
 
     bool FilterBank::init(size_t filters)
@@ -96,32 +107,14 @@ namespace lsp
         {
             biquad_x8_t *f = &b->x8;
 
-            f->a0[0]    = c[0].a0;
-            f->a0[1]    = c[1].a0;
-            f->a0[2]    = c[2].a0;
-            f->a0[3]    = c[3].a0;
-            f->a0[4]    = c[4].a0;
-            f->a0[5]    = c[5].a0;
-            f->a0[6]    = c[6].a0;
-            f->a0[7]    = c[7].a0;
-
-            f->a1[0]    = c[0].a1;
-            f->a1[1]    = c[1].a1;
-            f->a1[2]    = c[2].a1;
-            f->a1[3]    = c[3].a1;
-            f->a1[4]    = c[4].a1;
-            f->a1[5]    = c[5].a1;
-            f->a1[6]    = c[6].a1;
-            f->a1[7]    = c[7].a1;
-
-            f->a2[0]    = c[0].a2;
-            f->a2[1]    = c[1].a2;
-            f->a2[2]    = c[2].a2;
-            f->a2[3]    = c[3].a2;
-            f->a2[4]    = c[4].a2;
-            f->a2[5]    = c[5].a2;
-            f->a2[6]    = c[6].a2;
-            f->a2[7]    = c[7].a2;
+            f->b0[0]    = c[0].b0;
+            f->b0[1]    = c[1].b0;
+            f->b0[2]    = c[2].b0;
+            f->b0[3]    = c[3].b0;
+            f->b0[4]    = c[4].b0;
+            f->b0[5]    = c[5].b0;
+            f->b0[6]    = c[6].b0;
+            f->b0[7]    = c[7].b0;
 
             f->b1[0]    = c[0].b1;
             f->b1[1]    = c[1].b1;
@@ -141,6 +134,24 @@ namespace lsp
             f->b2[6]    = c[6].b2;
             f->b2[7]    = c[7].b2;
 
+            f->a1[0]    = c[0].a1;
+            f->a1[1]    = c[1].a1;
+            f->a1[2]    = c[2].a1;
+            f->a1[3]    = c[3].a1;
+            f->a1[4]    = c[4].a1;
+            f->a1[5]    = c[5].a1;
+            f->a1[6]    = c[6].a1;
+            f->a1[7]    = c[7].a1;
+
+            f->a2[0]    = c[0].a2;
+            f->a2[1]    = c[1].a2;
+            f->a2[2]    = c[2].a2;
+            f->a2[3]    = c[3].a2;
+            f->a2[4]    = c[4].a2;
+            f->a2[5]    = c[5].a2;
+            f->a2[6]    = c[6].a2;
+            f->a2[7]    = c[7].a2;
+
             c          += 8;
             b          ++;
             items      -= 8;
@@ -151,20 +162,10 @@ namespace lsp
         {
             biquad_x4_t *f = &b->x4;
 
-            f->a0[0]    = c[0].a0;
-            f->a0[1]    = c[1].a0;
-            f->a0[2]    = c[2].a0;
-            f->a0[3]    = c[3].a0;
-
-            f->a1[0]    = c[0].a1;
-            f->a1[1]    = c[1].a1;
-            f->a1[2]    = c[2].a1;
-            f->a1[3]    = c[3].a1;
-
-            f->a2[0]    = c[0].a2;
-            f->a2[1]    = c[1].a2;
-            f->a2[2]    = c[2].a2;
-            f->a2[3]    = c[3].a2;
+            f->b0[0]    = c[0].b0;
+            f->b0[1]    = c[1].b0;
+            f->b0[2]    = c[2].b0;
+            f->b0[3]    = c[3].b0;
 
             f->b1[0]    = c[0].b1;
             f->b1[1]    = c[1].b1;
@@ -176,6 +177,16 @@ namespace lsp
             f->b2[2]    = c[2].b2;
             f->b2[3]    = c[3].b2;
 
+            f->a1[0]    = c[0].a1;
+            f->a1[1]    = c[1].a1;
+            f->a1[2]    = c[2].a1;
+            f->a1[3]    = c[3].a1;
+
+            f->a2[0]    = c[0].a2;
+            f->a2[1]    = c[1].a2;
+            f->a2[2]    = c[2].a2;
+            f->a2[3]    = c[3].a2;
+
             c          += 4;
             b          ++;
         }
@@ -185,17 +196,17 @@ namespace lsp
         {
             biquad_x2_t *f = &b->x2;
 
-            f->a0[0]    = c[0].a0;
-            f->a0[1]    = c[1].a0;
-            f->a1[0]    = c[0].a1;
-            f->a1[1]    = c[1].a1;
-            f->a2[0]    = c[0].a2;
-            f->a2[1]    = c[1].a2;
-
+            f->b0[0]    = c[0].b0;
+            f->b0[1]    = c[1].b0;
             f->b1[0]    = c[0].b1;
             f->b1[1]    = c[1].b1;
             f->b2[0]    = c[0].b2;
             f->b2[1]    = c[1].b2;
+
+            f->a1[0]    = c[0].a1;
+            f->a1[1]    = c[1].a1;
+            f->a2[0]    = c[0].a2;
+            f->a2[1]    = c[1].a2;
 
             f->p[0]     = 0.0f;
             f->p[1]     = 0.0f;
@@ -311,4 +322,97 @@ namespace lsp
         }
     }
 
+    void FilterBank::dump(IStateDumper *v) const
+    {
+        size_t ni       = nItems;
+        size_t nc       = (ni >> 3) + ((ni >> 2) & 1) + ((ni >> 1) & 1) + (ni & 1);
+        biquad_t *b     = vFilters;
+
+        v->begin_array("vFilters", vFilters, nc);
+        while (ni >= 8)
+        {
+            v->begin_object(b, sizeof(biquad_t));
+            {
+                v->writev("b0", b->x8.b0, 8);
+                v->writev("b1", b->x8.b1, 8);
+                v->writev("b2", b->x8.b2, 8);
+                v->writev("a1", b->x8.a1, 8);
+                v->writev("a2", b->x8.a2, 8);
+            }
+            v->end_object();
+            b       ++;
+            ni      -= 8;
+        }
+        if (ni & 4)
+        {
+            v->begin_object(b, sizeof(biquad_t));
+            {
+                v->writev("b0", b->x4.b0, 4);
+                v->writev("b1", b->x4.b1, 4);
+                v->writev("b2", b->x4.b2, 4);
+                v->writev("a1", b->x4.a1, 4);
+                v->writev("a2", b->x4.a2, 4);
+            }
+            v->end_object();
+            b       ++;
+            ni      -= 8;
+        }
+        if (ni & 2)
+        {
+            v->begin_object(b, sizeof(biquad_t));
+            {
+                v->writev("b0", b->x2.b0, 2);
+                v->writev("b1", b->x2.b1, 2);
+                v->writev("b2", b->x2.b2, 2);
+                v->writev("a1", b->x2.a1, 2);
+                v->writev("a2", b->x2.a2, 2);
+                v->writev("p", b->x2.p, 2);
+            }
+            v->end_object();
+            b       ++;
+            ni      -= 8;
+        }
+        if (ni & 1)
+        {
+            v->begin_object(b, sizeof(biquad_t));
+            {
+                v->write("b0", b->x1.b0);
+                v->write("b1", b->x1.b1);
+                v->write("b2", b->x1.b2);
+                v->write("a1", b->x1.a1);
+                v->write("a2", b->x1.a2);
+                v->write("p0", b->x1.p0);
+                v->write("p1", b->x1.p1);
+                v->write("p2", b->x1.p2);
+            }
+            v->end_object();
+            b       ++;
+            ni      -= 8;
+        }
+        v->end_array();
+
+        v->begin_array("vChains", vChains, nItems);
+        for (size_t i=0; i<nItems; ++i)
+        {
+            biquad_x1_t *bq = &vChains[i];
+            v->begin_object(bq, sizeof(biquad_x1_t));
+            {
+                v->write("b0", bq->b0);
+                v->write("b1", bq->b1);
+                v->write("b2", bq->b2);
+                v->write("a1", bq->a1);
+                v->write("a2", bq->a2);
+                v->write("p0", bq->p0);
+                v->write("p1", bq->p1);
+                v->write("p2", bq->p2);
+            }
+            v->end_object();
+        }
+        v->end_array();
+        v->write("nItems", nItems);
+        v->write("nMaxItems", nMaxItems);
+        v->write("nLastItems", nLastItems);
+        v->write("vBackup", vBackup);
+        v->write("vData", vData);
+    }
 } /* namespace lsp */

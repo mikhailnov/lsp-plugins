@@ -1,8 +1,22 @@
 /*
- * decode.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 8 сент. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 8 сент. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/ws/x11/ws.h>
@@ -13,13 +27,13 @@ namespace lsp
     {
         namespace x11
         {
-#pragma pack(push, 1)
-typedef struct keymapping_t
-{
-    uint16_t    keysym;
-    uint16_t    unicode;
-} keymappint_t;
-#pragma pack(pop)
+            #pragma pack(push, 1)
+            typedef struct keymapping_t
+            {
+                uint16_t    keysym;
+                uint16_t    unicode;
+            } keymappint_t;
+            #pragma pack(pop)
 
             keymapping_t keytable[] =
             {
@@ -937,14 +951,14 @@ typedef struct keymapping_t
             mcb_t decode_mcb(size_t code)
             {
                 if ((code >= 1) && (code <= 3))
-                    return mcb_t(code);
+                    return mcb_t(MCB_LEFT + code - 1);
                 return MCB_NONE;
             }
 
             mcd_t decode_mcd(size_t code)
             {
                 if ((code >= 4) && (code <= 7))
-                    return mcd_t(code - 3);
+                    return mcd_t(MCD_UP + code - 4);
                 return MCD_NONE;
             }
 

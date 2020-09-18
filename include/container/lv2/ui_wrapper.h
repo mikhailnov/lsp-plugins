@@ -1,8 +1,22 @@
 /*
- * wrapper.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 12 янв. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 12 янв. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef CONTAINER_LV2_UI_WRAPPER_H_
@@ -119,15 +133,47 @@ namespace lsp
                 root->slots()->bind(LSPSLOT_HIDE, slot_ui_hide, this);
                 root->slots()->bind(LSPSLOT_RESIZE, slot_ui_resize, this);
 
-                pUI->show();
+                // Sync state of UI ports with the UI
+                for (size_t i=0, n=vUIPorts.size(); i<n; ++i)
+                {
+                    LV2UIPort *p = vUIPorts.at(i);
+                    if (p != NULL)
+                        p->notify_all();
+                }
+
+                // Resize UI and show
                 root->size_request(&sr);
                 root->resize(sr.nMinWidth, sr.nMinHeight);
-                realize_t r;
-                r.nLeft     = 0;
-                r.nTop      = 0;
-                r.nWidth    = sr.nMinWidth;
-                r.nHeight   = sr.nMinHeight;
-                ui_resize(&r);
+                pExt->resize_ui(sr.nMinWidth, sr.nMinHeight);
+
+                pUI->show();
+            }
+
+            int resize_ui(ssize_t width, ssize_t height)
+            {
+                LSPWindow *root = (pUI != NULL) ? pUI->root_window() : NULL;
+                if (root == NULL)
+                    return 0;
+
+                // Resize UI and show
+                lsp_trace("width=%d, height=%d", int(width), int(height));
+                size_request_t sr;
+                root->size_request(&sr);
+
+                // Apply size constraints
+                if ((sr.nMaxWidth >= 0) && (width > sr.nMaxWidth))
+                    width = sr.nMaxWidth;
+                if ((sr.nMaxHeight >= 0) && (height > sr.nMaxHeight))
+                    height = sr.nMaxHeight;
+
+                if ((sr.nMinWidth >= 0) && (width < sr.nMinWidth))
+                    width = sr.nMinWidth;
+                if ((sr.nMinHeight >= 0) && (height < sr.nMinHeight))
+                    height = sr.nMinHeight;
+
+                // Perform resize
+                root->resize(width, height);
+                return 0;
             }
 
             void ui_activated()
@@ -176,15 +222,6 @@ namespace lsp
                         pExt->ui_disconnect_from_plugin();
                     bConnected = false;
                 }
-            }
-
-            void ui_resize(const realize_t *r)
-            {
-                lsp_trace("UI has been resized");
-                if ((pUI == NULL) || (pExt == NULL))
-                    return;
-
-                pExt->resize_ui(r->nWidth, r->nHeight);
             }
 
             void destroy()
@@ -243,8 +280,8 @@ namespace lsp
     //                lsp_trace("id=%d, size=%d, format=%d, buf=%p, port_id=%s", int(id), int(size), int(format), buf, p->metadata()->id);
                     if (p != NULL)
                     {
-                        lsp_trace("notify id=%d, size=%d, format=%d, buf=%p value=%f",
-                            int(id), int(size), int(format), buf, *(reinterpret_cast<const float *>(buf)));
+//                        lsp_trace("notify id=%d, size=%d, format=%d, buf=%p value=%f",
+//                            int(id), int(size), int(format), buf, *(reinterpret_cast<const float *>(buf)));
 
                         p->notify(buf, format, size);
                         p->notify_all();
@@ -491,6 +528,11 @@ namespace lsp
 
                 return 0;
             }
+
+            void dump_state_request()
+            {
+                pExt->request_state_dump();
+            }
     };
 
     status_t LV2UIWrapper::slot_ui_show(LSPWidget *sender, void *ptr, void *data)
@@ -500,17 +542,59 @@ namespace lsp
         return STATUS_OK;
     }
 
+    status_t LV2UIWrapper::slot_ui_resize(LSPWidget *sender, void *ptr, void *data)
+    {
+        LV2UIWrapper *_this = static_cast<LV2UIWrapper *>(ptr);
+
+        LSPWindow *wnd = _this->pUI->root_window();
+        if (wnd == NULL)
+            return STATUS_OK;
+
+        realize_t r;
+        size_request_t sr;
+        bool resize = false;
+
+        // Get actual geometry and size constraints
+        wnd->get_dimensions(&r);
+        wnd->size_request(&sr);
+        lsp_trace("r  = {%d %d %d %d}", int(r.nLeft), int(r.nTop), int(r.nWidth), int(r.nHeight));
+        lsp_trace("sr = {%d %d %d %d}", int(sr.nMinWidth), int(sr.nMinHeight), int(sr.nMaxWidth), int(sr.nMaxHeight));
+
+        if ((sr.nMaxWidth > 0) && (r.nWidth > sr.nMaxWidth))
+        {
+            r.nWidth        = sr.nMaxWidth;
+            resize          = true;
+        }
+        if ((sr.nMaxHeight > 0) && (r.nWidth > sr.nMaxHeight))
+        {
+            r.nHeight       = sr.nMaxHeight;
+            resize          = true;
+        }
+        if ((sr.nMinWidth > 0) && (r.nWidth < sr.nMinWidth))
+        {
+            r.nWidth        = sr.nMinWidth;
+            resize          = true;
+        }
+        if ((sr.nMinHeight > 0) && (r.nHeight < sr.nMinHeight))
+        {
+            r.nHeight       = sr.nMinHeight;
+            resize          = true;
+        }
+
+        lsp_trace("final r = {%d %d %d %d}, resize=%s",
+                int(r.nLeft), int(r.nTop), int(r.nWidth), int(r.nHeight),
+                (resize) ? "true" : "false"
+            );
+
+        if (resize)
+            _this->pExt->resize_ui(r.nWidth, r.nHeight);
+        return STATUS_OK;
+    }
+
     status_t LV2UIWrapper::slot_ui_hide(LSPWidget *sender, void *ptr, void *data)
     {
         LV2UIWrapper *_this = static_cast<LV2UIWrapper *>(ptr);
         _this->ui_deactivated();
-        return STATUS_OK;
-    }
-
-    status_t LV2UIWrapper::slot_ui_resize(LSPWidget *sender, void *ptr, void *data)
-    {
-        LV2UIWrapper *_this = static_cast<LV2UIWrapper *>(ptr);
-        _this->ui_resize(static_cast<realize_t *>(data));
         return STATUS_OK;
     }
 
@@ -685,32 +769,9 @@ namespace lsp
 
     void LV2UIWrapper::receive_atom(const LV2_Atom_Object * obj)
     {
-        if ((obj->body.id == pExt->uridState) && (obj->body.otype == pExt->uridStateChange)) // State change
+        if (obj->body.otype == pExt->uridPatchSet)
         {
-            lsp_trace("Received STATE_CHANGE primitive");
-            for (
-                LV2_Atom_Property_Body *body = lv2_atom_object_begin(&obj->body) ;
-                !lv2_atom_object_is_end(&obj->body, obj->atom.size, body) ;
-                body = lv2_atom_object_next(body)
-            )
-            {
-//                lsp_trace("body->key (%d) = %s", int(body->key), pExt->unmap_urid(body->key));
-//                lsp_trace("body->value.type (%d) = %s", int(body->value.type), pExt->unmap_urid(body->value.type));
-
-                // Try to find the corresponding port
-                LV2UIPort *p = find_by_urid(vUIPorts, body->key);
-                if ((p != NULL) && (p->get_type_urid() == body->value.type))
-                {
-                    p->deserialize(&body->value);
-                    p->notify_all();
-                }
-                else
-                    lsp_warn("Port id=%d (%s) not found or has bad type", int(body->key), pExt->unmap_urid(body->key));
-            }
-        }
-        else if (obj->body.otype == pExt->uridPatchSet)
-        {
-            lsp_trace("received PATCH_SET request");
+            lsp_trace("received PATCH_SET message");
 
             // Parse atom body
             LV2_Atom_Property_Body *body    = lv2_atom_object_begin(&obj->body);

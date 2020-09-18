@@ -1,8 +1,22 @@
 /*
- * CtlLed.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 10 июл. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 10 июл. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/ctl/ctl.h>
@@ -86,17 +100,23 @@ namespace lsp
                 return;
 
             bool on = false;
-            if (sActivity.valid())
+            if ((bActivitySet) && (sActivity.valid()))
             {
                 float value = sActivity.evaluate();
+                on = value >= 0.5f;
+            }
+            else if (pPort != NULL)
+            {
+                float value = pPort->get_value();
                 on = value >= 0.5f;
             }
             else
                 on = abs(fValue - fKey) <= CMP_TOLERANCE;
 
             // Update lighting
-            LSPLed *led = static_cast<LSPLed *>(pWidget);
-            led->set_on(on ^ bInvert);
+            LSPLed *led     = widget_cast<LSPLed>(pWidget);
+            if (led != NULL)
+                led->set_on(on ^ bInvert);
         }
 
         void CtlLed::notify(CtlPort *port)
@@ -112,18 +132,6 @@ namespace lsp
         void CtlLed::end()
         {
             CtlWidget::end();
-
-            if ((!bActivitySet) && (pPort != NULL))
-            {
-                char *str = NULL;
-                int n = asprintf(&str, ":%s ieq %d", pPort->id(), int(fKey));
-                if ((n >= 0) && (str != NULL))
-                {
-                    sActivity.parse(str);
-                    free(str);
-                }
-            }
-
             update_value();
         }
 

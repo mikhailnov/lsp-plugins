@@ -1,8 +1,22 @@
 /*
- * gate.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 7 нояб. 2016 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 7 нояб. 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <core/types.h>
@@ -41,6 +55,15 @@ namespace lsp
         { NULL, NULL }
     };
 
+    static const port_item_t gate_filter_slope[] =
+    {
+        { "off",        "eq.slope.off"      },
+        { "12 dB/oct",  "eq.slope.12dbo"    },
+        { "24 dB/oct",  "eq.slope.24dbo"    },
+        { "36 dB/oct",  "eq.slope.36dbo"    },
+        { NULL, NULL }
+    };
+
     #define GATE_COMMON     \
         BYPASS,             \
         IN_GAIN,            \
@@ -57,7 +80,11 @@ namespace lsp
         CONTROL("sla", "Sidechain lookahead", U_MSEC, gate_base_metadata::LOOKAHEAD), \
         SWITCH("scl", "Sidechain listen", 0.0f), \
         LOG_CONTROL("scr", "Sidechain reactivity", U_MSEC, gate_base_metadata::REACTIVITY), \
-        AMP_GAIN100("scp", "Sidechain preamp", GAIN_AMP_0_DB)
+        AMP_GAIN100("scp", "Sidechain preamp", GAIN_AMP_0_DB), \
+        COMBO("shpm", "High-pass filter mode", 0, gate_filter_slope),      \
+        LOG_CONTROL("shpf", "High-pass filter frequency", U_HZ, gate_base_metadata::HPF),   \
+        COMBO("slpm", "Low-pass filter mode", 0, gate_filter_slope),      \
+        LOG_CONTROL("slpf", "Low-pass filter frequency", U_HZ, gate_base_metadata::LPF)
 
     #define GATE_SC_MONO_CHANNEL \
         COMBO("sci", "Sidechain input", gate_base_metadata::SC_TYPE_DFL, gate_sc_type), \
@@ -69,7 +96,11 @@ namespace lsp
         SWITCH("scl" id, "Sidechain listen" label, 0.0f), \
         COMBO("scs" id, "Sidechain source" label, gate_base_metadata::SC_SOURCE_DFL, gate_sc_sources), \
         LOG_CONTROL("scr" id, "Sidechain reactivity" label, U_MSEC, gate_base_metadata::REACTIVITY), \
-        AMP_GAIN100("scp" id, "Sidechain preamp" label, GAIN_AMP_0_DB)
+        AMP_GAIN100("scp" id, "Sidechain preamp" label, GAIN_AMP_0_DB), \
+        COMBO("shpm" id, "High-pass filter mode" label, 0, gate_filter_slope),      \
+        LOG_CONTROL("shpf" id, "High-pass filter frequency" label, U_HZ, gate_base_metadata::HPF),   \
+        COMBO("slpm" id, "Low-pass filter mode" label, 0, gate_filter_slope),      \
+        LOG_CONTROL("slpf" id, "Low-pass filter frequency" label, U_HZ, gate_base_metadata::LPF)
 
     #define GATE_SC_STEREO_CHANNEL(id, label) \
         COMBO("sci" id, "Sidechain input" label, gate_base_metadata::SC_TYPE_DFL, gate_sc_type), \
@@ -77,8 +108,8 @@ namespace lsp
 
     #define GATE_CHANNEL(id, label) \
         SWITCH("gh" id, "Hysteresis" label, 0.0f), \
-        LOG_CONTROL("gt" id, "Threshold" label, U_GAIN_AMP, gate_base_metadata::THRESHOLD), \
-        LOG_CONTROL("gz" id, "Zone size" label, U_GAIN_AMP, gate_base_metadata::ZONE), \
+        LOG_CONTROL("gt" id, "Curve threshold" label, U_GAIN_AMP, gate_base_metadata::THRESHOLD), \
+        LOG_CONTROL("gz" id, "Curve zone size" label, U_GAIN_AMP, gate_base_metadata::ZONE), \
         LOG_CONTROL("ht" id, "Hysteresis threshold" label, U_GAIN_AMP, gate_base_metadata::H_THRESHOLD), \
         LOG_CONTROL("hz" id, "Hysteresis zone size" label, U_GAIN_AMP, gate_base_metadata::ZONE), \
         LOG_CONTROL("at" id, "Attack" label, U_MSEC, gate_base_metadata::ATTACK_TIME), \
@@ -227,7 +258,7 @@ namespace lsp
         "gate_mono",
         "ur0e",
         LSP_GATE_BASE + 0,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         gate_classes,
         E_INLINE_DISPLAY,
         gate_mono_ports,
@@ -245,7 +276,7 @@ namespace lsp
         "gate_stereo",
         "wg4o",
         LSP_GATE_BASE + 1,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         gate_classes,
         E_INLINE_DISPLAY,
         gate_stereo_ports,
@@ -263,7 +294,7 @@ namespace lsp
         "gate_lr",
         "icmw",
         LSP_GATE_BASE + 2,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         gate_classes,
         E_INLINE_DISPLAY,
         gate_lr_ports,
@@ -281,7 +312,7 @@ namespace lsp
         "gate_ms",
         "zci1",
         LSP_GATE_BASE + 3,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         gate_classes,
         E_INLINE_DISPLAY,
         gate_ms_ports,
@@ -300,7 +331,7 @@ namespace lsp
         "sc_gate_mono",
         "nnz2",
         LSP_GATE_BASE + 4,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         gate_classes,
         E_INLINE_DISPLAY,
         sc_gate_mono_ports,
@@ -336,7 +367,7 @@ namespace lsp
         "sc_gate_lr",
         "fmxo",
         LSP_GATE_BASE + 6,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         gate_classes,
         E_INLINE_DISPLAY,
         sc_gate_lr_ports,
@@ -354,7 +385,7 @@ namespace lsp
         "sc_gate_ms",
         "l6lc",
         LSP_GATE_BASE + 7,
-        LSP_VERSION(1, 0, 1),
+        LSP_VERSION(1, 0, 2),
         gate_classes,
         E_INLINE_DISPLAY,
         sc_gate_ms_ports,

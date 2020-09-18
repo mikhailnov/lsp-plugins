@@ -1,8 +1,22 @@
 /*
- * LSPDot.cpp
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 19 июл. 2017 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 19 июл. 2017 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <ui/tk/tk.h>
@@ -347,17 +361,18 @@ namespace lsp
             if (cv == NULL)
                 return false;
 
-    //        lsp_trace("x=%d, y=%d, cv_left=%d, cv_top=%d, real_x=%d, real_y=%d",
-    //                int(x), int(y), int(cv->canvasLeft()), int(cv->canvasTop()), int(nRealX), int(nRealY)
-    //               );
+//            lsp_trace("x=%d, y=%d, cv_left=%d, cv_top=%d, real_x=%d, real_y=%d",
+//                    int(x), int(y), int(cv->canvas_left()), int(cv->canvas_top()), int(nRealX), int(nRealY)
+//                   );
 
             float dx    = x - cv->canvas_left() - nRealX;
             float dy    = y - cv->canvas_top() - nRealY;
             float R     = nSize;
+            bool match  = (dx*dx + dy*dy) <= R*R;
 
-    //        lsp_trace("dx=%f, dy=%f", dx, dy);
+//            lsp_trace("dx=%f, dy=%f, r=%f, match=%s", dx, dy, R, (match) ? "true" : "false");
 
-            return (dx*dx + dy*dy) <= R*R;
+            return match;
         }
 
         status_t LSPDot::on_mouse_down(const ws_event_t *e)

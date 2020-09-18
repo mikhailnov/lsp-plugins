@@ -1,8 +1,22 @@
 /*
- * para_equalizer_ui.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 10 сент. 2019 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 10 сент. 2019 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef UI_PLUGINS_PARAEQUALIZERUI_H_
@@ -27,6 +41,7 @@ namespace lsp
             static status_t slot_fetch_rew_path(LSPWidget *sender, void *ptr, void *data);
             static status_t slot_commit_rew_path(LSPWidget *sender, void *ptr, void *data);
 
+        protected:
             status_t    import_rew_file(const LSPString *path);
             void        set_port_value(const char *base, size_t id, float value);
 

@@ -1,8 +1,22 @@
 /*
- * msmatrix.h
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
  *
- *  Created on: 14 янв. 2020 г.
- *      Author: sadko
+ * This file is part of lsp-plugins
+ * Created on: 14 янв. 2020 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
  */
 
 #ifndef DSP_ARCH_X86_AVX_MSMATRIX_H_
@@ -20,11 +34,11 @@ namespace avx
         ARCH_X86_ASM(
             __ASM_EMIT("xor             %[off], %[off]")
             __ASM_EMIT("vmovaps         %[X_HALF], %%ymm7")
-            // 16x blocks
             __ASM_EMIT32("subl          $16, %[count]")
             __ASM_EMIT64("sub           $16, %[count]")
             __ASM_EMIT("vmovaps         %%ymm7, %%ymm6")
             __ASM_EMIT("jb              2f")
+            // 16x blocks
             __ASM_EMIT("1:")
             __ASM_EMIT("vmulps          0x00(%[left], %[off]), %%ymm6, %%ymm0")     // ymm0 = l*0.5
             __ASM_EMIT("vmulps          0x20(%[left], %[off]), %%ymm7, %%ymm1")
@@ -101,10 +115,10 @@ namespace avx
     #define LR_TO_PART(P, L, R, OP) \
             __ASM_EMIT("xor             %[off], %[off]") \
             __ASM_EMIT("vmovaps         %[X_HALF], %%ymm7") \
-            /*  32x blocks */ \
             __ASM_EMIT("sub             $32, %[count]") \
-            __ASM_EMIT("jb              2f") \
             __ASM_EMIT("vmovaps         %%ymm7, %%ymm6") \
+            __ASM_EMIT("jb              2f") \
+            /*  32x blocks */ \
             __ASM_EMIT("1:") \
             __ASM_EMIT("vmovups         0x00(%[" L "], %[off]), %%ymm0")                /*  ymm0 = l */ \
             __ASM_EMIT("vmovups         0x20(%[" L "], %[off]), %%ymm1") \

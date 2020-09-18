@@ -1,4 +1,24 @@
-//#include <gtk/gtk.h>
+/*
+ * Copyright (C) 2020 Linux Studio Plugins Project <https://lsp-plug.in/>
+ *           (C) 2020 Vladimir Sadovnikov <sadko4u@gmail.com>
+ *
+ * This file is part of lsp-plugins
+ * Created on: 11 мая 2016 г.
+ *
+ * lsp-plugins is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * lsp-plugins is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with lsp-plugins. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <core/types.h>
 
 #include <jack/jack.h>
@@ -150,10 +170,12 @@ namespace lsp
         // If we are connected - do usual stuff
         if (jw->connected())
         {
-            wrapper->pWrapper->transfer_dsp_to_ui();
             if (!(wrapper->nSync++))
                 wrapper->pWindow->query_resize();
         }
+
+        // Transfer changes from DSP to UI
+        wrapper->pWrapper->transfer_dsp_to_ui();
 
         return STATUS_OK;
     }
@@ -203,6 +225,7 @@ namespace lsp
 
             // Do UI interaction
             lsp_trace("Calling main function");
+            w.show_ui();
             pui->main();
             tmr.cancel();
 
